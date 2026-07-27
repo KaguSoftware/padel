@@ -13,6 +13,7 @@ import {
   ShelfMark,
   StaffMark,
 } from "@/ui/marks";
+import { ConsoleMobileNav } from "./ConsoleMobileNav";
 import { RoleSwitcher } from "./RoleSwitcher";
 
 /**
@@ -109,29 +110,25 @@ export default async function ConsoleLayout({
           </div>
         </aside>
 
-        {/* Mobile: the same rail along the bottom edge, within thumb reach.
-            EVERY destination is here — a rail that silently drops the last
-            entries is a rail that hides half the product on a phone. */}
-        <nav className="safe-bottom scroll-x fixed inset-x-0 bottom-0 z-40 flex border-t border-line/20 bg-board md:hidden">
-          {NAV.map(({ href, key, Mark }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex min-h-15 min-w-[4.75rem] shrink-0 flex-1 flex-col items-center justify-center gap-1 px-2 py-2 text-line/75 active:bg-line/10"
-            >
-              <Mark size={18} className="text-line-dim" />
-              <span className="font-board text-[9px] uppercase leading-none tracking-[0.1em]">
-                {t(key)}
-              </span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* The bar's height is reserved here, so the last row of any page is
-            reachable rather than trapped under it. */}
-        <main className="pad-for-bar min-w-0 max-w-full flex-1 self-stretch md:pb-0">
-          {children}
-        </main>
+        <div className="flex min-w-0 max-w-full flex-1 flex-col self-stretch">
+          <ConsoleMobileNav
+            locale={locale}
+            labels={Object.fromEntries(NAV.map((n) => [n.key, t(n.key)]))}
+            claims={claims}
+            switchRoleLabel={tc("switchRole")}
+            signedInAs={tc("signedInAs")}
+            roleLabels={{
+              owner: tc("roles.owner"),
+              manager: tc("roles.manager"),
+              staff: tc("roles.staff"),
+              coach: tc("roles.coach"),
+              player: tc("roles.player"),
+            }}
+            languageLabel={t("language")}
+            menuLabel={tc("menu")}
+          />
+          <main className="min-w-0 flex-1">{children}</main>
+        </div>
       </div>
     </TickerProvider>
   );

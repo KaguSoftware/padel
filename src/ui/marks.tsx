@@ -203,6 +203,17 @@ export function CourtsMark({ className, size = 20 }: P) {
   );
 }
 
+/** A locked door — a module this role may not open. */
+export function LockMark({ className, size = 20 }: P) {
+  return (
+    <Svg className={className} size={size}>
+      <rect x="5" y="10.5" width="14" height="10" {...S} />
+      <path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" {...S} />
+      <line x1="12" y1="14" x2="12" y2="17" {...S} />
+    </Svg>
+  );
+}
+
 /** Perforation tear, used where a stub detaches. */
 export function TearMark({ className, size = 20 }: P) {
   return (

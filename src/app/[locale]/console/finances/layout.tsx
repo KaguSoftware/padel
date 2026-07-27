@@ -27,17 +27,43 @@ export default async function FinancesLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, claims] = await Promise.all([getTranslations("nav"), getClaims()]);
+  const [t, tc, claims] = await Promise.all([
+    getTranslations("nav"),
+    getTranslations("common"),
+    getClaims(),
+  ]);
   const role = claims?.role ?? "player";
 
-  // The sub-nav only offers what this person can actually open. A rail full of
-  // doors that answer "not your board" is worse than a shorter rail.
+  // Every module is listed, always — including the ones this role cannot open.
+  // Filtering them out left a front-desk session showing a lone "Cash Book",
+  // which reads as a half-built product rather than as a permission.
+  const managerOnly = `${tc("roles.manager")} · ${tc("roles.owner")}`;
   const items = [
-    { href: "/console/finances/till", label: t("till"), show: can(role, "close_till") },
-    { href: "/console/finances/ledgers", label: t("reports"), show: can(role, "view_reports") },
-    { href: "/console/finances/rates", label: t("pricing"), show: can(role, "edit_pricing") },
-    { href: "/console/finances/audit", label: t("audit"), show: can(role, "view_audit") },
-  ].filter((i) => i.show);
+    {
+      href: "/console/finances/till",
+      label: t("till"),
+      allowed: can(role, "close_till"),
+      needs: tc("roles.staff"),
+    },
+    {
+      href: "/console/finances/ledgers",
+      label: t("reports"),
+      allowed: can(role, "view_reports"),
+      needs: managerOnly,
+    },
+    {
+      href: "/console/finances/rates",
+      label: t("pricing"),
+      allowed: can(role, "edit_pricing"),
+      needs: managerOnly,
+    },
+    {
+      href: "/console/finances/audit",
+      label: t("audit"),
+      allowed: can(role, "view_audit"),
+      needs: managerOnly,
+    },
+  ];
 
   return (
     <div className="court-world min-h-dvh bg-court-deep">

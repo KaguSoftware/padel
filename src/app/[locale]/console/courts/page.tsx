@@ -5,6 +5,7 @@ import { rowsOrThrow } from "@/data/query";
 import { addDaysToLocalDate, todayInDubai } from "@/lib/time";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
 import { CourtMark } from "@/ui/marks";
+import { CourtPlate } from "@/ui/court";
 import { Panel } from "@/ui/primitives";
 import { Stamp } from "@/ui/Stamp";
 
@@ -50,14 +51,21 @@ export default async function CourtsPage({
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {courts.map((c) => (
-            <article key={c.id} className="slip bg-transparent p-4">
-              <div className="flex items-start justify-between gap-2">
-                <h2 className="painted text-[21px] leading-none">
+            <article
+              key={c.id}
+              className="glass-pane relative min-h-44 overflow-hidden p-4"
+            >
+              <CourtPlate
+                n={c.ordinal}
+                className="pointer-events-none absolute -end-2 -top-4 text-[5.5rem]"
+              />
+              <div className="relative flex items-start justify-between gap-2">
+                <h2 className="painted text-[19px] leading-none">
                   {ar ? c.nameAr : c.name}
                 </h2>
-                <CourtMark size={28} className="text-line-dim" />
+                <CourtMark size={26} className="shrink-0 text-line-dim" />
               </div>
-              <dl className="mt-3 space-y-1 font-board text-[11px] uppercase tracking-[0.08em] text-line-dim">
+              <dl className="relative mt-3 space-y-1 font-board text-[11px] uppercase tracking-[0.08em] text-line-dim">
                 <div className="flex justify-between gap-2">
                   <dt>{t("courts.surface")}</dt>
                   <dd className="text-line">
@@ -73,7 +81,7 @@ export default async function CourtsPage({
                   </dd>
                 </div>
               </dl>
-              <div className="mt-3 flex flex-wrap gap-1">
+              <div className="relative mt-3 flex flex-wrap gap-1">
                 {c.tags.map((tag) => (
                   <span
                     key={tag}
@@ -120,8 +128,8 @@ export default async function CourtsPage({
             ))}
           </LedgerTable>
 
-          <h3 className="mt-6 border-b border-line/20 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-line-dim">
-            {t("courts.ramadan")} &amp; holidays
+          <h3 className="mt-7 border-b border-line/20 pb-1.5 font-board text-[10px] uppercase tracking-[0.22em] text-line-dim">
+            {`${t("courts.ramadan")} — ${t("courts.exceptions")}`}
           </h3>
           <LedgerTable heads={["", "", "", ""]} className="mt-2">
             {exceptions.map((e) => (

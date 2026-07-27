@@ -37,7 +37,7 @@ Deploy target Vercel; config is `vercel.ts` (not `vercel.json`).
 | `npx vitest run` | **104 passed**, 5 files |
 | `npx tsc --noEmit` | clean |
 | `npm run lint` | clean, zero warnings |
-| `npm run build` | 21 routes, compiles |
+| `npm run build` | 22 routes, compiles |
 | Routes smoke-tested | all console + play routes, EN and AR, HTTP 200 |
 
 ⚠️ **Not yet clicked through by a human.** Every route has been fetched and
@@ -144,9 +144,22 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
   Without it a phone user scrolls to court 4 with no idea what time they are
   looking at. Column widths come from `--col-w`/`--gutter-w`, which narrow
   below 640px so two courts plus the hour fit on a 375px screen.
-- ⚠️ **The mobile bottom rail carries every destination**, and `.pad-for-bar`
-  reserves its height on `<main>`. An earlier version sliced the nav to six
-  entries, which silently hid a third of the product on a phone.
+- ⚠️ **Mobile navigation is a DRAWER, not a bottom strip** (`src/ui/Drawer.tsx`,
+  `ConsoleMobileNav.tsx`, `(site)/SiteNav.tsx`). A strip either truncated the
+  destinations or shrank them below a thumb's width, and this product has
+  enough modules that it did both.
+- ⚠️ **Never filter a nav item out because the role cannot open it.** Show it
+  locked, naming who can. A front-desk session with the money modules filtered
+  out showed a lone "Cash Book" and read as a half-built product.
+- ⚠️ **`app/global-not-found.tsx` carries its own `<html>`/`<body>` and fonts.**
+  The root layout deliberately has none — they live in `[locale]/layout.tsx` so
+  `lang`/`dir` are set before first paint — which leaves any URL outside a
+  locale segment with no document. That gap threw "Missing &lt;html&gt; and
+  &lt;body&gt; tags in the root layout" until this file existed.
+- ⚠️ **The ledger world's CSS classes outlived its tokens once.** `.slip` still
+  carried `background: var(--color-paper)` — near-white — and beat
+  `bg-transparent` on specificity, rendering whole panels unreadable. When a
+  visual world is replaced, delete its CSS classes, not only its utilities.
 - ⚠️ **Do not add a Vercel `regions` setting by copying it.** On one sibling
   project it was the biggest single win; on another the same change would have
   made things slower. Measure first. See PERFORMANCE.md.

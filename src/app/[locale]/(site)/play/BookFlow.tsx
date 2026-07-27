@@ -211,7 +211,7 @@ export function BookFlow({
                         type="button"
                         disabled={pending}
                         onClick={() => hold(court.id, s.startMinute)}
-                        className="slip group flex min-h-16 min-w-28 flex-col items-start justify-between gap-1 bg-transparent px-3 py-2 text-start hover:border-amber hover:bg-ball/10 disabled:opacity-50"
+                        className="slot group flex min-h-16 min-w-28 flex-col items-start justify-between gap-1 px-3 py-2 text-start disabled:opacity-40"
                       >
                         <span className="font-board text-[15px] font-bold tabular-nums text-line">
                           {clockOf(s.startMinute)}
