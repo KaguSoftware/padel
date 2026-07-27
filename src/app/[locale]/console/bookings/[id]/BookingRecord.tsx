@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import {
@@ -11,7 +11,7 @@ import { settleAllShares, takePayment } from "@/app/actions/money";
 import type { BookingSource, BookingStatus, PaymentMethod, PaymentStatus } from "@/data/types";
 import { formatMoney, type Fils } from "@/lib/money";
 import { cn } from "@/ui/cn";
-import { Guilloche } from "@/ui/Guilloche";
+import { CourtLines } from "@/ui/court";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
 import {
   EmptyLine,
@@ -26,11 +26,11 @@ import {
 import { paymentStamp, Stamp } from "@/ui/Stamp";
 
 /**
- * The booking record, set as a document rather than a detail panel.
+ * The booking record: the card pulled off the board and turned over.
  *
- * Guilloche appears here because this page IS a receipt â€” it is the thing the
- * customer is shown and the thing the audit log points at. It does not appear
- * on the calendar or the customer list, which are working pages, not documents.
+ * Everything the audit log points at lives here — the price breakdown with its
+ * discount reason and author, who took which payment, and what cancelling now
+ * would actually return.
  */
 
 interface PriceLineView {
@@ -91,7 +91,7 @@ const METHODS: PaymentMethod[] = ["cash", "card", "wallet", "credit", "transfer"
 
 /**
  * Flat labels plus two nested groups. Spelled out rather than
- * `Record<string, string> & {...}` â€” an index signature of `string` and a
+ * `Record<string, string> & {...}` — an index signature of `string` and a
  * nested object cannot both be true, and TypeScript is right to say so.
  */
 type RecordStrings = {
@@ -179,12 +179,12 @@ export function BookingRecord({
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
-          {/* The document head â€” court, when, source, all on one ruled band. */}
+          {/* The document head — court, when, source, all on one ruled band. */}
           <Panel title={booking.courtName}>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
               <Field label={strings.when}>
                 <span className="font-board tabular-nums">
-                  {booking.day} Â· {booking.startClock}â€“{booking.endClock}
+                  {booking.day} · {booking.startClock}–{booking.endClock}
                 </span>
               </Field>
               <Field label={strings.duration}>
@@ -194,7 +194,7 @@ export function BookingRecord({
               </Field>
               <Field label={strings.source}>
                 {strings.sources[booking.source]}
-                {booking.isSeries && " â†»"}
+                {booking.isSeries && " ↻"}
               </Field>
               <Field label={strings.createdBy}>{booking.createdBy}</Field>
             </dl>
@@ -214,7 +214,7 @@ export function BookingRecord({
                 <Stamp tone="seats">
                   {strings.openMatch}
                   {booking.levelMin !== null &&
-                    ` ${booking.levelMin}â€“${booking.levelMax}`}
+                    ` ${booking.levelMin}–${booking.levelMax}`}
                 </Stamp>
               )}
               {booking.blockReason && (
@@ -230,7 +230,7 @@ export function BookingRecord({
             </div>
           </Panel>
 
-          {/* Price breakdown â€” itemised, because the receipt prints this and the
+          {/* Price breakdown — itemised, because the receipt prints this and the
               audit log quotes it. */}
           <Panel title={strings.price}>
             <LedgerTable heads={["", strings.total]}>
@@ -243,7 +243,7 @@ export function BookingRecord({
                     {l.reason && (
                       <span className="ms-2 font-board text-[11px] text-line-dim">
                         {l.reason}
-                        {l.appliedBy ? ` â€” ${l.appliedBy}` : ""}
+                        {l.appliedBy ? ` — ${l.appliedBy}` : ""}
                       </span>
                     )}
                   </Cell>
@@ -259,7 +259,7 @@ export function BookingRecord({
             </LedgerTable>
           </Panel>
 
-          {/* Participants â€” four players, four shares, four payment states. */}
+          {/* Participants — four players, four shares, four payment states. */}
           <Panel
             title={strings.participants}
             serial={
@@ -367,13 +367,10 @@ export function BookingRecord({
           </Panel>
         </div>
 
-        {/* The stub â€” actions, detachable from the record itself. */}
+        {/* The card's action face. */}
         <aside className="space-y-4">
-          <div className="slip relative overflow-hidden bg-transparent p-4">
-            <Guilloche
-              className="pointer-events-none absolute -end-8 -top-8 size-32 text-amber/25"
-              petals={9}
-            />
+          <div className="board-panel relative overflow-hidden p-5">
+            <CourtLines className="pointer-events-none absolute inset-x-5 bottom-4 h-10 w-auto text-line/12" />
             <Reading
               label={strings.total}
               value={formatMoney(booking.total, locale)}
@@ -469,7 +466,7 @@ export function BookingRecord({
                   ? `${cancellation.hoursBefore}h before start. ${cancellation.explanation}`
                   : cancellation.explanation}
                 {cancellation.refundAmount > 0 &&
-                  ` â€” ${formatMoney(cancellation.refundAmount, locale)}`}
+                  ` — ${formatMoney(cancellation.refundAmount, locale)}`}
               </p>
               <RuledInput
                 value={cancelReason}

@@ -1,4 +1,4 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getClaims } from "@/auth/claims";
 import { loadAccountPage } from "@/data/loaders";
 import { resolveCancellation } from "@/domain/cancellation";
@@ -6,7 +6,7 @@ import { formatMoney } from "@/lib/money";
 import { clock } from "@/lib/time";
 import { Link } from "@/i18n/routing";
 import { Cell, LedgerRow, LedgerTable } from "@/ui/PageShell";
-import { Guilloche } from "@/ui/Guilloche";
+import { CourtLines } from "@/ui/court";
 import { EmptyLine, Reading, Serial } from "@/ui/primitives";
 import { paymentStamp, Stamp } from "@/ui/Stamp";
 
@@ -32,12 +32,12 @@ export default async function AccountPage({
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-line-dim">
             {ar
-              ? "Ø¨Ø¯Ù‘Ù„ Ø§Ù„Ø¯ÙˆØ± Ø¥Ù„Ù‰ Â«Ù„Ø§Ø¹Ø¨Â» Ù…Ù† Ù„ÙˆØ­Ø© Ø§Ù„ØªØ´ØºÙŠÙ„ Ù„Ø¹Ø±Ø¶ Ø­Ø³Ø§Ø¨ Ù„Ø§Ø¹Ø¨ ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬."
+              ? "بدّل الدور إلى «لاعب» من لوحة التشغيل لعرض حساب لاعب في هذا النموذج."
               : "Switch the session role to Player in the console to view a player account in this prototype."}
           </p>
           <Link
             href="/console/calendar"
-            className="ink-button mt-6 inline-flex min-h-11 items-center border-line/40 bg-transparent px-4 text-[12px] font-semibold uppercase tracking-[0.08em] text-line"
+            className="mt-6 inline-flex min-h-12 items-center border border-line/35 px-5 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
           >
             {t("nav.console")}
           </Link>
@@ -58,29 +58,35 @@ export default async function AccountPage({
   const c = data.customer;
   const courtName = (id: string) => {
     const court = data.courts.find((x) => x.id === id);
-    return court ? (ar ? court.nameAr : court.name) : "â€”";
+    return court ? (ar ? court.nameAr : court.name) : "—";
   };
 
+  // Read the clock ONCE so the two lists are partitioned against the same
+  // instant. Sampling it per row can drop or duplicate a booking that crosses
+  // the boundary while the list is being built.
+  //
+  // `react-hooks/purity` is aimed at client components that re-render; this is
+  // an async Server Component that runs once per request, and the request time
+  // IS the correct instant to partition against.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const upcoming = data.bookings.filter(
     (b) =>
-      b.start.getTime() > Date.now() &&
+      b.start.getTime() > now &&
       (b.status === "confirmed" || b.status === "held"),
   );
-  const past = data.bookings.filter((b) => b.start.getTime() <= Date.now());
+  const past = data.bookings.filter((b) => b.start.getTime() <= now);
 
   return (
     <main className="court-world court-surface min-h-dvh">
       <div className="mx-auto w-full max-w-4xl px-4 py-10">
         {/* The member card, as a card. */}
-        <section className="slip relative overflow-hidden bg-transparent p-5">
-          <Guilloche
-            className="pointer-events-none absolute -end-10 -top-10 size-44 text-amber/25"
-            petals={9}
-          />
+        <section className="board-panel relative overflow-hidden p-6">
+          <CourtLines className="pointer-events-none absolute inset-x-6 bottom-5 h-14 w-auto text-line/12" />
           <div className="relative flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-board text-[10px] uppercase tracking-[0.2em] text-amber">
-                Kagu Padel Â·{" "}
+                Kagu Padel ·{" "}
                 {t(`customer.tiers.${c.tier}` as "customer.tiers.member")}
               </p>
               <h1 className="mt-1 painted text-[36px] leading-none text-line">
@@ -139,7 +145,7 @@ export default async function AccountPage({
                       {b.operatingDay} {clock(b.start)}
                       {b.seriesId && (
                         <span className="ms-2 text-amber">
-                          â†» {t("play.weeklySlot")}
+                          ↻ {t("play.weeklySlot")}
                         </span>
                       )}
                     </Cell>

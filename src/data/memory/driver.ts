@@ -34,7 +34,6 @@ import type {
   BookingParticipant,
   Id,
   NotificationRecord,
-  OCCUPYING_STATUSES as _Occ,
   Payment,
   Sale,
   TillSession,
@@ -63,10 +62,6 @@ import { getStore, nextId, type Store } from "./store";
  */
 
 const DEFAULT_HOLD_TTL_MINUTES = 8;
-
-function clone<T>(v: T): T {
-  return v;
-}
 
 /**
  * The exclusion constraint, in JS.
@@ -281,12 +276,17 @@ function bookingsPort(store: Store): BookingsPort {
     async confirmHold(id, actorId) {
       const b = store.bookings.find((x) => x.id === id);
       if (!b) throw new RuleViolation("booking_missing", "No such booking");
-      if (b.status !== "held") {
-        throw new RuleViolation("not_held", "This booking is not a hold");
-      }
-      if (isExpiredHold(b)) {
+
+      // Order matters: an already-swept hold must report as EXPIRED, not as
+      // "not a hold". The player is looking at a checkout page that just ran
+      // out, and "this booking is not a hold" tells them nothing about what
+      // happened or what to do next.
+      if (b.status === "expired" || isExpiredHold(b)) {
         b.status = "expired";
         throw new RuleViolation("hold_expired", "The hold expired");
+      }
+      if (b.status !== "held") {
+        throw new RuleViolation("not_held", "This booking is not a hold");
       }
       b.status = "confirmed";
       b.holdExpiresAt = null;
@@ -805,12 +805,18 @@ function tillPort(store: Store): TillPort {
       const s = store.tillSessions.find((x) => x.id === id);
       if (!s) throw new RuleViolation("till_missing", "No such shift");
 
+      // A shift's cash is what was taken BETWEEN open and close — bounded at
+      // both ends. Without the upper bound, a payment stamped later than now
+      // (a deposit against a future booking, or seeded data) is counted into a
+      // drawer that never held it, and the shift shows a phantom shortfall.
+      const closedAt = new Date();
       const cashTaken = addFils(
         ...store.payments
           .filter(
             (p) =>
               p.method === "cash" &&
               p.takenAt >= s.openedAt &&
+              p.takenAt <= closedAt &&
               (p.tillSessionId === null || p.tillSessionId === s.id),
           )
           .map((p) => p.amount),
@@ -818,7 +824,7 @@ function tillPort(store: Store): TillPort {
       const expected = addFils(s.openingFloat, cashTaken);
 
       s.closedBy = actorId;
-      s.closedAt = new Date();
+      s.closedAt = closedAt;
       s.countedCash = countedCash;
       s.variance = subFils(countedCash, expected);
       s.varianceNote = note;
@@ -1088,7 +1094,6 @@ function notificationsPort(store: Store): NotificationsPort {
 
 export function createMemoryDb(): Db {
   const store = getStore();
-  void clone;
   return {
     courts: courtsPort(store),
     availability: availabilityPort(store),

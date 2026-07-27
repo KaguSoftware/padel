@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,7 @@ import { formatMoney, type Fils } from "@/lib/money";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/ui/cn";
 import { CourtMark } from "@/ui/marks";
-import { EmptyLine, InkButton } from "@/ui/primitives";
+import { EmptyLine } from "@/ui/primitives";
 
 /**
  * The player booking flow.
@@ -110,13 +110,13 @@ export function BookFlow({
               </span>
               <div className="mt-1 flex items-center gap-1.5">
                 <DayLink href={`/play?d=${prevDay}&mins=${duration}`} label={strings.previous}>
-                  â€¹
+                  ‹
                 </DayLink>
                 <span className="min-w-32 border-b border-line/40 px-2 pb-1 text-center font-board text-[15px] tabular-nums">
                   {day}
                 </span>
                 <DayLink href={`/play?d=${nextDay}&mins=${duration}`} label={strings.next}>
-                  â€º
+                  ›
                 </DayLink>
                 {day !== today && (
                   <Link
@@ -164,9 +164,9 @@ export function BookFlow({
             {me && (
               <span className="ms-auto font-board text-[11px] text-line-dim">
                 {me.name}
-                {me.level !== null && ` Â· ${strings.yourLevel} ${me.level}`}
+                {me.level !== null && ` · ${strings.yourLevel} ${me.level}`}
                 {me.credit > 0 &&
-                  ` Â· ${strings.credit} ${formatMoney(me.credit, locale)}`}
+                  ` · ${strings.credit} ${formatMoney(me.credit, locale)}`}
               </span>
             )}
           </div>
@@ -197,7 +197,7 @@ export function BookFlow({
                       {court.name}
                     </h2>
                     <span className="font-board text-[10px] uppercase tracking-[0.12em] text-line-dim">
-                      {court.enclosure} Â· {court.surface}
+                      {court.enclosure} · {court.surface}
                     </span>
                     <span className="ms-auto font-board text-[11px] tabular-nums text-line-dim">
                       {court.slots.length}

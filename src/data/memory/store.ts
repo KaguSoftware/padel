@@ -1,4 +1,4 @@
-import { dirhams, fils, ZERO } from "@/lib/money";
+import { dirhams, fils } from "@/lib/money";
 import { todayInDubai } from "@/lib/time";
 import { seedTrading } from "../seed/bookings";
 import {
@@ -158,7 +158,6 @@ function build(): Store {
     reason: null,
   });
 
-  void ZERO;
   return store;
 }
 
@@ -168,7 +167,6 @@ function structuredCloneish<T>(rows: T[]): T[] {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __kaguPadelStore: Store | undefined;
 }
 

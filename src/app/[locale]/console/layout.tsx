@@ -59,19 +59,17 @@ export default async function ConsoleLayout({
 
   return (
     <TickerProvider>
-      <div className="flex min-h-dvh bg-court-deep md:items-start">
-        {/* The spine of the bound ledger. */}
-        <aside className="sticky top-0 hidden h-dvh w-[13.5rem] shrink-0 flex-col border-e border-line/20 bg-court-deep md:flex">
+      <div className="court-world flex min-h-dvh bg-court-deep md:items-start">
+        {/* The control desk's rail, alongside the court. */}
+        <aside className="sticky top-0 hidden h-dvh w-[13.5rem] shrink-0 flex-col border-e border-line/20 bg-board md:flex">
           <Link
             href="/console/calendar"
-            className="flex items-center gap-2.5 border-b border-line/20 px-4 py-4 text-line"
+            className="flex items-center gap-3 border-b border-line/20 px-4 py-4 text-line"
           >
-            <CourtMark size={26} className="text-ball" />
+            <CourtMark size={28} className="text-ball" />
             <span className="min-w-0">
-              <span className="block painted text-[19px] leading-none tracking-tight">
-                Kagu
-              </span>
-              <span className="block font-board text-[10px] uppercase tracking-[0.22em] text-amber">
+              <span className="painted block text-[18px] leading-none">Kagu</span>
+              <span className="block font-board text-[10px] uppercase leading-none tracking-[0.34em] text-amber">
                 Padel
               </span>
             </span>
@@ -82,9 +80,12 @@ export default async function ConsoleLayout({
               <Link
                 key={href}
                 href={href}
-                className="flex min-h-11 items-center gap-3 px-4 py-2 text-[13px] text-line/80 transition-colors hover:bg-court-lit/30 hover:text-line"
+                className="group flex min-h-11 items-center gap-3 border-s-2 border-transparent px-4 py-2 font-stadium text-[11px] uppercase tracking-[0.07em] text-line/70 transition-colors hover:border-s-ball hover:bg-line/8 hover:text-line"
               >
-                <Mark size={17} className="shrink-0 text-amber/80" />
+                <Mark
+                  size={17}
+                  className="shrink-0 text-line-dim transition-colors group-hover:text-ball"
+                />
                 <span className="truncate">{t(key)}</span>
               </Link>
             ))}
@@ -113,16 +114,18 @@ export default async function ConsoleLayout({
           </div>
         </aside>
 
-        {/* Mobile spine: the same nav, laid along the bottom edge. */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line/20 bg-court-deep md:hidden">
+        {/* Mobile: the same rail, laid along the bottom edge for a thumb. */}
+        <nav className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line/20 bg-board md:hidden">
           {NAV.slice(0, 6).map(({ href, key, Mark }) => (
             <Link
               key={href}
               href={href}
-              className="flex min-h-14 min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-2 text-line/80"
+              className="flex min-h-14 min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-2 text-line/75"
             >
-              <Mark size={18} className="text-amber/80" />
-              <span className="text-[10px] leading-none">{t(key)}</span>
+              <Mark size={18} className="text-line-dim" />
+              <span className="font-board text-[9px] uppercase leading-none tracking-[0.1em]">
+                {t(key)}
+              </span>
             </Link>
           ))}
         </nav>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState, useTransition } from "react";
 import { createBooking } from "@/app/actions/bookings";
@@ -8,7 +8,7 @@ import { InkButton } from "@/ui/primitives";
 import type { CourtColumn, CustomerOption } from "./DayBook";
 
 /**
- * THE ENTRY LINE â€” the physical act of writing a line in a day book.
+ * THE ENTRY LINE — the physical act of writing a line in a day book.
  *
  * One sentence with typed slots: the verb comes from the keyboard, the objects
  * are filled by pointing at the grid below. The slot still open is marked, and
@@ -60,7 +60,7 @@ export function EntryLine({
   const [query, setQuery] = useState("");
   const [pending, start] = useTransition();
 
-  // Search runs over rows already in memory â€” no debounce, no network. A
+  // Search runs over rows already in memory — no debounce, no network. A
   // debounce here would be 250ms of pure added latency, since the only thing it
   // ever rate-limited was a request that no longer happens.
   const matches = useMemo(() => {
@@ -142,7 +142,7 @@ export function EntryLine({
           onClear={() => onDraft((d) => ({ ...d, courtId: undefined, startMinute: undefined }))}
         />
 
-        <span className="text-line-dim">Â·</span>
+        <span className="text-line-dim">·</span>
 
         <SlotChip
           filled={
@@ -154,7 +154,7 @@ export function EntryLine({
           onClear={() => onDraft((d) => ({ ...d, startMinute: undefined }))}
         />
 
-        <span className="text-line-dim">Â·</span>
+        <span className="text-line-dim">·</span>
 
         {/* The member slot takes typing as well as pointing. */}
         {customer ? (
@@ -210,7 +210,7 @@ export function EntryLine({
           </span>
         )}
 
-        <span className="text-line-dim">Â·</span>
+        <span className="text-line-dim">·</span>
 
         <span className="flex items-center gap-1">
           {DURATIONS.map((mins) => {
@@ -253,7 +253,7 @@ export function EntryLine({
             disabled={!parses || pending}
             onClick={() => commit(true)}
           >
-            {locale === "ar" ? "Ø§Ø­Ø¬Ø² Ù…Ø¤Ù‚ØªØ§Ù‹" : "Hold"}
+            {locale === "ar" ? "احجز مؤقتاً" : "Hold"}
           </InkButton>
           <InkButton
             variant="primary"
@@ -269,7 +269,7 @@ export function EntryLine({
       {/* The line reads back, and says what it is still waiting for. */}
       <p className="mt-1.5 font-board text-[11px] uppercase tracking-[0.1em] text-line-dim">
         {parses
-          ? `${strings.verb} ${court?.name} Â· ${clockOf(draft.startMinute!)} Â· ${customer?.name} Â· ${draft.durationMinutes} min`
+          ? `${strings.verb} ${court?.name} · ${clockOf(draft.startMinute!)} · ${customer?.name} · ${draft.durationMinutes} min`
           : openSlot === "courtId"
             ? strings.pickCourt
             : openSlot === "startMinute"

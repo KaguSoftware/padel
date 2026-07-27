@@ -2,6 +2,8 @@ import "server-only";
 import type { Role } from "@/data/types";
 import { type Claims, getClaims } from "./claims";
 
+export type { Claims };
+
 /**
  * THE single guard. One copy.
  *
@@ -50,6 +52,31 @@ export async function requireConsole(): Promise<Claims> {
 
 export async function requireManager(): Promise<Claims> {
   return requireRole(...MANAGER_ROLES);
+}
+
+/**
+ * Non-throwing variants, for PAGES.
+ *
+ * A page that a front-desk member of staff is not allowed to open should say so
+ * calmly, not return a 500. Throwing is right for actions — a refused mutation
+ * must fail loudly — but a route is a navigation, and staff navigate into the
+ * wrong module all day.
+ *
+ * The check is still server-side and still the real one; only the presentation
+ * differs.
+ */
+export async function allowRole(...roles: Role[]): Promise<Claims | null> {
+  const claims = await getClaims();
+  if (!claims) return null;
+  return roles.includes(claims.role) ? claims : null;
+}
+
+export async function allowManager(): Promise<Claims | null> {
+  return allowRole(...MANAGER_ROLES);
+}
+
+export async function allowConsole(): Promise<Claims | null> {
+  return allowRole(...CONSOLE_ROLES, "coach");
 }
 
 export function can(role: Role, capability: Capability): boolean {

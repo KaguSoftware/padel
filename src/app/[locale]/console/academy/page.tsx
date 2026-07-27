@@ -1,4 +1,4 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireConsole } from "@/auth/guard";
 import { loadAcademyPage } from "@/data/loaders";
 import { addFils, formatMoney, mulFils, type Fils, ZERO } from "@/lib/money";
@@ -61,7 +61,7 @@ export default async function AcademyPage({
             {data.coaches.map((c) => (
               <Reading
                 key={c.id}
-                label={`${ar ? c.nameAr : c.name} Â· ${c.commissionPercent}%`}
+                label={`${ar ? c.nameAr : c.name} · ${c.commissionPercent}%`}
                 value={formatMoney(commissionByCoach.get(c.id) ?? ZERO, locale)}
                 sub={t("coaching.commission")}
                 tone="settle"
@@ -95,11 +95,11 @@ export default async function AcademyPage({
                     <Cell className="font-semibold">
                       {ar ? cls.titleAr : cls.title}
                     </Cell>
-                    <Cell>{coach ? (ar ? coach.nameAr : coach.name) : "â€”"}</Cell>
+                    <Cell>{coach ? (ar ? coach.nameAr : coach.name) : "—"}</Cell>
                     <Cell className="font-board text-[11px] tabular-nums">
                       {booking
                         ? `${booking.operatingDay} ${clock(booking.start)}`
-                        : "â€”"}
+                        : "—"}
                     </Cell>
                     <Cell numeric>
                       {formatMoney(cls.pricePerHead, locale, {
@@ -110,7 +110,7 @@ export default async function AcademyPage({
                       {roster.length}/{cls.capacity}
                     </Cell>
                     <Cell className="font-board text-[11px] tabular-nums">
-                      {cls.levelMin}â€“{cls.levelMax}
+                      {cls.levelMin}–{cls.levelMax}
                     </Cell>
                     <Cell>
                       <span className="flex gap-1.5">
@@ -146,7 +146,7 @@ export default async function AcademyPage({
                         key={e.id}
                         className="flex items-center justify-between gap-3 border-b border-line/15 py-1.5 text-[13px]"
                       >
-                        <span>{c ? (ar ? (c.nameAr ?? c.name) : c.name) : "â€”"}</span>
+                        <span>{c ? (ar ? (c.nameAr ?? c.name) : c.name) : "—"}</span>
                         {e.paid > 0 ? (
                           <Stamp tone="paid">{t("status.paid")}</Stamp>
                         ) : (

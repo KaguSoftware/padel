@@ -1,5 +1,7 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireManager } from "@/auth/guard";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getClaims } from "@/auth/claims";
+import { allowManager, MANAGER_ROLES } from "@/auth/guard";
+import { Denied } from "@/ui/Denied";
 import { loadAuditPage } from "@/data/loaders";
 import { formatMoney } from "@/lib/money";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
@@ -25,7 +27,25 @@ export default async function AuditPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireManager();
+  const claims = await allowManager();
+
+  if (!claims) {
+    const t = await getTranslations();
+    return (
+      <Denied
+        title={t("audit.title")}
+        needs={MANAGER_ROLES}
+        have={(await getClaims())?.role ?? null}
+        roleLabels={{
+          owner: t("common.roles.owner"),
+          manager: t("common.roles.manager"),
+          staff: t("common.roles.staff"),
+          coach: t("common.roles.coach"),
+          player: t("common.roles.player"),
+        }}
+      />
+    );
+  }
 
   const [data, t] = await Promise.all([loadAuditPage(), getTranslations()]);
   const ar = locale === "ar";
@@ -70,13 +90,13 @@ export default async function AuditPage({
                   </span>
                   <span>{ar ? e.summaryAr : e.summary}</span>
                   {MONEY_ACTIONS.has(e.action) && (
-                    <Stamp tone="part">â‚£</Stamp>
+                    <Stamp tone="part">₣</Stamp>
                   )}
                 </span>
               </Cell>
               <Cell numeric className={e.amount && e.amount < 0 ? "text-ball" : ""}>
                 {e.amount === null
-                  ? "â€”"
+                  ? "—"
                   : formatMoney(e.amount, locale, { showCurrency: false })}
               </Cell>
               <Cell className="max-w-72 truncate font-board text-[11px] text-line-dim">

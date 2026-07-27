@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase CLI link state — contains a pooler connection URL
+supabase/.temp/
+supabase/.branches/
+
+# impeccable design-skill scratch (decision-page state)
+.impeccable/

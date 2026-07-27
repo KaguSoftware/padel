@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { moveBooking } from "@/app/actions/bookings";
@@ -18,12 +18,13 @@ import { useCountdown, useHoldProgress } from "@/ui/Ticker";
 import { EntryLine, type EntryDraft } from "./EntryLine";
 
 /**
- * THE DAY BOOK.
+ * THE DAY BOOK — the order-of-play board, from the control desk.
  *
- * A ruled page: courts are ruled columns, hours are banded rows, bookings are
- * card slips set into the ruling. Staff spend most of their day here, standing,
- * on a tablet, mid-conversation â€” so density, state legibility and 44px targets
- * outrank everything expressive.
+ * Courts are columns, hours are rows, bookings are cards in the slots. Free
+ * cells sit unlit and light to optic yellow under the cursor; taken cells are
+ * inert; closed cells are hatched. Staff spend most of their day here,
+ * standing, on a tablet, mid-conversation — so density, state legibility and
+ * 44px targets outrank everything expressive.
  *
  * Performance rules that are load-bearing here:
  *  - one 1Hz ticker drives every hold countdown (not one interval per slip)
@@ -188,37 +189,40 @@ export function DayBook(props: Props) {
   );
 
   return (
-    <div className="court-world court-surface min-h-dvh">
-      {/* Masthead â€” the bound page's head, carrying date and page serial. */}
-      <header className="sticky top-0 z-20 border-b-2 border-line/25 bg-court-deep text-line">
-        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 px-4 py-2.5">
-          <div className="flex items-baseline gap-3">
-            <h1 className="painted text-[22px] leading-none tracking-tight">
+    <div className="court-world min-h-dvh bg-court-deep">
+      {/* The board's head: the day, the shift's running figures, the page keys. */}
+      <header className="sticky top-0 z-20 border-b border-line/25 bg-board text-line">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-3">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h1 className="painted text-[clamp(1.3rem,2.6vw,1.9rem)]">
               {strings.title}
             </h1>
-            <span className="font-board text-[11px] uppercase tracking-[0.18em] text-amber">
-              {strings.page} {day.replace(/-/g, "Â·")}
-            </span>
+            <span className="board-digit text-[19px] leading-none">{day}</span>
           </div>
 
           <div className="flex items-center gap-1.5">
             <NavLink href={`/console/calendar?d=${prevDay}`} label={strings.previous}>
-              â€¹
+              ‹
             </NavLink>
             <Link
               href={`/console/calendar?d=${today}`}
-              className="min-h-9 border border-amber px-3 py-1.5 font-board text-[11px] uppercase tracking-[0.14em] text-amber hover:bg-court-lit/30"
+              className={cn(
+                "flex min-h-11 items-center px-4 font-stadium text-[11px] uppercase tracking-[0.1em] transition-colors",
+                day === today
+                  ? "live-block"
+                  : "border border-line/30 text-line hover:border-line",
+              )}
             >
               {strings.today}
             </Link>
             <NavLink href={`/console/calendar?d=${nextDay}`} label={strings.next}>
-              â€º
+              ›
             </NavLink>
           </div>
         </div>
 
-        {/* Readings band â€” takings and outstanding, on the shell not the page. */}
-        <div className="flex flex-wrap gap-x-8 gap-y-1 border-t border-line/20 px-4 py-2 font-board text-[11px] uppercase tracking-[0.1em]">
+        {/* Running figures for the shift, in board digits. */}
+        <div className="flex flex-wrap gap-x-9 gap-y-2 border-t border-line/15 px-5 py-2.5">
           <Figure label={strings.takings} value={formatMoney(takings.total, locale)} />
           <Figure label="Cash" value={formatMoney(takings.cash, locale)} />
           <Figure label="Card" value={formatMoney(takings.card, locale)} />
@@ -230,7 +234,7 @@ export function DayBook(props: Props) {
         </div>
       </header>
 
-      {/* The entry line â€” one sentence with open slots. */}
+      {/* The entry line — one sentence with open slots. */}
       <EntryLine
         locale={locale}
         day={day}
@@ -261,7 +265,7 @@ export function DayBook(props: Props) {
             onClick={() => setNotice(null)}
             className="min-h-9 px-2 uppercase tracking-[0.14em] text-line-dim"
           >
-            Ã—
+            ×
           </button>
         </div>
       )}
@@ -280,17 +284,24 @@ export function DayBook(props: Props) {
               gridTemplateColumns: `4.25rem repeat(${columns.length}, minmax(9.5rem, 1fr))`,
             }}
           >
-            {/* Column heads */}
-            <div className="sticky top-0 z-10 border-b border-line/25 bg-transparent px-2 py-2">
-              <ColumnHead className="border-0 pb-0">â€”</ColumnHead>
+            {/* Court heads: the plate on the fence, over the column it owns. */}
+            <div className="sticky top-0 z-10 border-b border-line/25 bg-board px-2 py-2.5">
+              <ColumnHead className="border-0 pb-0">Hr</ColumnHead>
             </div>
-            {columns.map((c) => (
+            {columns.map((c, i) => (
               <div
                 key={c.id}
-                className="sticky top-0 z-10 border-b border-line/25 border-e border-e-line/12 bg-transparent px-2 py-2 last:border-e-0"
+                className="sticky top-0 z-10 border-b border-line/25 border-e border-e-line/12 bg-board px-2.5 py-2 last:border-e-0"
               >
-                <ColumnHead className="border-0 pb-0">{c.name}</ColumnHead>
-                <div className="font-board text-[10px] uppercase tracking-[0.1em] text-line-dim">
+                <div className="flex items-baseline gap-2">
+                  <span className="board-digit text-[15px] leading-none">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="truncate font-stadium text-[11px] uppercase tracking-[0.07em] text-line">
+                    {c.name}
+                  </span>
+                </div>
+                <div className="mt-1 font-board text-[9px] uppercase tracking-[0.14em] text-line-dim">
                   {c.closedNote ?? c.enclosure}
                 </div>
               </div>
@@ -301,7 +312,6 @@ export function DayBook(props: Props) {
               <Row
                 key={minute}
                 minute={minute}
-                step={step}
                 columns={columns}
                 occupied={occupied}
                 day={day}
@@ -352,7 +362,7 @@ export function DayBook(props: Props) {
       )}
 
       <footer className="border-t border-line/15 px-4 py-6 font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
-        {pending ? "Writingâ€¦" : "Synthetic sample data â€” not real bookings"}
+        {pending ? "Writing…" : "Synthetic sample data — not real bookings"}
       </footer>
     </div>
   );
@@ -361,7 +371,6 @@ export function DayBook(props: Props) {
 /** The time margin plus one cell per court, for a single 30-minute band. */
 function Row({
   minute,
-  step,
   columns,
   occupied,
   draft,
@@ -370,7 +379,6 @@ function Row({
   isNow,
 }: {
   minute: number;
-  step: number;
   columns: CourtColumn[];
   occupied: Set<string>;
   day: string;
@@ -388,17 +396,14 @@ function Row({
         className={cn(
           "hour-band relative border-e border-line/12 px-2 text-end",
           onHour ? "border-b border-line/15" : "",
-          isNow && "bg-ball/10",
         )}
         style={{ height: ROW_PX }}
       >
         {onHour && (
-          <span className="font-board text-[11px] tabular-nums text-line-dim">
-            {label}
-          </span>
+          <span className="board-digit text-[13px] leading-none">{label}</span>
         )}
         {isNow && (
-          <span className="absolute inset-inline-0 bottom-0 block h-px bg-ball" />
+          <span className="absolute inset-inline-0 bottom-0 z-20 block h-0.5 bg-ball" />
         )}
       </div>
 
@@ -422,17 +427,20 @@ function Row({
               if (!taken && !closed) onDrop(c.id);
             }}
             className={cn(
-              "hour-band relative border-e border-line/12 last:border-e-0",
+              "hour-band relative border-e border-line/12 transition-colors duration-100 last:border-e-0",
               onHour && "border-b border-line/15",
-              closed && "hatched cursor-not-allowed opacity-45",
-              !closed && !taken && "hover:bg-ball/15",
-              selected && "bg-ball/30 ring-1 ring-inset ring-ball",
+              // An unlit cell is court surface seen through the board; a free
+              // one lights under the cursor, which is how a board says "here".
+              !closed && !taken && "bg-court-lit/12 hover:bg-ball/25",
+              taken && !closed && "bg-transparent",
+              closed && "hatched cursor-not-allowed bg-court-deep/70",
+              selected && "bg-ball/40 ring-1 ring-inset ring-ball",
             )}
             style={{ height: ROW_PX }}
             aria-label={`${c.name} ${label}`}
           >
             {isNow && (
-              <span className="pointer-events-none absolute inset-inline-0 bottom-0 block h-px bg-ball" />
+              <span className="pointer-events-none absolute inset-inline-0 bottom-0 z-20 block h-0.5 bg-ball" />
             )}
           </button>
         );
@@ -472,12 +480,13 @@ function BookingSlip({
   const stamp = statusStamp(slip, slip.participantCount);
   const stampText =
     stamp.key === "openSeats"
-      ? `+${stamp.count} ${locale === "ar" ? "Ù…Ù‚Ø§Ø¹Ø¯" : "SEATS"}`
+      ? `+${stamp.count} ${locale === "ar" ? "مقاعد" : "SEATS"}`
       : (strings[stamp.key] ?? stamp.key);
 
-  const accent =
+  // The card in the slot: a lit panel whose leading edge carries the state.
+  const edge =
     slip.status === "held"
-      ? "border-s-line/30"
+      ? "border-s-amber"
       : slip.status === "blocked"
         ? "border-s-line/30"
         : slip.paymentStatus === "paid"
@@ -490,45 +499,49 @@ function BookingSlip({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       className={cn(
-        "slip pointer-events-auto absolute inset-inline-1 overflow-hidden border-s-[3px] bg-transparent px-1.5 py-1",
-        accent,
+        "pointer-events-auto absolute inset-inline-1 overflow-hidden border border-line/20 border-s-[3px] bg-board/85 px-2 py-1.5 backdrop-blur-[1px]",
+        "transition-shadow duration-100",
+        edge,
         slipTreatment(slip.status),
-        dragging && "dragging slip-raised opacity-80",
-        slip.status === "held" && "perforated-end",
+        dragging && "dragging z-30 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.9)]",
       )}
       style={{
         top,
         height,
-        // The perforated edge tears further open as the hold runs out.
-        ["--perf" as string]: `${3 + progress * 6}px`,
+        // A hold's leading edge burns down as its TTL runs out. Not a progress
+        // bar — the card is physically going away.
+        boxShadow:
+          slip.status === "held"
+            ? `inset ${3 - progress * 3}px 0 0 0 var(--color-amber)`
+            : undefined,
       }}
-      title={`#${slip.serial} Â· ${slip.customerName}`}
+      title={`#${slip.serial} · ${slip.customerName}`}
     >
       <Link
         href={`/console/bookings/${slip.id}`}
-        className="flex h-full flex-col justify-between gap-0.5"
+        className="flex h-full flex-col justify-between gap-1"
       >
-        <div className="flex items-start justify-between gap-1">
-          <span className="truncate text-[12px] font-semibold leading-tight text-line">
-            {slip.blockReason ?? (slip.customerName || "â€”")}
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="truncate font-stadium text-[11px] uppercase leading-tight tracking-[0.03em] text-line">
+            {slip.blockReason ?? (slip.customerName || "—")}
           </span>
-          <Serial value={slip.serial} className="shrink-0" />
+          <Serial value={slip.serial} className="shrink-0 opacity-70" />
         </div>
 
-        {height > 44 && (
+        {height > 44 ? (
           <div className="flex items-end justify-between gap-1">
-            <span className="font-board text-[10px] tabular-nums text-line-dim">
+            <span className="board-digit text-[11px] leading-none">
               {clockOf(slip.startMinute)}
-              {slip.isSeries ? " â†»" : ""}
-              {slip.total > 0 ? ` Â· ${formatMoney(slip.total, locale, { showCurrency: false })}` : ""}
+              {slip.isSeries ? " ↻" : ""}
+              {slip.total > 0
+                ? ` · ${formatMoney(slip.total, locale, { showCurrency: false })}`
+                : ""}
             </span>
             <Stamp tone={stamp.tone} className="shrink-0">
               {countdown ? `${stampText} ${countdown}` : stampText}
             </Stamp>
           </div>
-        )}
-
-        {height <= 44 && (
+        ) : (
           <Stamp tone={stamp.tone} className="self-start">
             {countdown ?? stampText}
           </Stamp>
@@ -551,7 +564,7 @@ function NavLink({
     <Link
       href={href}
       aria-label={label}
-      className="flex min-h-9 min-w-9 items-center justify-center border border-line/20 text-[18px] leading-none text-line hover:bg-court-lit/30"
+      className="flex min-h-11 min-w-11 items-center justify-center border border-line/30 text-[20px] leading-none text-line transition-colors hover:border-line hover:bg-line/10"
     >
       {children}
     </Link>

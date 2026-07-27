@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import type { MembershipTier } from "@/data/types";
@@ -15,7 +15,7 @@ import { Stamp } from "@/ui/Stamp";
  *
  * There is no debounce, because the only thing a debounce ever rate-limited was
  * a network request that no longer happens; keeping one would be 250ms of pure
- * added latency per keystroke. The URL is deliberately not touched either â€” a
+ * added latency per keystroke. The URL is deliberately not touched either — a
  * `router.push` per keystroke is a round-trip plus a history entry each time.
  */
 
@@ -67,7 +67,7 @@ export function CustomerLedger({
   const [minLevel, setMinLevel] = useState("");
   const [onlyIssues, setOnlyIssues] = useState(false);
 
-  // Options are built from the FULL list, never the visible rows â€” otherwise
+  // Options are built from the FULL list, never the visible rows — otherwise
   // they collapse as you narrow and you can never widen again.
   const tiers = useMemo(
     () => [...new Set(rows.map((r) => r.tier))].sort(),
@@ -78,7 +78,7 @@ export function CustomerLedger({
     const min = minLevel === "" ? null : Number(minLevel);
     return rows.filter((r) => {
       if (tier && r.tier !== tier) return false;
-      // withinBound, not `r.level >= min` â€” Number(null) is 0, and an unrated
+      // withinBound, not `r.level >= min` — Number(null) is 0, and an unrated
       // player would pass every minimum-level filter as though they were a 0.
       if (min !== null && !withinBound(r.level, min, null)) return false;
       if (onlyIssues && !r.blocked && !r.duplicate && r.noShowCount === 0) {
@@ -129,7 +129,7 @@ export function CustomerLedger({
           <RuledInput
             value={minLevel}
             onChange={(e) => setMinLevel(e.target.value)}
-            placeholder={`${strings.level} â‰¥`}
+            placeholder={`${strings.level} ≥`}
             aria-label={`${strings.level} minimum`}
             inputMode="decimal"
           />

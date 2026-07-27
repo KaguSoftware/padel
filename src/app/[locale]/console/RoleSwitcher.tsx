@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useTransition } from "react";
 import type { Role } from "@/data/types";
@@ -8,7 +8,7 @@ import { switchRole } from "@/app/actions/session";
 /**
  * Prototype-only identity switch.
  *
- * It exists so the capability table is demonstrable â€” a front-desk session
+ * It exists so the capability table is demonstrable — a front-desk session
  * genuinely cannot apply a discount, and you can see that by switching. It
  * disappears when real auth lands; the `Claims` shape it writes is the same one
  * `getClaims()` will read from a verified JWT.
@@ -18,7 +18,7 @@ const ROLES: { role: Role; userId: string; name: string; customerId: string | nu
   { role: "owner", userId: "usr-owner", name: "Layla Al Mheiri", customerId: null },
   { role: "manager", userId: "usr-manager", name: "Omar Haddad", customerId: null },
   { role: "staff", userId: "usr-desk-1", name: "Rania Saeed", customerId: null },
-  { role: "coach", userId: "usr-coach-1", name: "Diego MÃ¡rquez", customerId: null },
+  { role: "coach", userId: "usr-coach-1", name: "Diego Márquez", customerId: null },
   { role: "player", userId: "cus-1", name: "Ahmed Al Nasr", customerId: "cus-1" },
 ];
 
@@ -55,7 +55,7 @@ export function RoleSwitcher({
       >
         {ROLES.map((r) => (
           <option key={r.role} value={r.role} className="bg-court-deep text-line">
-            {r.name} â€” {roleLabels[r.role]}
+            {r.name} — {roleLabels[r.role]}
           </option>
         ))}
       </select>

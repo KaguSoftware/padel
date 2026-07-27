@@ -19,7 +19,6 @@ import type {
   TournamentEntry,
 } from "../types";
 import {
-  CANCELLATION_POLICIES,
   COURTS,
   CUSTOMERS,
   PRICING_RULES,
@@ -297,7 +296,10 @@ export function seedTrading(today: LocalDate): SeededTrading {
           amount: share,
           method: r() < 0.45 ? "cash" : r() < 0.85 ? "card" : "wallet",
           takenBy: STAFF_IDS[Math.floor(r() * STAFF_IDS.length)],
-          takenAt: b.start,
+          // Money is taken when the booking is made or when the players
+          // arrive — never in the future. A payment stamped ahead of now would
+          // land in a till session that has not happened yet.
+          takenAt: b.start.getTime() > Date.now() ? b.createdAt : b.start,
           tillSessionId: null,
           refundOf: null,
           note: "",

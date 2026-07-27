@@ -1,5 +1,7 @@
 ﻿import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireManager } from "@/auth/guard";
+import { getClaims } from "@/auth/claims";
+import { allowManager, MANAGER_ROLES } from "@/auth/guard";
+import { Denied } from "@/ui/Denied";
 import { getDb } from "@/data";
 import { rowsOrThrow } from "@/data/query";
 import type { Role } from "@/data/types";
@@ -37,7 +39,25 @@ export default async function StaffPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireManager();
+  const claims = await allowManager();
+
+  if (!claims) {
+    const t = await getTranslations();
+    return (
+      <Denied
+        title={t("nav.staff")}
+        needs={MANAGER_ROLES}
+        have={(await getClaims())?.role ?? null}
+        roleLabels={{
+          owner: t("common.roles.owner"),
+          manager: t("common.roles.manager"),
+          staff: t("common.roles.staff"),
+          coach: t("common.roles.coach"),
+          player: t("common.roles.player"),
+        }}
+      />
+    );
+  }
 
   const db = getDb();
   const [staff, t] = await Promise.all([

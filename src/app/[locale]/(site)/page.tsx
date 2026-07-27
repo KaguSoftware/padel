@@ -1,21 +1,34 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getDb } from "@/data";
 import { rowsOrThrow } from "@/data/query";
 import { resolveAvailability } from "@/domain/availability";
-import { computeDayGrid, utilisation } from "@/domain/slots";
+import { bookableStarts, computeDayGrid, utilisation } from "@/domain/slots";
+import { quote } from "@/domain/pricing";
+import { openSeats } from "@/domain/split";
 import { formatMoney } from "@/lib/money";
-import { todayInDubai } from "@/lib/time";
+import { clock, todayInDubai } from "@/lib/time";
 import { Link } from "@/i18n/routing";
-import { Guilloche } from "@/ui/Guilloche";
-import { CourtMark } from "@/ui/marks";
+import {
+  BoardChip,
+  BoardHead,
+  BoardPanel,
+  BoardRow,
+  Digits,
+  PaintedFigure,
+} from "@/ui/board";
+import { CourtLines, CourtPlate, ReboundTrace } from "@/ui/court";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The landing page is Persuade, but the argument is not a claim â€” it is the
- * book itself. The first viewport shows tonight's actual page: which courts are
- * free, at what price, with how many seats open on the listed matches. A
- * visitor who leaves after one screen has seen the mechanism work.
+ * FIRST VIEWPORT IS THE THESIS.
+ *
+ * Not a hero with a claim in it — the order-of-play board itself, showing
+ * tonight's real courts, real prices and real open seats, hanging over the
+ * floodlit court. A visitor who leaves after one screen has watched the
+ * mechanism work rather than read a promise about it.
+ *
+ * Every figure below is read from the same grid the front desk is looking at.
  */
 export default async function Landing({
   params,
@@ -39,227 +52,388 @@ export default async function Landing({
       getTranslations(),
     ]);
 
+  const participants = await rowsOrThrow(
+    "site.participants",
+    db.participants.listForBookings(matches.map((m) => m.id)),
+  );
+
   const availability = resolveAvailability(day, courts, templates, exceptions);
   const grid = computeDayGrid({ day, courts, availability, bookings });
   const busy = Math.round(utilisation(grid) * 100);
-
   const ar = locale === "ar";
-  const peakRule = rules.find((r) => r.id === "px-peak-90");
-  const offPeakRule = rules.find((r) => r.id === "px-base-90");
 
-  // Which courts still have a free evening slot tonight â€” a real fact, read
-  // from the same grid the front desk is looking at.
-  const freeTonight = courts.filter((c) =>
-    [720, 810, 900, 990].some(
-      (m) => grid.cells.get(`${c.id}:${m}`)?.state === "open",
-    ),
+  // Tonight's board: for each court, the next open 90-minute starts after
+  // 18:00, priced by the same engine the counter uses. A player must never be
+  // quoted one figure here and charged another at the desk.
+  const EVENING = 720;
+  const board = courts.map((court) => {
+    const starts = bookableStarts(grid, court.id, 90).filter((m) => m >= EVENING);
+    const live = bookings.find(
+      (b) =>
+        b.courtId === court.id &&
+        b.status === "confirmed" &&
+        b.start.getTime() <= Date.now() &&
+        b.end.getTime() > Date.now(),
+    );
+    return {
+      id: court.id,
+      name: ar ? court.nameAr : court.name,
+      ordinal: court.ordinal,
+      live: Boolean(live),
+      liveUntil: live ? clock(live.end) : null,
+      starts: starts.slice(0, 4).map((startMinute) => ({
+        startMinute,
+        clock: clockOf(startMinute),
+        price: quote({
+          day,
+          startMinute,
+          durationMinutes: 90,
+          court,
+          tier: "guest",
+          rules,
+        }).total,
+      })),
+      more: Math.max(0, starts.length - 4),
+    };
+  });
+
+  const openTonight = board.reduce((n, c) => n + c.starts.length + c.more, 0);
+  const seatsGoing = matches.reduce(
+    (n, m) =>
+      n +
+      openSeats(
+        m.partySize,
+        participants.filter((p) => p.bookingId === m.id).length,
+      ),
+    0,
   );
 
+  const peak = rules.find((r) => r.id === "px-peak-90");
+  const offPeak = rules.find((r) => r.id === "px-base-90");
+  const member = rules.find((r) => r.id === "px-member-peak-90");
+
   return (
-    <main className="court-world court-surface">
-      {/* First viewport: the page itself, at the scale it has in life. */}
-      <section className="relative overflow-hidden border-b-2 border-line/25">
-        <Guilloche
-          className="pointer-events-none absolute -end-24 -top-24 size-[28rem] text-amber/20"
-          petals={11}
-          ratio={0.58}
-        />
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-14 md:py-20">
-          <p className="font-board text-[11px] uppercase tracking-[0.24em] text-amber">
-            {ar ? "Ø¯ÙØªØ± Ø§Ù„ÙŠÙˆÙ…" : "The day book"} Â· {day}
-          </p>
+    <main className="court-world">
+      {/* ================= THE BOARD, ON THE COURT ================= */}
+      <section className="court-surface relative overflow-hidden">
+        <CourtLines className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] w-full text-line/20" />
+        <ReboundTrace className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] w-full text-ball/70" />
 
-          <h1 className="mt-4 max-w-3xl painted text-[clamp(2.5rem,7vw,5rem)] leading-[0.95] tracking-tight text-line">
-            {t("site.hero")}
-          </h1>
-
-          <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-line-dim">
-            {t("site.heroBody")}
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/play"
-              className="ink-button inline-flex min-h-12 items-center border-ball live-block px-6 text-[13px] font-semibold uppercase tracking-[0.08em] text-court-deep"
-            >
-              {t("site.bookNow")}
-            </Link>
-            <Link
-              href="/play/matches"
-              className="ink-button inline-flex min-h-12 items-center border-line/40 bg-transparent px-6 text-[13px] font-semibold uppercase tracking-[0.08em] text-line"
-            >
-              {t("site.seeMatches")}
-              {matches.length > 0 && (
-                <span className="ms-2 font-board text-amber">
-                  {matches.length}
-                </span>
+        <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1fr)_27rem] lg:items-center lg:py-20">
+          <div>
+            <h1 className="painted text-[clamp(3rem,8.5vw,7rem)]">
+              {ar ? (
+                <>
+                  أربعة لاعبين.
+                  <br />
+                  ملعب واحد.
+                  <br />
+                  <span className="live">تسعون دقيقة.</span>
+                </>
+              ) : (
+                <>
+                  Four players.
+                  <br />
+                  One court.
+                  <br />
+                  <span className="live">Ninety minutes.</span>
+                </>
               )}
-            </Link>
+            </h1>
+
+            <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-line/80">
+              {t("site.heroBody")}
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                href="/play"
+                className="live-block inline-flex min-h-14 items-center px-8 font-stadium text-[13px] uppercase tracking-[0.1em] transition-[filter,transform] duration-100 hover:brightness-110 active:translate-y-0.5"
+              >
+                {t("site.bookNow")}
+              </Link>
+              <Link
+                href="/play/matches"
+                className="inline-flex min-h-14 items-center gap-3 border border-line/35 px-7 font-stadium text-[13px] uppercase tracking-[0.1em] text-line transition-colors duration-100 hover:border-line hover:bg-line/10"
+              >
+                {t("site.seeMatches")}
+                {seatsGoing > 0 && (
+                  <span className="live-block px-2 py-1 text-[11px] leading-none">
+                    {seatsGoing}
+                  </span>
+                )}
+              </Link>
+            </div>
+
+            <dl className="mt-12 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-8 border-t border-line/20 pt-8 sm:grid-cols-4">
+              <PaintedFigure
+                label={ar ? "متاح الليلة" : "Free tonight"}
+                value={openTonight}
+                sub={ar ? "فترات" : "slots"}
+                live={openTonight > 0}
+              />
+              <PaintedFigure
+                label={ar ? "مشغول اليوم" : "Booked today"}
+                value={`${busy}%`}
+                sub={ar ? "من الساعات" : "of open hours"}
+              />
+              <PaintedFigure
+                label={ar ? "الملاعب" : "Courts"}
+                value={courts.length}
+                sub={ar ? "داخلي وخارجي" : "indoor & out"}
+              />
+              <PaintedFigure
+                label={ar ? "مقاعد شاغرة" : "Seats going"}
+                value={seatsGoing}
+                sub={ar ? "مباريات مفتوحة" : "open matches"}
+                live={seatsGoing > 0}
+              />
+            </dl>
           </div>
 
-          {/* Live readings, not claims. */}
-          <dl className="mt-12 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 border-t-2 border-line/25 pt-6 sm:grid-cols-4">
-            <Reading
-              label={ar ? "Ø§Ù„Ù…Ù„Ø§Ø¹Ø¨" : "Courts"}
-              value={String(courts.length)}
-              sub={ar ? "Ø¯Ø§Ø®Ù„ÙŠ ÙˆØ®Ø§Ø±Ø¬ÙŠ" : "indoor & outdoor"}
-            />
-            <Reading
-              label={ar ? "Ù…Ø´ØºÙˆÙ„ Ø§Ù„ÙŠÙˆÙ…" : "Booked today"}
-              value={`${busy}%`}
-              sub={ar ? "Ù…Ù† Ø§Ù„Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ù…ØªØ§Ø­Ø©" : "of open hours"}
-            />
-            <Reading
-              label={ar ? "Ù…ØªØ§Ø­ Ø§Ù„Ù„ÙŠÙ„Ø©" : "Free tonight"}
-              value={String(freeTonight.length)}
-              sub={ar ? "Ù…Ù„Ø§Ø¹Ø¨" : "courts"}
-            />
-            <Reading
-              label={ar ? "Ù…Ø¨Ø§Ø±ÙŠØ§Øª Ù…ÙØªÙˆØ­Ø©" : "Open matches"}
-              value={String(matches.length)}
-              sub={ar ? "ØªÙ†ØªØ¸Ø± Ù„Ø§Ø¹Ø¨ÙŠÙ†" : "need players"}
-            />
-          </dl>
+          {/* The board itself — the mechanism, at the scale it has in life. */}
+          <BoardPanel className="lg:sticky lg:top-6">
+            <BoardHead className="flex items-center justify-between">
+              <span>{ar ? "ترتيب اللعب" : "Order of play"}</span>
+              <span className="tabular-nums text-line-dim">{day}</span>
+            </BoardHead>
+
+            <div className="max-h-[30rem] overflow-y-auto">
+              {board.map((court) => (
+                <BoardRow key={court.id} flipKey={court.id} className="px-3 py-3">
+                  <div className="flex items-start gap-3">
+                    <Digits className="w-10 shrink-0 text-[26px] leading-none">
+                      {String(court.ordinal).padStart(2, "0")}
+                    </Digits>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="truncate font-stadium text-[12px] uppercase tracking-[0.08em] text-line">
+                          {court.name}
+                        </span>
+                        {court.live ? (
+                          <BoardChip state="live">
+                            {ar ? "يلعب" : "On court"} · {court.liveUntil}
+                          </BoardChip>
+                        ) : court.starts.length === 0 ? (
+                          <BoardChip state="full">
+                            {ar ? "مكتمل" : "Full"}
+                          </BoardChip>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {court.starts.map((s) => (
+                          <Link
+                            key={s.startMinute}
+                            href={`/play?d=${day}&mins=90`}
+                            className="slot flex min-h-11 flex-col justify-center px-2.5 py-1"
+                          >
+                            <span className="font-board text-[14px] font-bold leading-none tabular-nums">
+                              {s.clock}
+                            </span>
+                            <span className="mt-1 font-board text-[10px] leading-none tabular-nums opacity-70">
+                              {formatMoney(s.price, locale, { showCurrency: false })}
+                            </span>
+                          </Link>
+                        ))}
+                        {court.more > 0 && (
+                          <span className="flex min-h-11 items-center px-2 font-board text-[11px] text-line-dim">
+                            +{court.more}
+                          </span>
+                        )}
+                        {court.starts.length === 0 && (
+                          <span className="font-board text-[11px] text-line-dim">
+                            {ar ? "لا يوجد متاح مساءً" : "nothing left this evening"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </BoardRow>
+              ))}
+            </div>
+
+            <div className="border-t border-line/20 px-3 py-2.5 font-board text-[10px] uppercase tracking-[0.16em] text-line-dim">
+              {ar
+                ? "الأسعار لكل ملعب · ٩٠ دقيقة"
+                : "Per court · 90 min · split four ways"}
+            </div>
+          </BoardPanel>
         </div>
       </section>
 
-      {/* Courts â€” the club's own geometry, drawn. */}
-      <section className="mx-auto w-full max-w-6xl px-4 py-14">
-        <h2 className="painted text-[28px] leading-none text-line">
-          {t("site.courtsTitle")}
-        </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {courts.map((c) => {
-            const free = [720, 810, 900, 990].filter(
-              (m) => grid.cells.get(`${c.id}:${m}`)?.state === "open",
-            ).length;
-            return (
-              <article key={c.id} className="slip bg-transparent p-4">
-                <CourtMark size={34} className="text-line-dim" />
-                <h3 className="mt-3 painted text-[21px] leading-none">
-                  {ar ? c.nameAr : c.name}
-                </h3>
-                <p className="mt-1 font-board text-[11px] uppercase tracking-[0.1em] text-line-dim">
-                  {t(`courts.enclosures.${c.enclosure}` as "courts.enclosures.indoor")}
-                  {" Â· "}
-                  {t(`courts.surfaces.${c.surface}` as "courts.surfaces.glass")}
-                </p>
-                <p className="mt-3 border-t border-line/15 pt-2 font-board text-[11px] text-line">
-                  {free > 0
-                    ? `${free} ${ar ? "ÙØªØ±Ø§Øª Ù…Ø³Ø§Ø¦ÙŠØ© Ù…ØªØ§Ø­Ø©" : "evening slots open"}`
-                    : ar
-                      ? "Ø§Ù„Ù…Ø³Ø§Ø¡ Ù…ÙƒØªÙ…Ù„"
-                      : "evening full"}
-                </p>
-              </article>
-            );
-          })}
+      {/* ================= COURTS ================= */}
+      <section className="border-t border-line/15 bg-court-deep">
+        <div className="mx-auto w-full max-w-7xl px-5 py-16">
+          <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
+            {t("site.courtsTitle")}
+          </h2>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {courts.map((c) => {
+              const free = bookableStarts(grid, c.id, 90).filter(
+                (m) => m >= EVENING,
+              ).length;
+              return (
+                <article
+                  key={c.id}
+                  className="glass-pane relative min-h-52 overflow-hidden p-5"
+                >
+                  <CourtPlate
+                    n={c.ordinal}
+                    className="pointer-events-none absolute -end-2 -top-5 text-[6.5rem]"
+                  />
+                  <CourtLines className="pointer-events-none absolute inset-x-4 bottom-12 h-9 text-line/20" />
+
+                  <h3 className="relative font-stadium text-[15px] uppercase tracking-[0.06em] text-line">
+                    {ar ? c.nameAr : c.name}
+                  </h3>
+                  <p className="relative mt-1.5 font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
+                    {t(
+                      `courts.enclosures.${c.enclosure}` as "courts.enclosures.indoor",
+                    )}
+                    {" · "}
+                    {t(`courts.surfaces.${c.surface}` as "courts.surfaces.glass")}
+                  </p>
+
+                  <p className="absolute inset-inline-start-5 bottom-5 font-board text-[11px] uppercase tracking-[0.12em]">
+                    {free > 0 ? (
+                      <span className="live">
+                        {free} {ar ? "متاح مساءً" : "open tonight"}
+                      </span>
+                    ) : (
+                      <span className="text-line-dim">
+                        {ar ? "المساء مكتمل" : "evening full"}
+                      </span>
+                    )}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* Rates and policy, read straight from the config the club edits. */}
-      <section className="border-t border-line/15 bg-court/40">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 md:grid-cols-2">
+      {/* ================= RATES & HOURS ================= */}
+      <section className="court-surface relative overflow-hidden border-t border-line/15">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-16 md:grid-cols-2">
           <div>
-            <h2 className="painted text-[28px] leading-none text-line">
+            <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
               {t("site.ratesTitle")}
             </h2>
-            <dl className="mt-5 space-y-2">
-              <RateLine
-                label={ar ? "Ø®Ø§Ø±Ø¬ Ø§Ù„Ø°Ø±ÙˆØ© Â· Ù©Ù  Ø¯Ù‚ÙŠÙ‚Ø©" : "Off-peak Â· 90 min"}
-                value={
-                  offPeakRule
-                    ? formatMoney(offPeakRule.amount, locale)
-                    : "â€”"
-                }
+            <dl className="mt-7">
+              <Rate
+                label={ar ? "خارج الذروة · ٩٠ دقيقة" : "Off-peak · 90 min"}
+                value={offPeak ? formatMoney(offPeak.amount, locale) : "—"}
               />
-              <RateLine
-                label={ar ? "Ø°Ø±ÙˆØ© Ø§Ù„Ù…Ø³Ø§Ø¡ Â· Ù©Ù  Ø¯Ù‚ÙŠÙ‚Ø©" : "Evening peak Â· 90 min"}
-                value={peakRule ? formatMoney(peakRule.amount, locale) : "â€”"}
+              <Rate
+                label={ar ? "ذروة المساء · ٩٠ دقيقة" : "Evening peak · 90 min"}
+                value={peak ? formatMoney(peak.amount, locale) : "—"}
+                loud
               />
-              <RateLine
-                label={ar ? "Ø£Ø¹Ø¶Ø§Ø¡ Â· Ø°Ø±ÙˆØ© Ø§Ù„Ù…Ø³Ø§Ø¡" : "Members Â· evening peak"}
-                value={
-                  formatMoney(
-                    rules.find((r) => r.id === "px-member-peak-90")?.amount ??
-                      (0 as never),
-                    locale,
-                  )
-                }
+              <Rate
+                label={ar ? "أعضاء · ذروة المساء" : "Members · evening peak"}
+                value={member ? formatMoney(member.amount, locale) : "—"}
               />
             </dl>
-            <p className="mt-4 font-board text-[11px] leading-relaxed text-line-dim">
+            <p className="mt-5 max-w-sm font-board text-[11px] leading-relaxed text-line-dim">
               {ar
-                ? "Ø§Ù„Ø£Ø³Ø¹Ø§Ø± Ù…ÙˆØ¶Ø­Ø© Ù„ÙƒÙ„ Ù…Ù„Ø¹Ø¨. ØªÙÙ‚Ø³Ù… Ø¨ÙŠÙ† Ø£Ø±Ø¨Ø¹Ø© Ù„Ø§Ø¹Ø¨ÙŠÙ†."
-                : "Prices are per court. Split four ways, that is roughly a coffee each."}
+                ? "السعر لكل ملعب. مقسوماً على أربعة، هذا ثمن قهوة للاعب."
+                : "Per court, not per player. Split four ways that is about the price of a coffee each."}
             </p>
           </div>
 
           <div>
-            <h2 className="painted text-[28px] leading-none text-line">
+            <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
               {t("site.hoursTitle")}
             </h2>
-            <dl className="mt-5 space-y-2">
-              <RateLine
-                label={ar ? "Ø§Ù„Ø£Ø­Ø¯ â€“ Ø§Ù„Ø®Ù…ÙŠØ³" : "Sunday â€“ Thursday"}
-                value="06:00 â€“ 00:00"
+            <dl className="mt-7">
+              <Rate
+                label={ar ? "الأحد – الخميس" : "Sunday – Thursday"}
+                value="06:00 – 00:00"
               />
-              <RateLine
-                label={ar ? "Ø§Ù„Ø¬Ù…Ø¹Ø© â€“ Ø§Ù„Ø³Ø¨Øª" : "Friday â€“ Saturday"}
-                value="06:00 â€“ 02:00"
+              <Rate
+                label={ar ? "الجمعة – السبت" : "Friday – Saturday"}
+                value="06:00 – 02:00"
+                loud
               />
-              <RateLine
-                label={ar ? "Ø§Ù„Ù…Ù„Ø¹Ø¨ Ø§Ù„Ø®Ø§Ø±Ø¬ÙŠ" : "Outdoor court"}
-                value="06:00 â€“ 22:00"
+              <Rate
+                label={ar ? "الملعب الخارجي" : "Outdoor court"}
+                value="06:00 – 22:00"
               />
             </dl>
-            <p className="mt-4 font-board text-[11px] leading-relaxed text-line-dim">
+            <p className="mt-5 max-w-sm font-board text-[11px] leading-relaxed text-line-dim">
               {ar
-                ? "ØªØªØºÙŠÙ‘Ø± Ù…ÙˆØ§Ø¹ÙŠØ¯ Ø±Ù…Ø¶Ø§Ù† ÙƒÙ„ Ø¹Ø§Ù… ÙˆØªÙÙ†Ø´Ø± Ù‡Ù†Ø§."
-                : "Ramadan hours change each year and are published here."}
+                ? "تتغيّر مواعيد رمضان كل عام وتُنشر هنا."
+                : "Ramadan hours change every year and are published here."}
             </p>
           </div>
         </div>
       </section>
 
-      <section className="border-t-2 border-line/25 px-4 py-10">
-        <p className="mx-auto max-w-3xl text-center font-board text-[11px] leading-relaxed text-line-dim">
-          {t("site.syntheticNotice")}
-        </p>
+      {/* ================= CLOSE ================= */}
+      <section className="relative overflow-hidden border-t border-line/15 bg-court-deep">
+        <CourtLines className="pointer-events-none absolute inset-0 h-full w-full text-line/12" />
+        <div className="relative mx-auto flex w-full max-w-7xl flex-col items-start gap-6 px-5 py-20">
+          <h2 className="painted max-w-3xl text-[clamp(2rem,6vw,4rem)]">
+            {ar ? (
+              <>
+                لديك لاعبان؟ <span className="live">اطرح المباراة.</span>
+              </>
+            ) : (
+              <>
+                Two of you? <span className="live">List the match.</span>
+              </>
+            )}
+          </h2>
+          <p className="max-w-lg text-[16px] leading-relaxed text-line/75">
+            {ar
+              ? "احجز الملعب، اذكر مستواك، ودع لاعبَين ينضمان. تُقسم التكلفة على أربعة تلقائياً."
+              : "Book the court, state your level, and let two strangers take the empty seats. The cost divides four ways on its own."}
+          </p>
+          <Link
+            href="/play/matches"
+            className="live-block inline-flex min-h-14 items-center px-8 font-stadium text-[13px] uppercase tracking-[0.1em] transition-[filter,transform] duration-100 hover:brightness-110 active:translate-y-0.5"
+          >
+            {t("site.seeMatches")}
+          </Link>
+        </div>
       </section>
+
+      <p className="border-t border-line/15 bg-court-deep px-5 py-6 text-center font-board text-[10px] uppercase tracking-[0.18em] text-line-dim">
+        {t("site.syntheticNotice")}
+      </p>
     </main>
   );
 }
 
-function Reading({
+function Rate({
   label,
   value,
-  sub,
+  loud = false,
 }: {
   label: string;
   value: string;
-  sub: string;
+  loud?: boolean;
 }) {
   return (
-    <div>
-      <dt className="font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
-        {label}
-      </dt>
-      <dd className="mt-1 painted text-[40px] leading-none tabular-nums text-line">
+    <div className="flex items-baseline justify-between gap-4 border-b border-line/15 py-3">
+      <dt className="text-[15px] text-line/85">{label}</dt>
+      <dd
+        className={
+          loud
+            ? "live font-stadium text-[22px] tabular-nums"
+            : "font-board text-[17px] tabular-nums text-line"
+        }
+      >
         {value}
-      </dd>
-      <dd className="font-board text-[10px] uppercase tracking-[0.1em] text-line-dim">
-        {sub}
       </dd>
     </div>
   );
 }
 
-function RateLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-line/15 pb-1.5">
-      <dt className="text-[14px] text-line">{label}</dt>
-      <dd className="font-board text-[14px] tabular-nums text-line">{value}</dd>
-    </div>
-  );
+function clockOf(minute: number): string {
+  const h = Math.floor((minute + 360) / 60) % 24;
+  return `${String(h).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
 }

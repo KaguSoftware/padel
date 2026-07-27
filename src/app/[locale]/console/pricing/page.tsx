@@ -1,4 +1,4 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireConsole } from "@/auth/guard";
 import { loadPricingPage } from "@/data/loaders";
 import { formatMoney } from "@/lib/money";
@@ -79,7 +79,7 @@ export default async function PricingPage({
                   <Cell className="font-board text-[11px] tabular-nums">
                     {r.fromMinute === null && r.toMinute === null
                       ? t("pricing.allHours")
-                      : `${clockOf(r.fromMinute, "06:00")}â€“${clockOf(r.toMinute, "02:00")}`}
+                      : `${clockOf(r.fromMinute, "06:00")}–${clockOf(r.toMinute, "02:00")}`}
                   </Cell>
                   <Cell className="font-board text-[11px]">
                     {r.courtIds.length === 0 && r.courtTags.length === 0
@@ -96,7 +96,7 @@ export default async function PricingPage({
                           .join(", ")}
                   </Cell>
                   <Cell className="font-board text-[11px] tabular-nums">
-                    {r.durations.length === 0 ? "â€”" : r.durations.join(" / ")}
+                    {r.durations.length === 0 ? "—" : r.durations.join(" / ")}
                   </Cell>
                   <Cell numeric>{r.priority}</Cell>
                   <Cell numeric className="font-semibold">
@@ -158,7 +158,7 @@ export default async function PricingPage({
                 .map((p) => (
                   <LedgerRow key={p.id}>
                     <Cell>{ar ? p.labelAr : p.label}</Cell>
-                    <Cell numeric>â‰¥ {p.hoursBefore}h</Cell>
+                    <Cell numeric>≥ {p.hoursBefore}h</Cell>
                     <Cell numeric>{p.refundPercent}%</Cell>
                     <Cell>
                       <Stamp

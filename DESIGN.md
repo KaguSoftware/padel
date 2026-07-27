@@ -4,71 +4,106 @@
 
 ## Direction contract
 
-**THESIS.** This system is a ledger, so it looks like one. Every booking is an entry, every payment a stamped receipt, every audit row a line that cannot be erased. It refuses the category default — the white-card sports SaaS console with a green accent and a generic time grid — and it refuses that default's inverse, the neon-on-black athletic dashboard. Guilloche and ruled cash books are the graphic tradition of documents that must not be forged or altered, which is precisely the promise the database's exclusion constraint makes about a 19:00 slot.
+**THESIS.** Padel is played inside a floodlit glass box, and the object that
+governs a club's evening is the order-of-play board hanging over it: which
+court, what time, who is on, how many seats are open. A booking system *is*
+that board, so it looks like one. It refuses the category default — the white
+sports-SaaS console with a green accent, a stock photo of smiling players and a
+generic time grid — and it refuses that default's two predictable escapes:
+neon-on-black "athletic performance" glassmorphism, and the quiet editorial
+paper-and-serif treatment that any model reaches for when asked to be tasteful.
 
-**OWN-WORLD.** Green-bar continuous-form ledger paper as the working ground, banded and red-ruled. Bottle-green card stock as the surrounding shell and chrome. Indigo as the writing ink, oxblood as the settlement colour, brass foil for serials and member tiers. Engraved hairline guilloche on receipts, member cards, and certificates only. Status is a rubber-stamp overprint — a word, set in a boxed or arced stamp, rotated a few degrees off true, in a colour that is redundant with the word. Bookings are card slips set into the ruling, with perforated stub edges where something is detachable (an open seat, a participant's share). Didone display lettering for mastheads and monumental numerals; a workhorse grotesque with tabular figures for the ledger body; typewriter mono for serials, receipts, and machine output, because carbon triplicate receipts were typed.
+**OWN-WORLD.** Saturated court blue as the page's ground, not an accent —
+drenched, at the scale a court has in life, lit by four hard floodlight pools
+falling from the top edge. White line paint for type and rules. **Optic yellow
+is reserved**: it means *available to take* or *live*, and nothing else in the
+product may use it. Amber belongs to the board's mechanical digits. Clay is the
+alert. Panels are glass with a lit top edge; the board itself is a near-black
+panel that sits on top of the court. Headlines are painted onto the surface in
+heavy wide caps, not set on a page. The court's own line plan — service lines,
+centre line, net — is the structural graphic, and padel's signature rebound off
+the back glass is drawn once, live, in the first viewport.
 
-**STORY.** A member of staff standing at a counter sees today's page and knows, without reading, which courts are empty, which money is outstanding, and which hold is about to expire. They write a new entry by completing one sentence. The owner turns to the cash book at close and finds the variance already computed. A player opens the same ledger from a phone and sees the two empty seats in Thursday's 21:00 match.
+**STORY.** A player opens the site in the evening and sees tonight's real board:
+five courts, the hours still free, the price of each, and how many seats are
+going on the listed matches. They take one. A member of staff opens the same
+board from the control desk and writes an entry into it. The owner turns to the
+ledgers and finds which hour to price up.
 
-**FIRST VIEWPORT (staff console).** A ruled day-book page fills the frame. A bottle-green masthead band across the top carries the club mark, the date in both calendars, and the page's serial. Immediately below it, the entry line: one sentence with open slots — *Book ▮court▮ for ▮customer▮ at ▮time▮ for ▮duration▮* — with the still-open slot marked and every eligible cell in the grid below it ruled to show what may fill it. The page itself is courts as ruled columns and hours as banded rows, alternating green-bar tint, red vertical rules between courts, the current time a rule that reads across the whole page with the time set in the margin. Booking slips sit in the ruling carrying serial, customer, party size, and a status stamp. The primary action is the entry line; it is always at the top and always the widest thing on the page.
+**FIRST VIEWPORT (public).** Full-bleed floodlit court. The court line plan and
+one rebound trace across the lower two-thirds, drawn live on load. A painted
+three-line headline at `clamp(3rem, 8.5vw, 7rem)` with its last line in optic
+yellow. Two actions — a solid optic-yellow block and an outlined one carrying
+the live seat count. Beneath them, four painted figures read from the same grid
+the front desk sees. To the right, sticky, **the board itself**: a near-black
+panel, one flap row per court, each carrying a monumental court number in amber
+dot-matrix and the next open start times as lit, tappable panels at their real
+price.
 
-**FORM.** Grounded direction 6 of 7 — club membership card and cash ledger, security-printing family — fused with the *command-sentence* staging, which is the physical act of writing a line in a day book. Seed key 83396768, scope direction, mode operate.
+**FORM.** Grounded direction 4 of 7 — the scoreboard and order-of-play board,
+fabricated-signage family — sited in its own habitat, the floodlit glass box.
+Seed key 5e6b9045, scope direction, mode persuade.
 
 ---
 
-## Modes by surface
+## One world, two rooms
+
+The console is **not** a separate back-office aesthetic. It is the same
+floodlit court seen from the control desk: same palette, same faces, same
+components, more density. A club whose staff screen looks nothing like its
+public screen is two products; this is one.
 
 | Surface | Mode | Consequence |
 |---|---|---|
-| `(site)` marketing, landing | Persuade | The ledger at full scale, dramatized. Show the mechanism, not a claim. |
-| `(play)` player booking, matches | Operate | Phone-first. The ledger page narrows to one court-day column; the slip is the unit. |
-| `(console)` staff OS | Operate | Tablet-first, standing user, bright light. Density and state legibility outrank expression. |
-| `(site)` policy, help | Read | The ledger's ruled reading column; measure over decoration. |
+| `(site)` landing | Persuade | The board at full scale, live. Show the mechanism, never claim it. |
+| `(site)` play, matches, checkout | Operate | Phone-first. The slot panel is the unit; price is always visible on it. |
+| `(console)` all modules | Operate | Tablet-first, standing user, bright light. Density and state legibility outrank expression. |
+| `(site)` policy, help | Read | A single measured column on court surface. |
 
 ---
 
-## Color
+## Colour
 
-**Strategy: full palette, four named roles.** The scene decides light/dark: a front-desk tablet on a counter with a glass court wall behind it, in Gulf daylight. The working page is therefore light and high-contrast; the chrome around it is deep bottle-green card stock. Neither surface is white and neither is cream — cream is the default this world is specifically not made of.
+**Strategy: drenched.** The surface *is* the colour. The scene decides it: a
+padel court is a saturated blue field under floodlights against a dark Gulf
+sky, and both the player choosing a slot at 21:00 and the front desk working
+under bright light are looking at that. Light-on-dark is the physical truth
+here, not a dark-mode preference.
 
 ```
---paper          #EEF2E6   green-bar ledger stock, band A
---paper-band     #E981EDA  → #E2E9D8  band B (alternating rows)
---paper-edge     #D3DCC6   rule between bands, card slip edges
-
---shell          #0C2B20   bottle-green card stock (chrome, masthead, nav)
---shell-raised   #123A2B
---shell-line     #1E5641   hairline on shell
-
---ink            #1B2447   indigo writing ink (all body text on paper)
---ink-soft       #4A5478   secondary text, column heads
---ink-faint      #8A91AC   pencil, provisional, disabled
-
---rule           #C24438   ledger red vertical/marginal rules
---rule-soft      #E0A79F   hairline ruling at low emphasis
-
---settle         #7E1B22   oxblood — paid, settled, confirmed money
---settle-bright  #A82A31   stamp ink
---brass          #A8853F   serials, member tier, foil marks
---brass-bright   #C9A85E
-
---void           #6B6F63   grey — released, expired, cancelled
+--court        #0b2f7a   court blue — the ground
+--court-deep   #05122f   the dark end, and the page behind the court
+--court-lit    #1a4fb8   lit panel, unlit-but-free slot
+--court-glass  #2f6ad4   the glass wall
+--line         #eaf1ff   line paint — all type, all rules
+--line-dim     #94aede   secondary type
+--ball         #d9f227   OPTIC YELLOW — available / live. Nothing else.
+--amber        #ffb020   the board's mechanical digits
+--clay         #e4482f   alert, overdue, conflict
+--board        #04101f   the board panel itself
 ```
 
-**Status must never be carried by hue alone.** Every state is a stamped or ruled *word* plus a colour plus a shape treatment:
+**Optic yellow is the product's scarcest resource.** If it appears on something
+that is not takeable or not currently happening, the whole board stops meaning
+anything. Amber is for digits; clay is for alerts; neither substitutes.
+
+**State is never carried by hue alone.** Every status is a WORD plus a colour
+plus a treatment, because the board is read at a glance across a room, in
+floodlight or sunlight, sometimes by someone who does not distinguish red from
+green:
 
 | State | Word | Colour | Treatment |
 |---|---|---|---|
-| Open | — | — | Ruling only, no slip |
-| Held | `HELD` + countdown | `--ink-faint` | Pencil-weight slip, dashed perforated edge |
-| Confirmed | `CONF` | `--ink` | Solid indigo slip |
-| Paid | `PAID` | `--settle-bright` | Arced rubber stamp, rotated −6°, overprinted |
-| Due | `DUE` | `--rule` | Slip with doubled red rule at the inline start |
-| No-show | `NO-SHOW` | `--void` | Single diagonal strike rule across the slip |
-| Blocked | `BLOCKED` | `--void` | Guilloche hatch fill, no customer line |
-| Open match | `+2 SEATS` | `--brass` | Perforated detachable stub on the block edge |
+| Open | — | `--court-lit` at 12% | Unlit panel; lights to optic yellow under the cursor |
+| Held | `HELD` + countdown | `--amber` | Amber leading edge that burns down as the TTL runs |
+| Confirmed | `CONF` | `--line` at 15% | Solid card |
+| Paid | `PAID` | `--ball` | Optic-yellow leading edge |
+| Due | `DUE` | `--clay` | Clay leading edge |
+| No-show | `NO-SHOW` | `--line-dim` | Desaturated, struck |
+| Blocked | `BLOCKED` | `--line-dim` | Hatched fill |
+| Open match | `+N SEATS` | `--ball` | Detachable stub on the card edge |
 
-Contrast floor: 4.5:1 for all text, 3:1 for the rules and stamp outlines that carry state.
+Contrast floor: 4.5:1 for text, 3:1 for any edge or chip carrying state.
 
 ---
 
@@ -76,13 +111,17 @@ Contrast floor: 4.5:1 for all text, 3:1 for the rules and stamp outlines that ca
 
 | Role | Latin | Arabic | Notes |
 |---|---|---|---|
-| Masthead, monumental numerals, marketing display | **Bodoni Moda** | **Noto Naskh Arabic** | Didone is the letterform of certificates, prospectuses and banknotes. Display sizes only — never below 20px, the hairlines break. |
-| Ledger body, UI, column heads | **Archivo** | **Almarai** | Workhorse grotesque with true tabular figures. `font-variant-numeric: tabular-nums` is on by default for every number in a column. |
-| Serials, times, receipts, machine output, audit log | **Courier Prime** | Courier Prime + Almarai fallback | Carbon triplicate receipts were typed. Typewriter mono is world-native here, not a tech signifier. |
+| Painted headings, court names, buttons | **Archivo Black** | **Noto Kufi Arabic** | Stadium lettering — the heavy grotesque of court signage and fixture posters. Kufi is Arabic's architectural/signage register; it is the correct counterpart, and Naskh (a document face) would be the same error as setting the English in a book serif. |
+| Board readout, labels, all figures | **Doto** | Doto + Almarai fallback | A dot-matrix variable face. This is a *departure board*, not a "tech mono" — no other face reads as a live mechanical board, which is why it earns its place over a default mono. |
+| Body copy, form fields | **Archivo** | **Almarai** | Workhorse grotesque with true tabular figures. |
 
-Arabic gets its own ramp — Almarai runs roughly 1.06× the Latin size and +0.08 line-height at every step, because an Arabic face set on a Latin ramp always reads small and cramped. Naskh display runs +0.15 line-height.
+Arabic runs its own ramp: ~1.06× the Latin size and +0.08 line-height at every
+step, because an Arabic face set on a Latin ramp always reads small and cramped.
+Kufi display runs +0.18 line-height and zero tracking.
 
-Scale (Latin, px): 11 · 12 · 13 · 15 · 17 · 21 · 28 · 40 · 64 · 96. Column heads are 11 uppercase with +0.08em tracking. Ledger body is 13. Nothing between 13 and 15 exists.
+Scale (px): 9 · 10 · 11 · 13 · 15 · 17 · 19 · 22 · 28 · then `clamp()` for
+painted display. Board labels are 10px uppercase at 0.22em tracking. Painted
+headings are −0.015em with 0.86 line-height.
 
 ---
 
@@ -90,62 +129,98 @@ Scale (Latin, px): 11 · 12 · 13 · 15 · 17 · 21 · 28 · 40 · 64 · 96. Col
 
 RTL is structural, not a stylesheet at the end.
 
-- **No `left`/`right` in layout code.** `padding-inline`, `margin-inline`, `inset-inline-start`, `border-inline-end`, `text-align: start`. Tailwind logical utilities (`ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`) only.
-- The ledger's ruling mirrors: in `ar`, court columns run right-to-left and the time margin sits on the right. The *identity* does not mirror — the club mark, the stamp arc direction, and the guilloche stay as drawn.
-- Physical direction is preserved where it is physical: a timeline still runs top-to-bottom; chart time axes still run left-to-right in both locales, because reversing a time axis breaks comprehension faster than it satisfies symmetry.
-- Numerals: `Intl.NumberFormat` with the locale's own numbering system. Currency is always AED with the symbol on the correct side per locale.
-- Both directions are checked on every screen. RTL bugs hide in the screens nobody re-opens.
+- **No `left`/`right` in layout code.** `padding-inline`, `inset-inline-start`,
+  `border-inline-end`; Tailwind logical utilities (`ps-`, `pe-`, `ms-`, `me-`,
+  `start-`, `end-`) only.
+- The board mirrors: court columns run right-to-left in `ar`, the hour margin
+  sits on the right. The *identity* does not mirror — the club mark, the court
+  plan, and the rebound trace stay as drawn, because they are physical objects.
+- Physical axes stay physical: a timeline still runs top-to-bottom, and chart
+  time axes still run left-to-right in both locales (`dir="ltr"` on the plot).
+  Reversing a time axis breaks comprehension faster than it satisfies symmetry.
+- Money is Latin digits in both locales — figures get compared down a column and
+  copied onto receipts, and mixing ١٢٣ with 123 in a money column is unreadable.
+  Prose numbers may use the locale's own digits.
+- Both directions are checked on every screen. RTL bugs hide in the screens
+  nobody re-opens.
 
 ---
 
 ## Component grammar
 
-Every primitive is rebuilt in the world's vocabulary. A stock rounded card with a soft shadow inside this system is a lapse.
-
-- **Slip** — the universal container. Card stock with a 1px `--paper-edge` border, a 3px inline-start bar in the status colour, a serial in mono at the top corner. Corner radius 2px, never more. Elevation is a hard 1px offset shadow, never a blur.
-- **Entry line** — the command sentence. A ruled bar with typed slots; an open slot is an underlined blank in `--brass`, filled slots read back as words. Ill-typed input is refused *at the slot* with a reason. Only a sentence that parses can be committed.
-- **Stamp** — boxed or arced word, 1.5px outline, rotated −6° to −3°, `mix-blend-mode: multiply` so it reads as overprint. Used for status and nothing else.
-- **Rule** — the only divider. Red `--rule` for structural columns, `--paper-edge` for row bands. No shadows as separators.
-- **Guilloche** — an SVG spirograph hairline. Appears on receipts, member cards, certificates, and the marketing masthead. Never as page background chrome.
-- **Perforation** — a dashed edge with punched semicircles, used wherever something detaches: a hold that will expire, an open seat, a participant's share of the bill.
-- **Column head** — 11px uppercase tracked, `--ink-soft`, with a `--rule` underline. Sortable heads carry a mono sort mark, not a chevron icon.
-- **Buttons** — inked blocks with a 1px hard offset, pressed state removes the offset. Primary is `--settle`, secondary is outlined `--ink`, destructive carries a hatch.
-- **Icons** — drawn in the world's grammar: 1.5px hairline strokes, square terminals, no rounded joins. Court geometry, stamps, and ledger marks are authored; nothing generic is imported for a place where an authored mark belongs.
-- **Touch targets** — 44px minimum everywhere in `(console)`, 48px for anything in the calendar grid. The user is standing.
+- **Board panel** — near-black, hairline border, deep drop shadow. The only
+  element allowed to sit *on top of* the court rather than in it.
+- **Flap row** — a board row with the faint horizontal seam of a real split-flap,
+  and a 260ms `rotateX` flap on change. Content changes flip; nothing fades.
+- **Slot** — a lit panel carrying its time and its real price. Free slots light
+  to optic yellow and rise 2px on hover; taken slots are inert; closed slots are
+  hatched. The whole panel is the hit area, ≥44px.
+- **Card** (a booking) — a panel whose leading edge carries the state colour, with
+  the serial in amber dot-matrix in the corner.
+- **Court plate** — the monumental outlined number bolted to the fence, used as
+  wayfinding wherever a court is named.
+- **Glass pane** — the section container: a translucent blue pane with a lit top
+  edge and a hairline border. Panels do not nest.
+- **Court line plan** — the structural graphic. Appears where a surface needs to
+  read as a court; never as page-wide wallpaper.
+- **Rebound trace** — drawn ONCE, in the first viewport. It is padel's signature
+  and it stops being one if it is repeated.
+- **Buttons** — painted blocks. Primary is solid optic yellow on court-deep;
+  secondary is an outlined line-paint block. ≥48px in the console.
+- **Icons** — authored in the world's grammar: 1.5px hairline strokes, square
+  terminals, mitred joins, no filled pictograms. The club mark is a padel court
+  in plan with its net and service lines.
 
 ---
 
 ## Motion
 
-The world's native motion is paper and mechanism, not easing curves.
+The world's native motion is mechanical, not eased-and-floaty.
 
-- Stamps **land**: 90ms scale-down from 1.06 with no bounce, then settle. One per action, never decorative.
-- Slips **slide into the ruling** on create; they do not fade in.
-- A hold's remaining time is a perforated edge that **tears further open** as it expires.
-- Drag-to-move lifts the slip 2px with a hard shadow; on conflict it snaps back along the same path in 140ms and a `TAKEN` stamp lands on the origin.
-- Page transitions are a ledger page turn only on the marketing surface. The console never animates navigation — staff are mid-task.
-- Everything respects `prefers-reduced-motion`: stamps appear without landing, tears set to their final state.
+- **Flaps land.** A row whose content changed flips in over 260ms on `rotateX`,
+  from −92° through a 12° overshoot. One per change.
+- **The rebound trace draws once** on first paint, 2.6s, then stays.
+- **Holds burn down.** A held slot's amber edge shortens in real time; on
+  checkout it is a bar across the head of the card. It is not a progress
+  indicator — the slot is physically going away.
+- **Slots light, they do not glow.** 120ms background and 2px lift. No blur, no
+  halo, no pulse.
+- **The console never animates navigation.** Staff are mid-task.
+- One 1Hz ticker drives every countdown on the page. Sixty `setInterval`s on a
+  front-desk tablet is a jank generator, and the tablet is the whole product.
+- Everything respects `prefers-reduced-motion`: flaps and the trace resolve to
+  their final state immediately.
 
 ---
 
 ## Prohibitions
 
-Checked against the world's own materials — each of these is absent from security printing and club stationery, not merely unfashionable.
+Each of these is absent from the world itself, not merely unfashionable.
 
-- No blurred drop shadows. Elevation in this world is a hard offset or a paper edge.
-- No corner radius above 2px. Card stock is guillotined.
-- No gradients as surface fill. Ink is flat; guilloche makes tone from line.
-- No glassmorphism, no glow, no neon.
-- No cream, parchment, or ivory grounds. This world's paper is green-bar stock.
-- No colour-only state encoding anywhere.
-- No generic icon tile where an authored mark belongs.
-- Didone below 20px is banned outright.
+- **No optic yellow on anything that is not available or live.** The one rule
+  that keeps the board readable.
+- No blurred coloured glows, no neon halo, no "glassmorphism" as a decorative
+  effect — the glass pane here is a real wall with a lit edge and a hairline.
+- No gradients as decoration. The only gradients are the court's own lighting.
+- No corner radius above 2px. Boards and plates are cut, not rounded.
+- No cream, paper, parchment or ivory grounds anywhere.
+- No colour-only state encoding.
+- No stock icon set where an authored mark belongs.
+- No eyebrow labels: the small pill or dot-plus-caption above a headline. The
+  first thing on a page is the thing itself.
+- No decorative photography standing in for the mechanism. If a screen can show
+  real availability, it shows real availability.
 
 ---
 
 ## Data & numbers
 
-- Money is stored and passed as **integer minor units (fils)**; only the formatter sees a decimal. A branded `Fils` type makes a raw `number` a type error.
-- All numbers in a column are tabular and right-aligned in `en` / start-aligned to the numeral column in `ar`.
-- Times are stored UTC, rendered `Asia/Dubai`. The operating day runs 06:00 → 02:00, so a "day" crosses midnight and the calendar must render past-midnight hours as part of the preceding day's page.
-- Charts follow the same palette and the same non-hue-alone rule: series are distinguished by ruling pattern as well as colour.
+- Money is stored and passed as **integer minor units (fils)**; only the
+  formatter sees a decimal, and a branded `Fils` type makes a raw `number` a
+  compile error.
+- All numbers in a column are tabular and set in the board face.
+- Times are stored UTC, rendered `Asia/Dubai`. The operating day runs 06:00 →
+  02:00, so a day crosses midnight and a 01:00 booking belongs to the previous
+  day's board and the previous day's till.
+- Charts follow the same rules: the peak column is distinguished by a hatch and
+  a printed figure as well as by colour, and the time axis stays LTR.

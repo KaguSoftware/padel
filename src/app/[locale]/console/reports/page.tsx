@@ -1,5 +1,7 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireManager } from "@/auth/guard";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getClaims } from "@/auth/claims";
+import { allowManager, MANAGER_ROLES } from "@/auth/guard";
+import { Denied } from "@/ui/Denied";
 import { loadReportsPage } from "@/data/loaders";
 import { addFils, formatMoney, type Fils, ZERO } from "@/lib/money";
 import { addDaysToLocalDate, minutesIntoDay, operatingDayOf, todayInDubai } from "@/lib/time";
@@ -19,7 +21,25 @@ export default async function ReportsPage({
 }) {
   const [{ locale }, sp] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
-  await requireManager();
+  const claims = await allowManager();
+
+  if (!claims) {
+    const t = await getTranslations();
+    return (
+      <Denied
+        title={t("reports.title")}
+        needs={MANAGER_ROLES}
+        have={(await getClaims())?.role ?? null}
+        roleLabels={{
+          owner: t("common.roles.owner"),
+          manager: t("common.roles.manager"),
+          staff: t("common.roles.staff"),
+          coach: t("common.roles.coach"),
+          player: t("common.roles.player"),
+        }}
+      />
+    );
+  }
 
   const days = sp.range === "30" ? 30 : 7;
   const today = todayInDubai();
@@ -83,7 +103,7 @@ export default async function ReportsPage({
   return (
     <PageShell
       title={t("reports.title")}
-      serial={`${from} â†’ ${today}`}
+      serial={`${from} → ${today}`}
       actions={
         <div className="flex gap-1.5">
           {[7, 30].map((n) => (
@@ -114,12 +134,12 @@ export default async function ReportsPage({
             />
             <Reading
               label={t("reports.peakHour")}
-              value={peak?.clock ?? "â€”"}
+              value={peak?.clock ?? "—"}
               sub={peak ? `${Math.round(peak.value * 100)}%` : undefined}
             />
             <Reading
               label={t("reports.quietestHour")}
-              value={quietest?.clock ?? "â€”"}
+              value={quietest?.clock ?? "—"}
               sub={quietest ? `${Math.round(quietest.value * 100)}%` : undefined}
               tone="void"
             />
@@ -156,7 +176,7 @@ export default async function ReportsPage({
                     <Cell numeric>{(mins / 60).toFixed(1)}</Cell>
                     <Cell numeric>
                       {totalMins === 0
-                        ? "â€”"
+                        ? "—"
                         : `${Math.round((mins / totalMins) * 100)}%`}
                     </Cell>
                   </LedgerRow>

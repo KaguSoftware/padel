@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { confirmHold } from "@/app/actions/bookings";
@@ -7,20 +7,18 @@ import type { BookingStatus } from "@/data/types";
 import { formatMoney, type Fils } from "@/lib/money";
 import { formatPhone } from "@/lib/text";
 import { Link } from "@/i18n/routing";
-import { cn } from "@/ui/cn";
-import { Guilloche } from "@/ui/Guilloche";
+import { CourtLines } from "@/ui/court";
 import { InkButton, Serial } from "@/ui/primitives";
 import { Stamp } from "@/ui/Stamp";
 import { useCountdown, useHoldProgress } from "@/ui/Ticker";
 
 /**
- * Checkout, set as the carbon receipt it becomes.
+ * Checkout, set as the card that has been pulled off the board.
  *
- * The hold's remaining time is not a progress bar â€” it is the perforated edge
- * of the stub tearing further open, which is what the world does when something
- * is about to detach. When it lapses the page says so plainly and offers the
- * way back, because a lapsed hold means the slot is genuinely free again and
- * the honest instruction is "try once more".
+ * The hold burns down as a bar across the head of the card, because the slot is
+ * physically going away — not a decorative timer. When it lapses the page says
+ * so plainly and offers the way back, since a lapsed hold means the slot is
+ * genuinely free again and the honest instruction is "try once more".
  */
 
 interface BookingView {
@@ -85,19 +83,18 @@ export function Checkout({
   return (
     <main className="court-world court-surface min-h-dvh">
       <div className="mx-auto w-full max-w-2xl px-4 py-10">
-        <article
-          className={cn(
-            "slip relative overflow-hidden bg-transparent",
-            !done && !expired && "perforated-end",
+        <article className="board-panel relative overflow-hidden">
+          {/* The hold burning down, as a bar across the head of the card. */}
+          {!done && !expired && (
+            <span
+              className="absolute inset-x-0 top-0 z-10 block h-1 bg-amber transition-[width] duration-1000 ease-linear"
+              style={{ width: `${Math.max(0, 100 - progress * 100)}%` }}
+              aria-hidden
+            />
           )}
-          style={{ ["--perf" as string]: `${3 + progress * 7}px` }}
-        >
-          <Guilloche
-            band
-            className="pointer-events-none absolute inset-inline-0 top-0 h-6 w-full text-amber/40"
-          />
+          <CourtLines className="pointer-events-none absolute inset-x-6 bottom-6 h-16 w-auto text-line/12" />
 
-          <header className="border-b-2 border-line/25 px-5 pb-3 pt-9">
+          <header className="relative border-b border-line/20 px-5 pb-3 pt-6">
             <div className="flex items-baseline justify-between gap-3">
               <h1 className="painted text-[28px] leading-none text-line">
                 {done ? strings.confirmed : strings.checkout}
@@ -105,7 +102,7 @@ export function Checkout({
               <Serial value={booking.serial} />
             </div>
             <p className="mt-1 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim">
-              Kagu Padel Â· {booking.day}
+              Kagu Padel · {booking.day}
             </p>
           </header>
 
@@ -114,7 +111,7 @@ export function Checkout({
               <Line label="Court" value={booking.courtName} />
               <Line
                 label="Time"
-                value={`${booking.startClock}â€“${booking.endClock}`}
+                value={`${booking.startClock}–${booking.endClock}`}
               />
               <Line label="Players" value={String(booking.partySize)} />
               {customer && <Line label="Booked by" value={customer.name} />}
@@ -163,7 +160,7 @@ export function Checkout({
                 )}
                 <Link
                   href="/play/account"
-                  className="ink-button mt-4 inline-flex min-h-11 items-center border-line/40 bg-transparent px-4 text-[12px] font-semibold uppercase tracking-[0.08em] text-line"
+                  className="mt-4 inline-flex min-h-12 items-center border border-line/35 px-5 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
                 >
                   {strings.myBookings}
                 </Link>
@@ -178,7 +175,7 @@ export function Checkout({
                 </p>
                 <Link
                   href="/play"
-                  className="ink-button mt-4 inline-flex min-h-11 items-center border-ball live-block px-4 text-[12px] font-semibold uppercase tracking-[0.08em] text-court-deep"
+                  className="mt-4 live-block inline-flex min-h-12 items-center px-5 font-stadium text-[12px] uppercase tracking-[0.09em] transition-[filter,transform] duration-100 hover:brightness-110 active:translate-y-0.5"
                 >
                   {strings.back}
                 </Link>
@@ -186,7 +183,7 @@ export function Checkout({
             ) : (
               <div className="border-t border-line/15 pt-4">
                 <div className="flex items-center justify-between gap-3">
-                  <Stamp tone="held">HELD {countdown ?? "â€”"}</Stamp>
+                  <Stamp tone="held">HELD {countdown ?? "—"}</Stamp>
                   <span className="font-board text-[10px] uppercase tracking-[0.1em] text-line-dim">
                     {strings.holdExplain}
                   </span>
@@ -216,7 +213,7 @@ export function Checkout({
                 </div>
 
                 <p className="mt-3 font-board text-[10px] leading-relaxed text-line-dim">
-                  No payment provider is wired in this prototype â€” &ldquo;pay
+                  No payment provider is wired in this prototype — &ldquo;pay
                   now&rdquo; records a card payment against the entry so the
                   till and the receipt behave correctly end to end.
                 </p>

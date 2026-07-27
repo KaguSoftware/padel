@@ -27,12 +27,18 @@ export function useNow(): number {
   return useContext(TickContext);
 }
 
-/** mm:ss remaining, or null once it has lapsed. */
+/**
+ * mm:ss remaining, or null once it has lapsed.
+ *
+ * Reads only the ticker's `now`. There is deliberately no `Date.now()`
+ * fallback: calling it during render is impure, and a hook that silently works
+ * outside its provider hides the mistake of forgetting the provider.
+ */
 export function useCountdown(until: Date | string | null): string | null {
   const now = useNow();
-  if (!until) return null;
+  if (!until || now === 0) return null;
   const target = typeof until === "string" ? Date.parse(until) : until.getTime();
-  const ms = target - (now || Date.now());
+  const ms = target - now;
   if (ms <= 0) return null;
   const total = Math.floor(ms / 1000);
   const m = Math.floor(total / 60);
@@ -46,10 +52,10 @@ export function useHoldProgress(
   expiresAt: Date | string | null,
 ): number {
   const now = useNow();
-  if (!issuedAt || !expiresAt) return 0;
+  if (!issuedAt || !expiresAt || now === 0) return 0;
   const from = typeof issuedAt === "string" ? Date.parse(issuedAt) : issuedAt.getTime();
   const to = typeof expiresAt === "string" ? Date.parse(expiresAt) : expiresAt.getTime();
   const span = to - from;
   if (span <= 0) return 1;
-  return Math.min(1, Math.max(0, ((now || Date.now()) - from) / span));
+  return Math.min(1, Math.max(0, (now - from) / span));
 }

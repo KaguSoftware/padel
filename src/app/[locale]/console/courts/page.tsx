@@ -1,4 +1,4 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireConsole } from "@/auth/guard";
 import { getDb } from "@/data";
 import { rowsOrThrow } from "@/data/query";
@@ -111,7 +111,7 @@ export default async function CourtsPage({
                   return (
                     <Cell key={d} className="font-board text-[11px] tabular-nums">
                       {tpl
-                        ? `${clockOf(tpl.openMinute)}â€“${clockOf(tpl.closeMinute)}`
+                        ? `${clockOf(tpl.openMinute)}–${clockOf(tpl.closeMinute)}`
                         : t("calendar.closed")}
                     </Cell>
                   );
@@ -127,7 +127,7 @@ export default async function CourtsPage({
             {exceptions.map((e) => (
               <LedgerRow key={e.id}>
                 <Cell className="font-board tabular-nums">
-                  {e.from} â†’ {e.to}
+                  {e.from} → {e.to}
                 </Cell>
                 <Cell>
                   <Stamp tone={e.openMinute === null ? "blocked" : "part"}>
@@ -137,7 +137,7 @@ export default async function CourtsPage({
                 <Cell className="font-board text-[11px] tabular-nums">
                   {e.openMinute === null || e.closeMinute === null
                     ? t("calendar.closed")
-                    : `${clockOf(e.openMinute)}â€“${clockOf(e.closeMinute)}`}
+                    : `${clockOf(e.openMinute)}–${clockOf(e.closeMinute)}`}
                 </Cell>
                 <Cell>{ar ? e.noteAr : e.note}</Cell>
               </LedgerRow>
@@ -145,7 +145,7 @@ export default async function CourtsPage({
           </LedgerTable>
           <p className="mt-3 font-board text-[11px] leading-relaxed text-line-dim">
             Ramadan hours are exception rows over a date range, not a branch in
-            code â€” the dates move about eleven days earlier each Gregorian year
+            code — the dates move about eleven days earlier each Gregorian year
             and the club edits them here.
           </p>
         </Panel>

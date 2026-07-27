@@ -1,12 +1,14 @@
-﻿import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { CourtMark } from "@/ui/marks";
 import { TickerProvider } from "@/ui/Ticker";
 
 /**
- * The public shell. Marketing is Persuade, the booking flow is Operate, and
- * both live inside the same bound ledger â€” the club's public face is the same
- * book its staff write in, which is the argument the product is making.
+ * The public shell.
+ *
+ * Marketing is Persuade, the booking flow is Operate, and both stand on the
+ * same floodlit court. The nav is fence signage: wide caps, wide tracking, the
+ * live route marked in optic yellow.
  */
 export default async function SiteLayout({
   children,
@@ -21,22 +23,22 @@ export default async function SiteLayout({
 
   return (
     <TickerProvider>
-      <div className="flex min-h-dvh flex-col bg-court-deep">
-        <header className="border-b border-line/20 bg-court-deep text-line">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <Link href="/" className="flex items-center gap-2.5">
-              <CourtMark size={26} className="text-ball" />
+      <div className="court-world flex min-h-dvh flex-col bg-court-deep">
+        <header className="sticky top-0 z-40 border-b border-line/20 bg-court-deep/92 text-line backdrop-blur-md">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+            <Link href="/" className="flex items-center gap-3">
+              <CourtMark size={28} className="text-ball" />
               <span>
-                <span className="block painted text-[20px] leading-none tracking-tight">
+                <span className="painted block text-[19px] leading-none">
                   Kagu
                 </span>
-                <span className="block font-board text-[10px] uppercase tracking-[0.22em] text-amber">
+                <span className="block font-board text-[10px] uppercase leading-none tracking-[0.34em] text-amber">
                   Padel
                 </span>
               </span>
             </Link>
 
-            <nav className="flex flex-wrap items-center gap-x-1 gap-y-1">
+            <nav className="flex flex-wrap items-center gap-x-0.5 gap-y-1">
               <SiteLink href="/play">{t("book")}</SiteLink>
               <SiteLink href="/play/matches">{t("matches")}</SiteLink>
               <SiteLink href="/play/account">{t("account")}</SiteLink>
@@ -44,7 +46,7 @@ export default async function SiteLayout({
               <Link
                 href="/"
                 locale={locale === "ar" ? "en" : "ar"}
-                className="ms-2 min-h-11 px-2 py-2 font-board text-[11px] uppercase tracking-[0.14em] text-amber hover:text-ball"
+                className="ms-2 flex min-h-11 items-center border border-line/25 px-3 font-board text-[11px] uppercase tracking-[0.18em] text-amber transition-colors hover:border-amber hover:text-ball"
               >
                 {t("language")}
               </Link>
@@ -54,11 +56,11 @@ export default async function SiteLayout({
 
         <div className="flex-1">{children}</div>
 
-        <footer className="border-t border-line/20 bg-court-deep px-4 py-6 text-line-dim">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 font-board text-[11px]">
-            <span>Kagu Padel Â· Al Quoz 1, Dubai</span>
+        <footer className="border-t border-line/20 bg-court-deep px-5 py-8 text-line-dim">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 font-board text-[10px] uppercase tracking-[0.18em]">
+            <span>Kagu Padel · Al Quoz 1, Dubai</span>
             <span className="text-amber">
-              Prototype â€” synthetic sample data throughout
+              Prototype — synthetic sample data throughout
             </span>
           </div>
         </footer>
@@ -77,7 +79,7 @@ function SiteLink({
   return (
     <Link
       href={href}
-      className="min-h-11 px-3 py-2 text-[13px] text-line/85 hover:text-line"
+      className="flex min-h-11 items-center px-3 font-stadium text-[11px] uppercase tracking-[0.09em] text-line/75 transition-colors hover:text-ball"
     >
       {children}
     </Link>
