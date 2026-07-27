@@ -192,12 +192,12 @@ export function DayBook(props: Props) {
     <div className="court-world min-h-dvh bg-court-deep">
       {/* The board's head: the day, the shift's running figures, the page keys. */}
       <header className="sticky top-0 z-20 border-b border-line/25 bg-board text-line">
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-5">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h1 className="painted text-[clamp(1.3rem,2.6vw,1.9rem)]">
               {strings.title}
             </h1>
-            <span className="board-digit text-[19px] leading-none">{day}</span>
+            <span className="board-digit text-[15px] leading-none sm:text-[19px]">{day}</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -222,7 +222,7 @@ export function DayBook(props: Props) {
         </div>
 
         {/* Running figures for the shift, in board digits. */}
-        <div className="flex flex-wrap gap-x-9 gap-y-2 border-t border-line/15 px-5 py-2.5">
+        <div className="scroll-x flex gap-x-6 border-t border-line/15 px-4 py-2.5 sm:flex-wrap sm:gap-x-9 sm:px-5">
           <Figure label={strings.takings} value={formatMoney(takings.total, locale)} />
           <Figure label="Cash" value={formatMoney(takings.cash, locale)} />
           <Figure label="Card" value={formatMoney(takings.card, locale)} />
@@ -275,17 +275,19 @@ export function DayBook(props: Props) {
           {strings.noCourts}
         </p>
       ) : (
-        <div className="overflow-x-auto" ref={gridRef}>
+        <div className="scroll-x" ref={gridRef}>
           <div
             className="min-w-max"
             style={{
-              // Time margin, then one column per court.
+              // Hour gutter, then one column per court. The column floor drops
+              // on a phone so two courts and the hour still fit on a 375px
+              // screen; the rest scroll under the sticky gutter.
               display: "grid",
-              gridTemplateColumns: `4.25rem repeat(${columns.length}, minmax(9.5rem, 1fr))`,
+              gridTemplateColumns: `var(--gutter-w) repeat(${columns.length}, minmax(var(--col-w), 1fr))`,
             }}
           >
             {/* Court heads: the plate on the fence, over the column it owns. */}
-            <div className="sticky top-0 z-10 border-b border-line/25 bg-board px-2 py-2.5">
+            <div className="hour-gutter sticky top-0 z-15 border-b border-line/25 px-2 py-2.5">
               <ColumnHead className="border-0 pb-0">Hr</ColumnHead>
             </div>
             {columns.map((c, i) => (
@@ -301,7 +303,7 @@ export function DayBook(props: Props) {
                     {c.name}
                   </span>
                 </div>
-                <div className="mt-1 font-board text-[9px] uppercase tracking-[0.14em] text-line-dim">
+                <div className="mt-1 truncate font-board text-[9px] uppercase tracking-[0.14em] text-line-dim">
                   {c.closedNote ?? c.enclosure}
                 </div>
               </div>
@@ -394,13 +396,15 @@ function Row({
     <>
       <div
         className={cn(
-          "hour-band relative border-e border-line/12 px-2 text-end",
+          "hour-gutter hour-band relative px-1.5 text-end sm:px-2",
           onHour ? "border-b border-line/15" : "",
         )}
         style={{ height: ROW_PX }}
       >
         {onHour && (
-          <span className="board-digit text-[13px] leading-none">{label}</span>
+          <span className="board-digit text-[11px] leading-none sm:text-[13px]">
+            {label}
+          </span>
         )}
         {isNow && (
           <span className="absolute inset-inline-0 bottom-0 z-20 block h-0.5 bg-ball" />

@@ -21,7 +21,7 @@ import { Stamp } from "@/ui/Stamp";
  * For a cash-heavy venue this is the module that pays for the whole system,
  * because it is the one that catches theft. The number that matters is the
  * variance, so the variance is the largest thing on the page and it is never
- * softened â€” a shortfall reads as a shortfall.
+ * softened — a shortfall reads as a shortfall.
  */
 
 interface Session {
@@ -137,7 +137,7 @@ export function CashBook({
                     </Cell>
                     <Cell numeric>
                       {h.countedCash === null
-                        ? "â€”"
+                        ? "—"
                         : formatMoney(h.countedCash, locale, { showCurrency: false })}
                     </Cell>
                     <Cell numeric>
@@ -270,7 +270,7 @@ function VarianceFigure({
   locale: string;
   strings: Record<string, string>;
 }) {
-  if (variance === null) return <span className="text-line-dim">â€”</span>;
+  if (variance === null) return <span className="text-line-dim">—</span>;
   if (variance === 0) {
     return <Stamp tone="paid">{strings.balanced}</Stamp>;
   }

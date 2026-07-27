@@ -137,7 +137,7 @@ export function Counter({
                     </Cell>
                     <Cell numeric>
                       {p.stock === null ? (
-                        <span className="text-line-dim">â€”</span>
+                        <span className="text-line-dim">—</span>
                       ) : (
                         <span className={cn(p.low && "text-clay")}>{p.stock}</span>
                       )}
@@ -151,7 +151,7 @@ export function Counter({
                             className="min-h-11 min-w-11 border border-line/30 font-board"
                             aria-label={`Remove ${p.name}`}
                           >
-                            âˆ’
+                            −
                           </button>
                           <span className="min-w-9 text-center font-board tabular-nums">
                             {cart[p.id] ?? 0}
@@ -186,7 +186,7 @@ export function Counter({
                       className="flex items-baseline justify-between gap-3 border-b border-line/15 py-1.5 text-[13px]"
                     >
                       <span className="truncate">
-                        {l.qty} Ã— {l.product.name}
+                        {l.qty} × {l.product.name}
                       </span>
                       <span className="shrink-0 font-board tabular-nums">
                         {formatMoney(l.amount, locale, { showCurrency: false })}

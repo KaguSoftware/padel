@@ -22,7 +22,8 @@
     "matches": "Open matches",
     "account": "My account",
     "signIn": "Sign in",
-    "language": "العربية"
+    "language": "العربية",
+    "finances": "Finances"
   },
   "status": {
     "open": "OPEN",
@@ -142,7 +143,11 @@
     "new": "New member",
     "duplicateWarning": "A member already exists on this number.",
     "mergeSuggestion": "Possible duplicate — same number, different spelling.",
-    "tiers": { "guest": "Guest", "member": "Member", "premium": "Premium" },
+    "tiers": {
+      "guest": "Guest",
+      "member": "Member",
+      "premium": "Premium"
+    },
     "unrated": "Unrated"
   },
   "till": {
@@ -187,7 +192,11 @@
     "hoursBefore": "Hours before",
     "refundPercent": "Refund",
     "outcome": "As",
-    "outcomes": { "refund": "Refund", "credit": "Credit", "none": "Nothing" },
+    "outcomes": {
+      "refund": "Refund",
+      "credit": "Credit",
+      "none": "Nothing"
+    },
     "noPolicy": "Inside the no-refund window — nothing is returned."
   },
   "reports": {
@@ -267,8 +276,16 @@
     "surface": "Surface",
     "enclosure": "Type",
     "block": "Block for maintenance",
-    "surfaces": { "glass": "Glass", "panoramic": "Panoramic", "wall": "Wall" },
-    "enclosures": { "indoor": "Indoor", "outdoor": "Outdoor", "covered": "Covered" },
+    "surfaces": {
+      "glass": "Glass",
+      "panoramic": "Panoramic",
+      "wall": "Wall"
+    },
+    "enclosures": {
+      "indoor": "Indoor",
+      "outdoor": "Outdoor",
+      "covered": "Covered"
+    },
     "exceptions": "Hours & exceptions",
     "ramadan": "Ramadan hours"
   },

@@ -13,7 +13,7 @@ import { Stamp } from "@/ui/Stamp";
 export const dynamic = "force-dynamic";
 
 /**
- * Permissions are a table, not a scattering of role checks â€” "who can give a
+ * Permissions are a table, not a scattering of role checks — "who can give a
  * discount" is answerable by reading one grid, which is the question an owner
  * actually asks. This mirrors CAPABILITIES in src/auth/guard.ts.
  */
@@ -109,14 +109,14 @@ export default async function StaffPage({
                         className="font-board text-[13px] text-ball"
                         aria-label="permitted"
                       >
-                        âœ“
+                        ✓
                       </span>
                     ) : (
                       <span
                         className="font-board text-[13px] text-line-dim"
                         aria-label="not permitted"
                       >
-                        â€”
+                        —
                       </span>
                     )}
                   </Cell>

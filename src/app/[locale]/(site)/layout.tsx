@@ -25,7 +25,7 @@ export default async function SiteLayout({
     <TickerProvider>
       <div className="court-world flex min-h-dvh flex-col bg-court-deep">
         <header className="sticky top-0 z-40 border-b border-line/20 bg-court-deep/92 text-line backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-5">
             <Link href="/" className="flex items-center gap-3">
               <CourtMark size={28} className="text-ball" />
               <span>
@@ -38,7 +38,7 @@ export default async function SiteLayout({
               </span>
             </Link>
 
-            <nav className="flex flex-wrap items-center gap-x-0.5 gap-y-1">
+            <nav className="scroll-x -mx-1 flex w-full items-center gap-x-0.5 px-1 sm:mx-0 sm:w-auto sm:px-0">
               <SiteLink href="/play">{t("book")}</SiteLink>
               <SiteLink href="/play/matches">{t("matches")}</SiteLink>
               <SiteLink href="/play/account">{t("account")}</SiteLink>

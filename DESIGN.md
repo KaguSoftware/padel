@@ -193,6 +193,33 @@ The world's native motion is mechanical, not eased-and-floaty.
 
 ---
 
+## Responsive
+
+Phone first, and not as an afterthought — a player choosing a court at 21:00 is
+on a phone, and the front desk's tablet is a narrow viewport in portrait.
+
+- **The page never scrolls sideways.** `body { overflow-x: clip }`. Anything
+  genuinely wider than a phone — the day board, every ledger table, the
+  utilisation chart, the section rails — scrolls inside its own `.scroll-x`
+  container. `clip` and not `hidden`, because `hidden` makes body a scroll
+  container and silently breaks every sticky header in the app.
+- **The day board's hour gutter is sticky** at the inline start. Column widths
+  come from `--col-w` / `--gutter-w`, which narrow below 640px so two courts and
+  the hour fit on a 375px screen; the rest scroll under the gutter.
+- **The mobile rail carries every destination.** A bottom bar that silently
+  drops its last entries hides part of the product. `.pad-for-bar` reserves its
+  height so the last row of any page is reachable, and `.safe-bottom` keeps it
+  above the iOS home indicator.
+- **Touch targets: 44px minimum, 48px for anything in the board grid or a
+  primary action.** The console user is standing.
+- Separators that are page furniture on a wide screen (the `·` between entry-line
+  slots) are hidden below `sm`, where the slots already wrap onto their own
+  lines.
+- Side panels stack under their content at `lg`, never sit in a squeezed column.
+- Type scales with `clamp()` at display sizes; body text does not scale.
+
+---
+
 ## Prohibitions
 
 Each of these is absent from the world itself, not merely unfashionable.

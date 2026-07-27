@@ -91,6 +91,36 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/*
+ * The page itself NEVER scrolls sideways. Wide things — the day board, every
+ * ledger table, the utilisation chart — scroll inside their own container.
+ *
+ * `clip` rather than `hidden`: `hidden` would make body a scroll container and
+ * silently break every `position: sticky` header in the app.
+ */
+body {
+  overflow-x: clip;
+}
+
+/* Anything genuinely wider than a phone goes in one of these. */
+.scroll-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * Bottom bars sit above the iOS home indicator, and any fixed bar's height is
+ * reserved by the scroll container so the last row is never trapped under it.
+ */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pad-for-bar {
+  padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+}
+
 html[lang="ar"] {
   font-family: var(--font-arabic);
   /* An Arabic face set on the Latin ramp always reads small and cramped. */
@@ -270,6 +300,32 @@ html[dir="rtl"] .stamp {
   /* A 20-hour day is ~40 bands x 5 courts; only the visible ones need layout. */
   content-visibility: auto;
   contain-intrinsic-size: auto 60px;
+}
+
+/*
+ * The hour margin stays put while the courts scroll under it. Without this, a
+ * phone user scrolls to court 4 and has no idea what time they are looking at,
+ * which makes the board useless on the device most players hold.
+ */
+.hour-gutter {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 5;
+  background: var(--color-board);
+  border-inline-end: 1px solid color-mix(in srgb, var(--color-line) 20%, transparent);
+}
+
+/* Day-board metrics. Phone first: two courts plus the hour on a 375px screen. */
+:root {
+  --gutter-w: 3.25rem;
+  --col-w: 7.5rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter-w: 4.25rem;
+    --col-w: 9.5rem;
+  }
 }
 
 .dragging {

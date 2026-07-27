@@ -68,7 +68,7 @@ export default async function TournamentsPage({
                 />
                 <Reading
                   label={t("booking.when")}
-                  value={`${clockOf(tn.startMinute)}â€“${clockOf(tn.endMinute)}`}
+                  value={`${clockOf(tn.startMinute)}–${clockOf(tn.endMinute)}`}
                   sub={tn.day}
                 />
                 <Reading
@@ -81,7 +81,7 @@ export default async function TournamentsPage({
                   value={formatMoney(tn.entryFee, locale, { showCurrency: false })}
                   sub={
                     tn.levelMin !== null
-                      ? `${t("booking.level")} ${tn.levelMin}â€“${tn.levelMax}`
+                      ? `${t("booking.level")} ${tn.levelMin}–${tn.levelMax}`
                       : undefined
                   }
                 />
@@ -110,7 +110,7 @@ export default async function TournamentsPage({
                           {i + 1}
                         </Cell>
                         <Cell>
-                          {c ? (ar ? (c.nameAr ?? c.name) : c.name) : "â€”"}
+                          {c ? (ar ? (c.nameAr ?? c.name) : c.name) : "—"}
                           {c?.level !== null && c?.level !== undefined && (
                             <span className="ms-2 font-board text-[11px] text-line-dim">
                               {c.level}

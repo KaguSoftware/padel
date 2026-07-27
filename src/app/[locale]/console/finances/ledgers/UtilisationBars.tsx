@@ -6,7 +6,7 @@
  * so the reading survives a monochrome print-out and a colour-blind reader.
  *
  * The time axis runs left-to-right in both locales. Reversing it under RTL
- * would satisfy symmetry and break comprehension â€” a physical axis stays
+ * would satisfy symmetry and break comprehension — a physical axis stays
  * physical.
  */
 export function UtilisationBars({
@@ -17,7 +17,7 @@ export function UtilisationBars({
   const peak = Math.max(...rows.map((r) => r.value), 0.0001);
 
   return (
-    <div dir="ltr" className="overflow-x-auto">
+    <div dir="ltr" className="scroll-x">
       <div className="flex min-w-max items-end gap-1.5 border-b border-line/25 pb-0 pt-2">
         {rows.map((r) => {
           const h = Math.max(2, Math.round((r.value / peak) * 132));

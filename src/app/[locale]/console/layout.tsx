@@ -9,36 +9,31 @@ import {
   CourtMark,
   DrawerMark,
   LedgerMark,
-  LedgersMark,
   RacketMark,
   ShelfMark,
   StaffMark,
-  StampMark,
-  TariffMark,
 } from "@/ui/marks";
 import { RoleSwitcher } from "./RoleSwitcher";
 
 /**
- * The console shell â€” bottle-green card stock around the ledger page.
+ * The console shell — the control desk at the side of the floodlit court.
  *
- * The scene decides the treatment: a front-desk tablet on a counter with a
- * glass court wall behind it, in Gulf daylight. The working page is light and
- * high-contrast; the chrome that frames it is the card stock the page was
- * bound into.
+ * The rail is deliberately short. The cash book, the ledgers, the rate card and
+ * the audit log are four views of ONE job — what did we take, where are the
+ * leaks, who gave that discount — so they live behind a single FINANCES entry
+ * with its own section rail, instead of as four siblings the owner has to hunt
+ * through one at a time.
  */
 
 const NAV = [
   { href: "/console/calendar", key: "calendar", Mark: LedgerMark },
   { href: "/console/customers", key: "customers", Mark: CardMark },
-  { href: "/console/till", key: "till", Mark: DrawerMark },
-  { href: "/console/pricing", key: "pricing", Mark: TariffMark },
+  { href: "/console/finances", key: "finances", Mark: DrawerMark },
   { href: "/console/courts", key: "courts", Mark: CourtsMark },
   { href: "/console/academy", key: "coaching", Mark: RacketMark },
   { href: "/console/shop", key: "shop", Mark: ShelfMark },
   { href: "/console/tournaments", key: "tournaments", Mark: BracketMark },
-  { href: "/console/reports", key: "reports", Mark: LedgersMark },
   { href: "/console/staff", key: "staff", Mark: StaffMark },
-  { href: "/console/audit", key: "audit", Mark: StampMark },
 ] as const;
 
 export default async function ConsoleLayout({
@@ -114,13 +109,15 @@ export default async function ConsoleLayout({
           </div>
         </aside>
 
-        {/* Mobile: the same rail, laid along the bottom edge for a thumb. */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-line/20 bg-board md:hidden">
-          {NAV.slice(0, 6).map(({ href, key, Mark }) => (
+        {/* Mobile: the same rail along the bottom edge, within thumb reach.
+            EVERY destination is here — a rail that silently drops the last
+            entries is a rail that hides half the product on a phone. */}
+        <nav className="safe-bottom scroll-x fixed inset-x-0 bottom-0 z-40 flex border-t border-line/20 bg-board md:hidden">
+          {NAV.map(({ href, key, Mark }) => (
             <Link
               key={href}
               href={href}
-              className="flex min-h-14 min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-2 text-line/75"
+              className="flex min-h-15 min-w-[4.75rem] shrink-0 flex-1 flex-col items-center justify-center gap-1 px-2 py-2 text-line/75 active:bg-line/10"
             >
               <Mark size={18} className="text-line-dim" />
               <span className="font-board text-[9px] uppercase leading-none tracking-[0.1em]">
@@ -130,7 +127,9 @@ export default async function ConsoleLayout({
           ))}
         </nav>
 
-        <main className="min-w-0 flex-1 self-stretch pb-16 md:pb-0">
+        {/* The bar's height is reserved here, so the last row of any page is
+            reachable rather than trapped under it. */}
+        <main className="pad-for-bar min-w-0 max-w-full flex-1 self-stretch md:pb-0">
           {children}
         </main>
       </div>

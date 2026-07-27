@@ -22,7 +22,8 @@
     "matches": "المباريات المفتوحة",
     "account": "حسابي",
     "signIn": "تسجيل الدخول",
-    "language": "English"
+    "language": "English",
+    "finances": "المالية"
   },
   "status": {
     "open": "متاح",
@@ -142,7 +143,11 @@
     "new": "عضو جديد",
     "duplicateWarning": "يوجد عضو مسجّل بهذا الرقم.",
     "mergeSuggestion": "تكرار محتمل — نفس الرقم بكتابة مختلفة.",
-    "tiers": { "guest": "ضيف", "member": "عضو", "premium": "مميز" },
+    "tiers": {
+      "guest": "ضيف",
+      "member": "عضو",
+      "premium": "مميز"
+    },
     "unrated": "بدون تصنيف"
   },
   "till": {
@@ -187,7 +192,11 @@
     "hoursBefore": "ساعات قبل الموعد",
     "refundPercent": "الاسترداد",
     "outcome": "بصيغة",
-    "outcomes": { "refund": "استرداد", "credit": "رصيد", "none": "لا شيء" },
+    "outcomes": {
+      "refund": "استرداد",
+      "credit": "رصيد",
+      "none": "لا شيء"
+    },
     "noPolicy": "ضمن فترة عدم الاسترداد — لا يُعاد أي مبلغ."
   },
   "reports": {
@@ -267,8 +276,16 @@
     "surface": "السطح",
     "enclosure": "النوع",
     "block": "إغلاق للصيانة",
-    "surfaces": { "glass": "زجاجي", "panoramic": "بانورامي", "wall": "جداري" },
-    "enclosures": { "indoor": "داخلي", "outdoor": "خارجي", "covered": "مغطى" },
+    "surfaces": {
+      "glass": "زجاجي",
+      "panoramic": "بانورامي",
+      "wall": "جداري"
+    },
+    "enclosures": {
+      "indoor": "داخلي",
+      "outdoor": "خارجي",
+      "covered": "مغطى"
+    },
     "exceptions": "الساعات والاستثناءات",
     "ramadan": "توقيت رمضان"
   },

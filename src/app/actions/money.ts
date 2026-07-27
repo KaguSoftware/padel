@@ -55,7 +55,7 @@ export async function takePayment(
   }
 
   revalidatePath("/[locale]/console/calendar", "page");
-  revalidatePath("/[locale]/console/till", "page");
+  revalidatePath("/[locale]/console/finances/till", "page");
   return { ok: true, data: { id: payment.id } };
 }
 
@@ -116,7 +116,7 @@ export async function openTill(
       fils(Math.round(openingFloatFils)),
       claims.userId,
     );
-    revalidatePath("/[locale]/console/till", "page");
+    revalidatePath("/[locale]/console/finances/till", "page");
     return { ok: true, data: { id: s.id } };
   } catch (e) {
     if (e instanceof RuleViolation) {
@@ -149,7 +149,7 @@ export async function closeTill(
     claims.userId,
   );
 
-  revalidatePath("/[locale]/console/till", "page");
+  revalidatePath("/[locale]/console/finances/till", "page");
   return { ok: true, data: { variance: session.variance ?? fils(0) } };
 }
 

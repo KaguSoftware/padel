@@ -129,10 +129,12 @@ export function EntryLine({
   return (
     <section
       aria-label={strings.prompt}
-      className="border-b border-line/25 bg-transparent px-4 py-2.5"
+      className="border-b border-line/25 bg-board/40 px-4 py-3 sm:py-2.5"
     >
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 font-body text-[15px] leading-none text-line">
-        <span className="painted text-[19px] leading-none">{strings.verb}</span>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2.5 font-body text-[15px] leading-none text-line">
+        <span className="painted text-[17px] leading-none sm:text-[19px]">
+          {strings.verb}
+        </span>
 
         <SlotChip
           filled={court?.name}
@@ -142,7 +144,7 @@ export function EntryLine({
           onClear={() => onDraft((d) => ({ ...d, courtId: undefined, startMinute: undefined }))}
         />
 
-        <span className="text-line-dim">·</span>
+        <span className="hidden text-line-dim sm:inline">·</span>
 
         <SlotChip
           filled={
@@ -154,7 +156,7 @@ export function EntryLine({
           onClear={() => onDraft((d) => ({ ...d, startMinute: undefined }))}
         />
 
-        <span className="text-line-dim">·</span>
+        <span className="hidden text-line-dim sm:inline">·</span>
 
         {/* The member slot takes typing as well as pointing. */}
         {customer ? (
@@ -169,21 +171,21 @@ export function EntryLine({
             }}
           />
         ) : (
-          <span className="relative">
+          <span className="relative w-full sm:w-auto">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={strings.pickCustomer}
               aria-label={strings.customer}
               className={cn(
-                "min-h-11 w-52 border-0 border-b bg-transparent px-1 text-[15px] placeholder:text-line-dim focus:outline-none",
+                "min-h-11 w-full border-0 border-b bg-transparent px-1 text-[15px] placeholder:text-line-dim focus:outline-none sm:w-52",
                 openSlot === "customerId"
                   ? "border-amber border-b-2"
                   : "border-line/30",
               )}
             />
             {matches.length > 0 && (
-              <ul className="slip absolute inset-inline-start-0 top-full z-30 mt-1 w-72 bg-transparent py-1 shadow-none">
+              <ul className="glass-pane absolute inset-inline-start-0 top-full z-30 mt-1 max-h-64 w-full overflow-y-auto bg-board py-1 sm:w-72">
                 {matches.map((c) => (
                   <li key={c.id}>
                     <button
@@ -210,7 +212,7 @@ export function EntryLine({
           </span>
         )}
 
-        <span className="text-line-dim">·</span>
+        <span className="hidden text-line-dim sm:inline">·</span>
 
         <span className="flex items-center gap-1">
           {DURATIONS.map((mins) => {
@@ -236,7 +238,7 @@ export function EntryLine({
           })}
         </span>
 
-        <span className="ms-auto flex items-center gap-2">
+        <span className="flex w-full items-center gap-2 sm:ms-auto sm:w-auto">
           <InkButton
             variant="quiet"
             size="sm"
@@ -258,6 +260,7 @@ export function EntryLine({
           <InkButton
             variant="primary"
             size="md"
+            className="flex-1 sm:flex-none"
             disabled={!parses || pending}
             onClick={() => commit(false)}
           >

@@ -112,6 +112,7 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
 | [src/auth/guard.ts](src/auth/guard.ts) | ONE guard. `require*` throws (for actions); `allow*` returns null (for pages) |
 | [src/ui/board.tsx](src/ui/board.tsx) · [src/ui/court.tsx](src/ui/court.tsx) | The Board's own components: panels, flap rows, digits, court plan, rebound trace |
 | [src/app/[locale]/console/calendar/](src/app/[locale]/console/calendar/) | The day book. `EntryLine.tsx` is the command-sentence create flow |
+| [src/app/[locale]/console/finances/](src/app/[locale]/console/finances/) | Cash book, ledgers, rate card and audit behind one nav entry. Its sub-rail only offers what your role can open |
 | [supabase/migrations/](supabase/migrations/) | Authored, **unapplied**. `0001` core + the constraint, `0002` money/config, `0003` RLS + jobs |
 
 ## Gotchas / hard-won
@@ -135,6 +136,17 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
   Arabic string in the repo. Use `[System.IO.File]::ReadAllText(path, utf8)`.
 - ⚠️ **Optic yellow (`--ball`) means "available or live" and nothing else.** If
   it leaks onto anything decorative the whole board stops meaning anything.
+- ⚠️ **The page never scrolls sideways.** `body { overflow-x: clip }` plus a
+  `.scroll-x` container on every wide surface (day board, every table, the
+  utilisation chart). It is `clip`, not `hidden` — `hidden` would make body a
+  scroll container and silently break every sticky header in the app.
+- ⚠️ **The day board's hour gutter is `position: sticky`** at the inline start.
+  Without it a phone user scrolls to court 4 with no idea what time they are
+  looking at. Column widths come from `--col-w`/`--gutter-w`, which narrow
+  below 640px so two courts plus the hour fit on a 375px screen.
+- ⚠️ **The mobile bottom rail carries every destination**, and `.pad-for-bar`
+  reserves its height on `<main>`. An earlier version sliced the nav to six
+  entries, which silently hid a third of the product on a phone.
 - ⚠️ **Do not add a Vercel `regions` setting by copying it.** On one sibling
   project it was the biggest single win; on another the same change would have
   made things slower. Measure first. See PERFORMANCE.md.
@@ -151,8 +163,11 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
    - Entry line: pick court → hour → member → duration, write the entry.
    - Take a cash payment, then close the shift with a deliberate AED 35
      shortfall → it refuses to close without an explanation.
-   - Switch role to Front desk → `/console/reports` says "Not your board"
-     rather than 500-ing. Switch to Owner → it opens.
+   - Switch role to Front desk → Finances shows only the Cash Book, and
+     `/console/finances/ledgers` says "Not your board" rather than 500-ing.
+     Switch to Owner → all four appear.
+   - **Every screen at 375px.** The structural causes of horizontal overflow
+     are fixed (see below) but no breakpoint has been eyeballed.
    - Every screen in `ar`, including the day book grid mirroring.
 2. **Decide the payment provider.** Checkout is built against a simulated
    adapter; "pay now" records a card payment so the till and receipt behave
