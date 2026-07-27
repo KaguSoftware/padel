@@ -1,0 +1,555 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   THE CLUB LEDGER — see DESIGN.md for the direction contract.
+
+   Green-bar continuous-form ledger paper as the working ground; bottle-green
+   card stock as the shell. Indigo is the writing ink, oxblood the settlement
+   colour, brass the serials. Ornament appears only where it does work.
+   ========================================================================== */
+
+@theme {
+  /* ------------------------------------------------------------------------
+     THE BOARD — the public surface's world. See DESIGN.md § Two surfaces.
+
+     A floodlit glass box at night with the order-of-play board hanging above
+     it. Drenched: the surface IS the colour. Court blue is the ground, not an
+     accent; floodlight white is the line paint; optic yellow marks exactly one
+     thing — what is LIVE or available to take. Amber belongs to the board's
+     mechanical digits and nowhere else.
+     ------------------------------------------------------------------------ */
+  --color-court: #0b2f7a;
+  --color-court-deep: #05122f;
+  --color-court-lit: #1a4fb8;
+  --color-court-glass: #2f6ad4;
+  --color-line: #eaf1ff;
+  --color-line-dim: #94aede;
+  --color-ball: #d9f227;
+  --color-amber: #ffb020;
+  --color-clay: #e4482f;
+  --color-board: #04101f;
+
+  /* Paper — green-bar continuous-form ledger stock. Not cream. */
+  --color-paper: #eef2e6;
+  --color-paper-band: #e2e9d8;
+  --color-paper-edge: #d3dcc6;
+  --color-paper-sunk: #dbe3ce;
+
+  /* Shell — bottle-green card stock. */
+  --color-shell: #0c2b20;
+  --color-shell-raised: #123a2b;
+  --color-shell-line: #1e5641;
+  --color-shell-ink: #d8e4d5;
+
+  /* Ink — indigo, the writing colour. */
+  --color-ink: #1b2447;
+  --color-ink-soft: #4a5478;
+  --color-ink-faint: #8a91ac;
+
+  /* Rules — ledger red. */
+  --color-rule: #c24438;
+  --color-rule-soft: #e0a79f;
+
+  /* Settlement — oxblood. */
+  --color-settle: #7e1b22;
+  --color-settle-bright: #a82a31;
+
+  /* Brass — serials, member tiers, foil marks. */
+  --color-brass: #a8853f;
+  --color-brass-bright: #c9a85e;
+
+  /* Void — released, expired, cancelled. */
+  --color-void: #6b6f63;
+
+  --font-display: var(--font-bodoni), Georgia, serif;
+  --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-courier), ui-monospace, monospace;
+  --font-naskh: var(--font-naskh), var(--font-bodoni), serif;
+  --font-arabic: var(--font-almarai), var(--font-archivo), sans-serif;
+
+  /* The Board's faces: stadium lettering and a mechanical readout. */
+  --font-stadium: var(--font-stadium), "Arial Black", sans-serif;
+  --font-board: var(--font-board), ui-monospace, monospace;
+  --font-kufi: var(--font-kufi), var(--font-almarai), sans-serif;
+
+  /* Card stock is guillotined. Nothing here rounds beyond 2px. */
+  --radius-slip: 2px;
+}
+
+:root {
+  color-scheme: light;
+  --slip-h: 1px;
+  --ticker-now: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+html {
+  font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
+}
+
+html[lang="ar"] {
+  font-family: var(--font-arabic);
+  /* An Arabic face set on the Latin ramp always reads small and cramped. */
+  font-size: 106%;
+  line-height: 1.65;
+}
+
+body {
+  background: var(--color-shell);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Every number in a ledger column is tabular and lines up. */
+.tnum,
+table,
+input[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-brass-bright);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Ledger paper
+   -------------------------------------------------------------------------- */
+
+.ledger-paper {
+  background-color: var(--color-paper);
+  /* The green bar. Continuous-form stock alternates bands, not rows of cards. */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--color-paper) 0,
+    var(--color-paper) 60px,
+    var(--color-paper-band) 60px,
+    var(--color-paper-band) 120px
+  );
+}
+
+.ledger-rule-v {
+  border-inline-end: 1px solid var(--color-rule-soft);
+}
+
+.ledger-rule-h {
+  border-block-end: 1px solid var(--color-paper-edge);
+}
+
+/* --------------------------------------------------------------------------
+   Slip — the universal container. Hard offset, never a blur.
+   -------------------------------------------------------------------------- */
+
+.slip {
+  border: 1px solid var(--color-paper-edge);
+  border-radius: var(--radius-slip);
+  background: var(--color-paper);
+  box-shadow: 1px 1px 0 0 var(--color-paper-edge);
+}
+
+.slip-raised {
+  box-shadow: 2px 2px 0 0 var(--color-ink-faint);
+}
+
+/* Perforation — wherever something detaches: a hold, an open seat, a share. */
+.perforated-end {
+  --perf: 5px;
+  border-inline-end: 1px dashed var(--color-ink-faint);
+  -webkit-mask-image: radial-gradient(
+    circle var(--perf) at 100% var(--perf),
+    transparent 98%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--perf) at 100% var(--perf),
+    transparent 98%,
+    #000 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Stamp — a word, boxed, rotated, overprinted. Status is never hue alone.
+   -------------------------------------------------------------------------- */
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.1em 0.45em;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transform: rotate(-5deg);
+  mix-blend-mode: multiply;
+  white-space: nowrap;
+}
+
+html[dir="rtl"] .stamp {
+  /* The stamp's tilt is a physical fact of a hand pressing a rubber block —
+     it does not mirror, the same way the club mark does not mirror. */
+  transform: rotate(-5deg);
+}
+
+.stamp-land {
+  animation: stamp-land 90ms ease-out;
+}
+
+@keyframes stamp-land {
+  from {
+    transform: rotate(-5deg) scale(1.06);
+    opacity: 0.6;
+  }
+  to {
+    transform: rotate(-5deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Struck through — no-show. A single diagonal rule, not a colour swap.
+   -------------------------------------------------------------------------- */
+
+.struck {
+  background-image: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.6px),
+    var(--color-void) calc(50% - 0.6px),
+    var(--color-void) calc(50% + 0.6px),
+    transparent calc(50% + 0.6px)
+  );
+}
+
+/* Blocked — guilloche hatch, the fill of a voided document. */
+.hatched {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--color-void) 35%, transparent) 3px 4px
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Buttons — inked blocks with a hard offset. Pressing removes the offset.
+   -------------------------------------------------------------------------- */
+
+.ink-button {
+  border: 1px solid currentColor;
+  border-radius: var(--radius-slip);
+  box-shadow: 2px 2px 0 0 currentColor;
+  transition: box-shadow 90ms ease-out, transform 90ms ease-out;
+}
+
+.ink-button:active:not(:disabled) {
+  box-shadow: 0 0 0 0 currentColor;
+  transform: translate(2px, 2px);
+}
+
+.ink-button:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Calendar performance
+   -------------------------------------------------------------------------- */
+
+.hour-band {
+  /* A 20-hour day is ~40 bands x 5 courts; only the visible ones need layout. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 60px;
+}
+
+.dragging {
+  /* Transform only — no layout-affecting property moves during a drag. */
+  will-change: transform;
+  cursor: grabbing;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — stamps appear without landing, tears sit at final state.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Scrollbars, in the world's grammar rather than the OS's. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-paper-edge) transparent;
+}
+
+/* ==========================================================================
+   THE BOARD — the public surface.
+
+   Everything below is scoped under `.court-world` so the console's ledger and
+   the public court can share one stylesheet without bleeding into each other.
+   ========================================================================== */
+
+.court-world {
+  --lane: 3px;
+  background: var(--color-court-deep);
+  color: var(--color-line);
+  font-family: var(--font-body);
+}
+
+.court-world[lang="ar"],
+[lang="ar"] .court-world {
+  font-family: var(--font-arabic);
+}
+
+/* --------------------------------------------------------------------------
+   The court surface. A real padel court is a saturated blue field with white
+   line paint and a glass back wall — so that is the ground, at page scale,
+   not an accent dropped onto a neutral.
+   -------------------------------------------------------------------------- */
+
+.court-surface {
+  position: relative;
+  background:
+    radial-gradient(
+      120% 90% at 50% -10%,
+      color-mix(in srgb, var(--color-court-lit) 78%, white) 0%,
+      var(--color-court) 46%,
+      var(--color-court-deep) 100%
+    );
+}
+
+/* Floodlight: four hard pools of light falling across the surface. */
+.court-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 55% at 12% 0%, rgba(255, 255, 255, 0.22), transparent 70%),
+    radial-gradient(38% 55% at 38% 0%, rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(38% 55% at 64% 0%, rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(38% 55% at 90% 0%, rgba(255, 255, 255, 0.22), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+/* The court's own line marking, drawn to a real padel plan: a service line
+   each side of a centre net, and a centre service line splitting each box. */
+.court-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* The glass back wall: a pane with a lit edge, the thing that makes padel
+   padel. Used as a section boundary rather than as decoration. */
+.glass-pane {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-court-glass) 26%, transparent),
+    color-mix(in srgb, var(--color-court-deep) 60%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-line) 26%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in srgb, var(--color-line) 40%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--color-line) 10%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+/* --------------------------------------------------------------------------
+   The board. Near-black panel, mechanical readout, amber digits.
+   -------------------------------------------------------------------------- */
+
+.board-panel {
+  background: var(--color-board);
+  border: 1px solid color-mix(in srgb, var(--color-line) 18%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 24px 60px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* Split-flap rows carry the faint horizontal seam of a real flap. */
+.flap-row {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(50% - 0.5px),
+    rgba(0, 0, 0, 0.55) calc(50% - 0.5px),
+    rgba(0, 0, 0, 0.55) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.flap-in {
+  animation: flap 260ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  transform-origin: center top;
+  backface-visibility: hidden;
+}
+
+@keyframes flap {
+  0% {
+    transform: rotateX(-92deg);
+    opacity: 0;
+  }
+  60% {
+    transform: rotateX(12deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+/* Monumental board digits. Amber phosphor, mechanically spaced. */
+.board-digit {
+  font-family: var(--font-board);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-amber);
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   Line paint. Headlines are painted onto the court, not set on a page:
+   heavy, wide, slightly worn at the edge.
+   -------------------------------------------------------------------------- */
+
+.painted {
+  font-family: var(--font-stadium);
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: 0.86;
+  color: var(--color-line);
+  text-shadow: 0 2px 0 rgba(5, 18, 47, 0.55);
+}
+
+[lang="ar"] .painted {
+  font-family: var(--font-kufi);
+  letter-spacing: 0;
+  line-height: 1.18;
+}
+
+/* The one live mark. Optic yellow means available-to-take, and nothing else. */
+.live {
+  color: var(--color-ball);
+}
+
+.live-block {
+  background: var(--color-ball);
+  color: var(--color-court-deep);
+}
+
+/* The ball itself, when something is genuinely in play. */
+.ball-dot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ball) 25%, transparent);
+}
+
+@keyframes ball-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ball) 30%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-ball) 0%, transparent);
+  }
+}
+
+.ball-live {
+  animation: ball-pulse 2s ease-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Slot buttons — a lit panel on the board. The hit area is the whole panel.
+   -------------------------------------------------------------------------- */
+
+.slot {
+  position: relative;
+  background: color-mix(in srgb, var(--color-court-lit) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-line) 22%, transparent);
+  transition:
+    background 120ms ease-out,
+    border-color 120ms ease-out,
+    transform 120ms ease-out;
+}
+
+.slot:hover:not(:disabled),
+.slot:focus-visible {
+  background: var(--color-ball);
+  border-color: var(--color-ball);
+  color: var(--color-court-deep);
+  transform: translateY(-2px);
+}
+
+.slot:disabled {
+  background: color-mix(in srgb, var(--color-court-deep) 60%, transparent);
+  border-color: color-mix(in srgb, var(--color-line) 8%, transparent);
+  color: var(--color-line-dim);
+}
+
+/* --------------------------------------------------------------------------
+   Court number plate — the giant illuminated digit on the fence.
+   -------------------------------------------------------------------------- */
+
+.court-plate {
+  font-family: var(--font-stadium);
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--color-line) 14%, transparent);
+  line-height: 0.78;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-line) 22%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Rebound trace — padel's signature: the ball plays off the glass, so the
+   angle-in / angle-out path is the sport's own notation. Used once, in the
+   first viewport, drawn live.
+   -------------------------------------------------------------------------- */
+
+.trace {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: trace-draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+@keyframes trace-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .flap-in {
+    animation: none;
+  }
+  .ball-live {
+    animation: none;
+  }
+}
+
+.court-world :focus-visible {
+  outline: 2px solid var(--color-ball);
+  outline-offset: 3px;
+}
+
+.court-world ::selection {
+  background: var(--color-ball);
+  color: var(--color-court-deep);
+}
