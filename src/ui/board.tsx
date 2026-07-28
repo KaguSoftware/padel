@@ -133,19 +133,22 @@ export function PaintedFigure({
 }) {
   return (
     <div className={cn("min-w-0", className)}>
-      <div className="font-board text-[10px] uppercase tracking-[0.24em] text-line-dim">
+      {/* Labels read as words, not texture: 0.24em tracking on a 10px face is a
+          decoration you have to decode. Higher contrast, one size up, less
+          spacing. */}
+      <div className="font-board text-[11px] uppercase tracking-[0.1em] text-line/75">
         {label}
       </div>
       <div
         className={cn(
-          "painted mt-1.5 text-[clamp(2.75rem,6vw,4.5rem)] tabular-nums",
+          "painted mt-1.5 text-[clamp(2.5rem,5vw,3.75rem)] tabular-nums",
           live && "live",
         )}
       >
         {value}
       </div>
       {sub && (
-        <div className="font-board text-[10px] uppercase tracking-[0.18em] text-line-dim">
+        <div className="mt-0.5 font-board text-[11px] uppercase tracking-[0.08em] text-line/60">
           {sub}
         </div>
       )}

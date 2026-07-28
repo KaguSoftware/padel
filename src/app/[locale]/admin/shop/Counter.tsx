@@ -147,18 +147,21 @@ export function Counter({
                         {p.low && <Stamp tone="due">{strings.lowStock}</Stamp>}
                         <span className="flex items-center">
                           <button
+                            type="button"
                             onClick={() => add(p.id, -1)}
-                            className="min-h-11 min-w-11 border border-line/30 font-board"
+                            disabled={(cart[p.id] ?? 0) === 0}
+                            className="min-h-11 min-w-11 cursor-pointer border border-line/30 font-board text-[16px] leading-none transition-colors hover:border-line/60 hover:bg-line/10 active:bg-line/20 disabled:pointer-events-none disabled:opacity-30"
                             aria-label={`Remove ${p.name}`}
                           >
                             −
                           </button>
-                          <span className="min-w-9 text-center font-board tabular-nums">
+                          <span className="min-w-9 text-center font-board text-[15px] tabular-nums">
                             {cart[p.id] ?? 0}
                           </span>
                           <button
+                            type="button"
                             onClick={() => add(p.id, 1)}
-                            className="min-h-11 min-w-11 border border-line/40 font-board"
+                            className="min-h-11 min-w-11 cursor-pointer border border-line/40 font-board text-[16px] leading-none transition-colors hover:border-line hover:bg-line/10 active:bg-line/20"
                             aria-label={`Add ${p.name}`}
                           >
                             +

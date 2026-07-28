@@ -135,16 +135,27 @@ export function NewAccount({
         </p>
       </div>
 
+      {/* State is never carried by hue alone (a product principle): the mark
+          says which outcome this is, the colour only agrees. A full border, the
+          one notice grammar the product uses everywhere else, not a lone edge. */}
       {notice && (
         <p
           role="status"
-          className={`sm:col-span-2 border-s-2 px-3 py-2 text-[14px] leading-relaxed ${
+          className={`flex items-start gap-2.5 border px-3.5 py-2.5 text-[14px] leading-relaxed text-line sm:col-span-2 ${
             notice.tone === "ok"
-              ? "border-s-ball bg-line/5 text-line"
-              : "border-s-clay bg-clay/10 text-line"
+              ? "border-ball/60 bg-ball/10"
+              : "border-clay/70 bg-clay/10"
           }`}
         >
-          {notice.text}
+          <span
+            aria-hidden
+            className={`mt-px shrink-0 font-bold ${
+              notice.tone === "ok" ? "text-ball" : "text-clay"
+            }`}
+          >
+            {notice.tone === "ok" ? "✓" : "!"}
+          </span>
+          <span>{notice.text}</span>
         </p>
       )}
 

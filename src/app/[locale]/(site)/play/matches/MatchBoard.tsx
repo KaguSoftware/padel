@@ -124,7 +124,7 @@ export function MatchBoard({
                             <Ball size={7} />
                             <span className="truncate">{p.name}</span>
                             {p.isBooker && (
-                              <span className="shrink-0 font-board text-[9px] uppercase tracking-[0.14em] text-amber">
+                              <span className="shrink-0 font-board text-[10px] uppercase tracking-[0.1em] text-amber">
                                 {strings.booker}
                               </span>
                             )}
@@ -156,13 +156,13 @@ export function MatchBoard({
                         >
                           {seats}
                         </span>
-                        <span className="mt-1 block font-board text-[9px] uppercase leading-tight tracking-[0.14em] text-line-dim">
+                        <span className="mt-1 block font-board text-[10px] uppercase leading-tight tracking-[0.08em] text-line/65">
                           {strings.seatsLabel}
                         </span>
                       </div>
 
                       <div className="text-end sm:text-center">
-                        <span className="block font-board text-[9px] uppercase tracking-[0.14em] text-line-dim">
+                        <span className="block font-board text-[10px] uppercase tracking-[0.08em] text-line/65">
                           {strings.shareLabel}
                         </span>
                         <span className="board-digit block text-[16px] leading-tight">

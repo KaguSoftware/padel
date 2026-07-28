@@ -142,7 +142,7 @@ export function CustomerLedger({
             type="checkbox"
             checked={onlyIssues}
             onChange={(e) => setOnlyIssues(e.target.checked)}
-            className="size-4.5 accent-[var(--color-ball)]"
+            className="size-4.5 accent-ball"
           />
           {strings.needsAttention}
         </label>

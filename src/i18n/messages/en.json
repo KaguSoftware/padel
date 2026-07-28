@@ -90,6 +90,8 @@
   "calendar": {
     "title": "Day Book",
     "today": "Today",
+    "previous": "Previous day",
+    "next": "Next day",
     "week": "Week",
     "court": "Court",
     "utilisation": "Full",

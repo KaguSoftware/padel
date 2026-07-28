@@ -15,7 +15,7 @@ import { switchRole } from "@/app/actions/session";
  */
 
 const ROLES: { role: Role; userId: string; name: string; customerId: string | null }[] = [
-  { role: "owner", userId: "usr-owner", name: "Layla Al Mheiri", customerId: null },
+  { role: "owner", userId: "usr-owner-1", name: "Majed Ahdab", customerId: null },
   { role: "manager", userId: "usr-manager", name: "Omar Haddad", customerId: null },
   { role: "staff", userId: "usr-desk-1", name: "Rania Saeed", customerId: null },
   { role: "coach", userId: "usr-coach-1", name: "Diego Márquez", customerId: null },

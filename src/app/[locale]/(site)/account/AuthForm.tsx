@@ -140,13 +140,17 @@ export function AuthForm({
       </div>
 
       {/* The refusal sits with the form, not at the top of the page, and it
-          names what to do next rather than only what went wrong. */}
+          names what to do next rather than only what went wrong. A full clay
+          border, the way every other notice in the product is drawn — a single
+          coloured edge is the SaaS alert cliché, and this world has one alert
+          grammar, not two. */}
       {error && (
         <p
           role="alert"
-          className="border-s-2 border-s-clay bg-clay/10 px-3 py-2 font-board text-[12px] leading-relaxed text-line"
+          className="flex items-start gap-2.5 border border-clay/70 bg-clay/10 px-3.5 py-2.5 font-board text-[12px] leading-relaxed text-line"
         >
-          {error}
+          <span aria-hidden className="mt-px shrink-0 font-bold text-clay">!</span>
+          <span>{error}</span>
         </p>
       )}
 

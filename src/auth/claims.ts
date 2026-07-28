@@ -42,11 +42,16 @@ export interface Claims {
   customerId: string | null;
 }
 
-/** The prototype's default identity, used until someone switches role. */
+/**
+ * The prototype's default identity, used until someone switches role or signs
+ * in. It is the OWNER so the whole console — finances, staff, audit, pricing —
+ * is reviewable end to end without seeding a login first. Switch to any lower
+ * role from the rail's role switcher to see a front-desk or coach view.
+ */
 export const DEFAULT_CLAIMS: Claims = {
-  userId: "usr-desk-1",
-  role: "staff",
-  name: "Rania Saeed",
+  userId: "usr-owner-1",
+  role: "owner",
+  name: "Majed Ahdab",
   customerId: null,
 };
 
@@ -54,8 +59,36 @@ export async function getClaims(): Promise<Claims | null> {
   try {
     const jar = await cookies();
     const raw = jar.get(SESSION_COOKIE)?.value;
-    if (!raw) return DEFAULT_CLAIMS;
-    if (raw === SIGNED_OUT) return null;
+    // No cookie, OR an explicit public sign-out, both fall back to the review
+    // owner: the console must stay reachable for review no matter what the
+    // public sign-in state is. The *public* honesty (showing Sign in after a
+    // sign-out) is handled separately by `getSessionClaims`, so this no longer
+    // needs to return null for the signed-out sentinel — doing so only ever
+    // locked the reviewer out of the admin they were trying to open.
+    if (!raw || raw === SIGNED_OUT) return DEFAULT_CLAIMS;
+    return decodeClaims(raw);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Claims for a *chosen* session only.
+ *
+ * `getClaims` hands the admin the prototype default when there is no cookie, so
+ * the console is reviewable without seeding a login. On the public site that
+ * same default read as "signed in" and showed Sign out — plus an admin link —
+ * to a first-time visitor who had signed in to nothing. This is the honest
+ * read for the marketing/booking surface: the default identity is treated as
+ * signed-out, so a visitor sees Sign in, while the console still opens on the
+ * default for review. A genuinely signed-in player or staff member (a real
+ * cookie) is returned as themselves in both places.
+ */
+export async function getSessionClaims(): Promise<Claims | null> {
+  try {
+    const jar = await cookies();
+    const raw = jar.get(SESSION_COOKIE)?.value;
+    if (!raw || raw === SIGNED_OUT) return null;
     return decodeClaims(raw);
   } catch {
     return null;

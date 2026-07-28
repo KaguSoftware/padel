@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getClaims } from "@/auth/claims";
+import { getClaims, getSessionClaims } from "@/auth/claims";
 import { can } from "@/auth/guard";
 import { Link } from "@/i18n/routing";
 import { CourtMark } from "@/ui/marks";
@@ -24,9 +24,16 @@ export default async function SiteLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, tc, claims] = await Promise.all([
+  // Two identities, deliberately. `session` is a *chosen* sign-in and drives
+  // the Sign in / Sign out state honestly, so a first-time visitor is never
+  // told they are signed in. `review` is the console-review identity (the
+  // prototype default owner when nobody has signed in) and only decides whether
+  // the console is reachable from here — so the desk stays one click away for
+  // review without faking a session.
+  const [t, tc, session, review] = await Promise.all([
     getTranslations("nav"),
     getTranslations("common"),
+    getSessionClaims(),
     getClaims(),
   ]);
 
@@ -38,7 +45,7 @@ export default async function SiteLayout({
     { href: "/play", label: t("book") },
     { href: "/play/matches", label: t("matches") },
     { href: "/play/account", label: t("account") },
-    ...(claims && can(claims.role, "view_admin")
+    ...(review && can(review.role, "view_admin")
       ? [{ href: "/admin/calendar", label: t("admin") }]
       : []),
   ];
@@ -66,8 +73,8 @@ export default async function SiteLayout({
               languageLabel={t("language")}
               menuLabel={tc("menu")}
               session={
-                claims
-                  ? { name: claims.name, signOutLabel: t("signOut") }
+                session
+                  ? { name: session.name, signOutLabel: t("signOut") }
                   : null
               }
               signInLabel={t("signIn")}

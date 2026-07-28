@@ -495,7 +495,10 @@ html[dir="rtl"] {
   line-height: 1.25;
   letter-spacing: 0.01em;
   font-weight: 500;
-  color: var(--color-line-dim);
+  /* Brightened off pure line-dim: the console's most-used label was legible but
+     effortful under counter light. Still clearly secondary to white body text,
+     just no longer the dimmest thing on the panel. */
+  color: color-mix(in srgb, var(--color-line-dim) 60%, var(--color-line));
 }
 
 [lang="ar"] .board-label {
@@ -536,13 +539,16 @@ html[dir="rtl"] {
   );
 }
 
-/* Hairlines carry structure here, so there are two of them and not six. */
+/* Hairlines carry structure here, so there are two of them and not six. They
+   were faint enough that a dense ledger read as one grey block under counter
+   light; lifted so a row edge and a section rule are both legible without
+   turning the table into a heavy grid. */
 .desk .rule-strong {
-  border-color: color-mix(in srgb, var(--color-line) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-line) 30%, transparent);
 }
 
 .desk .rule-hair {
-  border-color: color-mix(in srgb, var(--color-line) 11%, transparent);
+  border-color: color-mix(in srgb, var(--color-line) 17%, transparent);
 }
 
 /* --------------------------------------------------------------------------

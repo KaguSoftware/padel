@@ -105,7 +105,7 @@ export function BookFlow({
 
           <div className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-4">
             <div>
-              <span className="block font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
+              <span className="block font-board text-[11px] uppercase tracking-[0.08em] text-line/70">
                 {strings.when}
               </span>
               <div className="mt-1 flex items-center gap-1.5">
@@ -130,7 +130,7 @@ export function BookFlow({
             </div>
 
             <div>
-              <span className="block font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
+              <span className="block font-board text-[11px] uppercase tracking-[0.08em] text-line/70">
                 {strings.duration}
               </span>
               <div className="mt-1 flex gap-1">
@@ -138,11 +138,12 @@ export function BookFlow({
                   <Link
                     key={mins}
                     href={`/play?d=${day}&mins=${mins}`}
+                    aria-current={mins === duration ? "true" : undefined}
                     className={cn(
-                      "flex min-h-11 min-w-12 items-center justify-center border px-2 font-board text-[13px] tabular-nums",
+                      "flex min-h-11 min-w-12 items-center justify-center border px-2 font-board text-[13px] tabular-nums transition-colors duration-100",
                       mins === duration
-                        ? "border-line/40 bg-line/20 text-court-deep"
-                        : "border-line/30 text-line-dim",
+                        ? "border-line bg-line/15 text-line"
+                        : "border-line/30 text-line-dim hover:border-line/50 hover:text-line",
                     )}
                   >
                     {mins}
@@ -151,18 +152,18 @@ export function BookFlow({
               </div>
             </div>
 
-            <label className="flex min-h-11 items-center gap-2 text-[13px] text-line-dim">
+            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-[13px] text-line/75">
               <input
                 type="checkbox"
                 checked={openMatch}
                 onChange={(e) => setOpenMatch(e.target.checked)}
-                className="size-4 accent-[var(--color-ball)]"
+                className="size-4 accent-ball"
               />
               {strings.openMatch}
             </label>
 
             {me && (
-              <span className="ms-auto font-board text-[11px] text-line-dim">
+              <span className="ms-auto font-board text-[12px] text-line/70">
                 {me.name}
                 {me.level !== null && ` · ${strings.yourLevel} ${me.level}`}
                 {me.credit > 0 &&
@@ -196,10 +197,14 @@ export function BookFlow({
                     <h2 className="painted text-[24px] leading-none text-line">
                       {court.name}
                     </h2>
-                    <span className="font-board text-[10px] uppercase tracking-[0.12em] text-line-dim">
+                    <span className="font-board text-[11px] uppercase tracking-[0.08em] text-line/65">
                       {court.enclosure} · {court.surface}
                     </span>
-                    <span className="ms-auto font-board text-[11px] tabular-nums text-line-dim">
+                    {/* Open slots are, literally, "available to take" — the one
+                        thing optic yellow is reserved for. Lighting the count
+                        makes the booking page read like the board it descends
+                        from, instead of a dim tally. */}
+                    <span className="live ms-auto font-board text-[12px] font-bold tabular-nums">
                       {court.slots.length}
                     </span>
                   </div>
@@ -213,10 +218,14 @@ export function BookFlow({
                         onClick={() => hold(court.id, s.startMinute)}
                         className="slot group flex min-h-16 min-w-28 flex-col items-start justify-between gap-1 px-3 py-2 text-start disabled:opacity-40"
                       >
-                        <span className="font-board text-[15px] font-bold tabular-nums text-line">
+                        {/* No explicit colour on these: the slot flips its text
+                            to court-deep on hover/focus (the panel lights optic
+                            yellow), and a hard-coded text-line would stay pale on
+                            yellow — unreadable. Inheriting lets them flip. */}
+                        <span className="font-board text-[16px] font-bold tabular-nums">
                           {clockOf(s.startMinute)}
                         </span>
-                        <span className="font-board text-[11px] tabular-nums text-line-dim">
+                        <span className="font-board text-[12px] tabular-nums opacity-80">
                           {formatMoney(s.price, locale)}
                         </span>
                       </button>
@@ -227,7 +236,7 @@ export function BookFlow({
           </div>
         )}
 
-        <p className="mt-10 border-t border-line/15 pt-4 font-board text-[11px] leading-relaxed text-line-dim">
+        <p className="mt-10 border-t border-line/15 pt-4 font-board text-[12px] leading-relaxed text-line/65">
           {strings.holdExplain}
         </p>
       </div>

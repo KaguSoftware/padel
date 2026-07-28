@@ -53,9 +53,13 @@ export const COURTS: Court[] = [
     name: "Court 2",
     nameAr: "الملعب ٢",
     ordinal: 2,
+    // Distinct from court 1: covered rather than indoor, and not the premium
+    // tier — a glass-walled court that stays bright and playable all day. Two
+    // identical premium courts made the line-up read as one court printed five
+    // times; every court now has its own character.
     surface: "panoramic",
-    enclosure: "indoor",
-    tags: ["indoor", "panoramic", "premium"],
+    enclosure: "covered",
+    tags: ["covered", "panoramic"],
     active: true,
   },
   {

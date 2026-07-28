@@ -139,7 +139,7 @@ export function Checkout({
                   {formatMoney(booking.total, locale)}
                 </span>
               </div>
-              <p className="mt-1 text-end font-board text-[10px] text-line-dim">
+              <p className="mt-1 text-end font-board text-[11px] text-line/65">
                 {formatMoney(
                   Math.round(booking.total / booking.partySize) as Fils,
                   locale,
@@ -184,7 +184,7 @@ export function Checkout({
               <div className="border-t border-line/15 pt-4">
                 <div className="flex items-center justify-between gap-3">
                   <Stamp tone="held">HELD {countdown ?? "—"}</Stamp>
-                  <span className="font-board text-[10px] uppercase tracking-[0.1em] text-line-dim">
+                  <span className="font-board text-[11px] uppercase tracking-[0.08em] text-line/65">
                     {strings.holdExplain}
                   </span>
                 </div>
@@ -212,7 +212,7 @@ export function Checkout({
                   </InkButton>
                 </div>
 
-                <p className="mt-3 font-board text-[10px] leading-relaxed text-line-dim">
+                <p className="mt-3 font-board text-[11px] leading-relaxed text-line/60">
                   No payment provider is wired in this prototype — &ldquo;pay
                   now&rdquo; records a card payment against the entry so the
                   till and the receipt behave correctly end to end.
@@ -229,7 +229,7 @@ export function Checkout({
 function Line({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-board text-[10px] uppercase tracking-[0.12em] text-line-dim">
+      <dt className="font-board text-[11px] uppercase tracking-[0.09em] text-line/65">
         {label}
       </dt>
       <dd className="mt-0.5 text-[15px] text-line">{value}</dd>

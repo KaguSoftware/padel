@@ -117,7 +117,7 @@ export function LedgerRow({
   return (
     <tr
       className={cn(
-        "rule-hair border-b align-middle transition-colors duration-100 hover:bg-line/8",
+        "rule-hair border-b align-middle transition-colors duration-100 hover:bg-line/12",
         className,
       )}
       {...rest}

@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getClaims } from "@/auth/claims";
+import { getSessionClaims } from "@/auth/claims";
 import { loadAccountPage } from "@/data/loaders";
 import { resolveCancellation } from "@/domain/cancellation";
 import { formatMoney } from "@/lib/money";
@@ -20,7 +20,7 @@ export default async function AccountPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [claims, t] = await Promise.all([getClaims(), getTranslations()]);
+  const [claims, t] = await Promise.all([getSessionClaims(), getTranslations()]);
   const ar = locale === "ar";
 
   // No player identity on this session — either signed out, or signed in as
@@ -105,7 +105,7 @@ export default async function AccountPage({
           <CourtLines className="pointer-events-none absolute inset-x-6 bottom-5 h-14 w-auto text-line/12" />
           <div className="relative flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-board text-[10px] uppercase tracking-[0.2em] text-amber">
+              <p className="font-board text-[11px] uppercase tracking-[0.14em] text-amber">
                 Kagu Padel ·{" "}
                 {t(`customer.tiers.${c.tier}` as "customer.tiers.member")}
               </p>
@@ -178,7 +178,7 @@ export default async function AccountPage({
                           {t(`status.${stamp.key}` as "status.paid")}
                         </Stamp>
                         <span
-                          className="font-board text-[10px] text-line-dim"
+                          className="font-board text-[11px] text-line/60"
                           title={
                             ar ? outcome.explanationAr : outcome.explanation
                           }

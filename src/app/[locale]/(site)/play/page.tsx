@@ -33,9 +33,16 @@ export default async function PlayPage({
     getTranslations(),
   ]);
 
-  const me = claims?.customerId
-    ? (customers.find((c) => c.id === claims.customerId) ?? null)
-    : null;
+  // The public flow always has a player to act as, so a reviewer is never
+  // dead-ended at a sign-in prompt — the mirror of the console opening as owner.
+  // A signed-in player books as themselves; anyone else (owner, staff, or the
+  // default review identity) books as the demo player, cus-1.
+  const me =
+    (claims?.customerId
+      ? customers.find((c) => c.id === claims.customerId)
+      : null) ??
+    customers.find((c) => c.id === "cus-1") ??
+    null;
   const tier = me?.tier ?? "guest";
   const ar = locale === "ar";
 
