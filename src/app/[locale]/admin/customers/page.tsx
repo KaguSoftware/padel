@@ -77,8 +77,11 @@ export default async function CustomersPage({
         blocked: t("customer.blocked"),
         unrated: t("customer.unrated"),
         mergeSuggestion: t("customer.mergeSuggestion"),
-        empty: t("common.empty"),
+        empty: t("customer.noMatch"),
         all: t("common.all"),
+        bookings: t("customer.bookings"),
+        needsAttention: t("customer.needsAttention"),
+        duplicateShort: t("customer.duplicateShort"),
         tiers: {
           guest: t("customer.tiers.guest"),
           member: t("customer.tiers.member"),

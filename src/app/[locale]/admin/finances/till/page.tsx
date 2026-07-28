@@ -75,7 +75,8 @@ export default async function TillPage({
         varianceNote: t("till.varianceNote"),
         noSession: t("till.noSession"),
         countPrompt: t("till.countPrompt"),
-        empty: t("common.empty"),
+        empty: t("till.noClosedShifts"),
+        closedShifts: t("till.closedShifts"),
       }}
     />
   );

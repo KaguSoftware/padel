@@ -55,9 +55,9 @@ export default async function AcademyPage({
       title={t("coaching.title")}
       serial={`${data.classes.length} sessions`}
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         <Panel title={t("coaching.coaches")}>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {data.coaches.map((c) => (
               <Reading
                 key={c.id}
@@ -72,7 +72,7 @@ export default async function AcademyPage({
 
         <Panel title={t("coaching.classes")}>
           {data.classes.length === 0 ? (
-            <EmptyLine>{t("common.empty")}</EmptyLine>
+            <EmptyLine>{t("coaching.noClasses")}</EmptyLine>
           ) : (
             <LedgerTable
               heads={[
@@ -96,7 +96,7 @@ export default async function AcademyPage({
                       {ar ? cls.titleAr : cls.title}
                     </Cell>
                     <Cell>{coach ? (ar ? coach.nameAr : coach.name) : "—"}</Cell>
-                    <Cell className="font-board text-[11px] tabular-nums">
+                    <Cell className="font-board text-[14px] tabular-nums">
                       {booking
                         ? `${booking.operatingDay} ${clock(booking.start)}`
                         : "—"}
@@ -109,7 +109,7 @@ export default async function AcademyPage({
                     <Cell numeric>
                       {roster.length}/{cls.capacity}
                     </Cell>
-                    <Cell className="font-board text-[11px] tabular-nums">
+                    <Cell className="font-board text-[14px] tabular-nums">
                       {cls.levelMin}–{cls.levelMax}
                     </Cell>
                     <Cell>
@@ -135,7 +135,7 @@ export default async function AcademyPage({
           <div className="grid gap-6 md:grid-cols-2">
             {data.classes.map((cls) => (
               <div key={cls.id}>
-                <h3 className="border-b border-line/20 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-line-dim">
+                <h3 className="border-b border-line/20 pb-1 board-label">
                   {ar ? cls.titleAr : cls.title}
                 </h3>
                 <ul className="mt-2 space-y-1">

@@ -78,8 +78,8 @@ export function CashBook({
       serial={day}
       note={notice}
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="space-y-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="space-y-8">
           <Panel title={strings.cashTaken}>
             <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
               <Reading
@@ -115,7 +115,7 @@ export function CashBook({
             </div>
           </Panel>
 
-          <Panel title="Closed shifts">
+          <Panel title={strings.closedShifts}>
             {history.length === 0 ? (
               <EmptyLine>{strings.empty}</EmptyLine>
             ) : (
@@ -148,7 +148,7 @@ export function CashBook({
                       />
                     </Cell>
                     <Cell>{h.closedBy}</Cell>
-                    <Cell className="max-w-64 truncate font-board text-[11px] text-line-dim">
+                    <Cell className="max-w-64 truncate text-[14px] text-line-dim">
                       {h.note}
                     </Cell>
                   </LedgerRow>
@@ -184,7 +184,7 @@ export function CashBook({
             </Panel>
           ) : (
             <Panel title={strings.close}>
-              <p className="mb-3 font-board text-[11px] text-line-dim">
+              <p className="mb-3 text-[14px] text-line-dim">
                 {strings.countPrompt}
               </p>
 
@@ -248,7 +248,7 @@ export function CashBook({
               </InkButton>
 
               {preview !== null && preview !== 0 && note.trim().length < 3 && (
-                <p className="mt-2 font-board text-[10px] leading-relaxed text-clay">
+                <p className="mt-2 board-label leading-relaxed text-clay">
                   A shift that does not balance cannot be closed without an
                   explanation. This is the point of the module.
                 </p>
@@ -283,7 +283,7 @@ function VarianceFigure({
       )}
     >
       {formatMoney(Math.abs(variance) as Fils, locale, { showCurrency: false })}
-      <span className="font-board text-[10px] uppercase tracking-[0.12em]">
+      <span className="board-label board-label-sm text-inherit">
         {short ? strings.short : strings.over}
       </span>
     </span>

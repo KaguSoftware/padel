@@ -3,7 +3,12 @@ import { resolveAvailability } from "@/domain/availability";
 import { resolveCancellation } from "@/domain/cancellation";
 import { quote } from "@/domain/pricing";
 import { expandSeries, materialisationWindow } from "@/domain/recurrence";
-import { computeDayGrid, type DayGrid, utilisationByHour } from "@/domain/slots";
+import {
+  computeDayGrid,
+  type DayGrid,
+  utilisation,
+  utilisationByHour,
+} from "@/domain/slots";
 import { splitBooking } from "@/domain/split";
 import { addFils, type Fils, ZERO } from "@/lib/money";
 import { addDaysToLocalDate, type LocalDate, todayInDubai } from "@/lib/time";
@@ -58,7 +63,15 @@ export interface ConsoleDay {
   closures: { courtId: string; note: string; noteAr: string }[];
   takings: { cash: Fils; card: Fils; wallet: Fils; total: Fils };
   utilisationByHour: Map<number, number>;
+  /** How full the day was, 0–1. */
+  utilisation: number;
+  /** The surrounding week, so the day strip can show where the room is. */
+  week: { day: LocalDate; utilisation: number }[];
 }
+
+/** Days either side of the open day carried by the strip. */
+const WEEK_BACK = 2;
+const WEEK_FORWARD = 4;
 
 export async function loadConsoleDay(day: LocalDate): Promise<ConsoleDay> {
   const db = getDb();
@@ -67,6 +80,12 @@ export async function loadConsoleDay(day: LocalDate): Promise<ConsoleDay> {
   // It is a local mutation here; in production it is pg_cron plus the route in
   // app/api/cron/expire-holds, and this call becomes unnecessary.
   await db.bookings.expireHolds(new Date());
+
+  // The strip's range. Widened here rather than fetched separately, because a
+  // query added to a wave that is already in flight costs ~3-12ms and a second
+  // wave costs ~305ms.
+  const weekFrom = addDaysToLocalDate(day, -WEEK_BACK);
+  const weekTo = addDaysToLocalDate(day, WEEK_FORWARD);
 
   const [
     courts,
@@ -78,16 +97,21 @@ export async function loadConsoleDay(day: LocalDate): Promise<ConsoleDay> {
     till,
     dueCount,
     payments,
+    weekBookings,
   ] = await Promise.all([
     rowsOrThrow("console.courts", db.courts.list()),
     rowsOrThrow("console.bookings", db.bookings.listForDay(day)),
     rowsOrThrow("console.templates", db.availability.templates()),
-    rowsOrThrow("console.exceptions", db.availability.exceptionsForRange(day, day)),
+    rowsOrThrow(
+      "console.exceptions",
+      db.availability.exceptionsForRange(weekFrom, weekTo),
+    ),
     rowsOrThrow("console.customers", db.customers.list()),
     rowsOrThrow("console.staff", db.staff.list()),
     maybeRow("console.till", db.till.currentSession()),
     countOrThrow("console.due", db.payments.countDue(day)),
     rowsOrThrow("console.payments", db.payments.listForDay(day)),
+    rowsOrThrow("console.week", db.bookings.listForRange(weekFrom, weekTo)),
   ]);
 
   // Participants need the booking ids, so they are a genuine second wave. It is
@@ -101,6 +125,25 @@ export async function loadConsoleDay(day: LocalDate): Promise<ConsoleDay> {
   const grid = computeDayGrid({ day, courts, availability, bookings });
 
   const takings = sumTakings(payments);
+
+  // Seven grids of ~200 cells each, from rows already in hand. Pure
+  // computation after the wave is not a second wave; it is free.
+  const week: { day: LocalDate; utilisation: number }[] = [];
+  for (let offset = -WEEK_BACK; offset <= WEEK_FORWARD; offset++) {
+    const d = addDaysToLocalDate(day, offset);
+    if (d === day) {
+      week.push({ day: d, utilisation: utilisation(grid) });
+      continue;
+    }
+    const a = resolveAvailability(d, courts, templates, exceptions);
+    const g = computeDayGrid({
+      day: d,
+      courts,
+      availability: a,
+      bookings: weekBookings.filter((b) => b.operatingDay === d),
+    });
+    week.push({ day: d, utilisation: utilisation(g) });
+  }
 
   return {
     day,
@@ -116,6 +159,8 @@ export async function loadConsoleDay(day: LocalDate): Promise<ConsoleDay> {
     closures: availability.closures,
     takings,
     utilisationByHour: utilisationByHour(grid),
+    utilisation: utilisation(grid),
+    week,
   };
 }
 

@@ -119,7 +119,8 @@ type RecordStrings = {
   booker: string;
   openMatch: string;
   credit: string;
-  empty: string;
+  noPlayers: string;
+  noPayments: string;
   save: string;
   sources: Record<BookingSource, string>;
   status: Record<string, string>;
@@ -177,8 +178,8 @@ export function BookingRecord({
       guilloche
       note={notice}
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="space-y-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="space-y-8">
           {/* The document head — court, when, source, all on one ruled band. */}
           <Panel title={booking.courtName}>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
@@ -218,12 +219,12 @@ export function BookingRecord({
                 </Stamp>
               )}
               {booking.blockReason && (
-                <span className="font-board text-[11px] text-line-dim">
+                <span className="text-[14px] text-line-dim">
                   {booking.blockReason}
                 </span>
               )}
               {booking.cancellationReason && (
-                <span className="font-board text-[11px] text-line-dim">
+                <span className="text-[14px] text-line-dim">
                   {booking.cancellationReason}
                 </span>
               )}
@@ -241,7 +242,7 @@ export function BookingRecord({
                       {l.label}
                     </span>
                     {l.reason && (
-                      <span className="ms-2 font-board text-[11px] text-line-dim">
+                      <span className="ms-2 text-[14px] text-line-dim">
                         {l.reason}
                         {l.appliedBy ? ` — ${l.appliedBy}` : ""}
                       </span>
@@ -263,7 +264,7 @@ export function BookingRecord({
           <Panel
             title={strings.participants}
             serial={
-              <span className="font-board text-[11px] text-line-dim">
+              <span className="text-[14px] text-line-dim">
                 {shares.length}/{booking.partySize}
               </span>
             }
@@ -281,7 +282,7 @@ export function BookingRecord({
             }
           >
             {shares.length === 0 ? (
-              <EmptyLine>{strings.empty}</EmptyLine>
+              <EmptyLine>{strings.noPlayers}</EmptyLine>
             ) : (
               <LedgerTable
                 heads={["", strings.share, strings.paid, strings.owes, ""]}
@@ -292,7 +293,7 @@ export function BookingRecord({
                       <span className="flex items-center gap-2">
                         {s.name}
                         {s.isBooker && (
-                          <span className="font-board text-[10px] uppercase tracking-[0.12em] text-amber">
+                          <span className="board-label board-label-sm text-amber">
                             {strings.booker}
                           </span>
                         )}
@@ -341,19 +342,19 @@ export function BookingRecord({
 
           <Panel title={strings.payments}>
             {payments.length === 0 ? (
-              <EmptyLine>{strings.empty}</EmptyLine>
+              <EmptyLine>{strings.noPayments}</EmptyLine>
             ) : (
               <LedgerTable heads={["", "", "", strings.total]}>
                 {payments.map((p) => (
                   <LedgerRow key={p.id}>
-                    <Cell className="font-board text-[11px] text-line-dim">
+                    <Cell className="text-[14px] text-line-dim">
                       {new Date(p.takenAt).toLocaleString(locale, {
                         timeZone: "Asia/Dubai",
                         dateStyle: "short",
                         timeStyle: "short",
                       })}
                     </Cell>
-                    <Cell className="font-board text-[11px] uppercase tracking-[0.1em]">
+                    <Cell className="board-label text-inherit">
                       {p.method}
                     </Cell>
                     <Cell>{p.takenBy}</Cell>
@@ -378,7 +379,7 @@ export function BookingRecord({
               tone={outstanding > 0 ? "rule" : "settle"}
             />
             {customerCredit !== null && customerCredit > 0 && (
-              <p className="mt-2 font-board text-[11px] text-ball">
+              <p className="mt-2 text-[14px] text-ball">
                 {strings.credit}: {formatMoney(customerCredit, locale)}
               </p>
             )}
@@ -447,7 +448,7 @@ export function BookingRecord({
                 >
                   {strings.save}
                 </InkButton>
-                <p className="font-board text-[10px] leading-relaxed text-line-dim">
+                <p className="board-label leading-relaxed">
                   Recorded in the audit log with your name and this reason.
                 </p>
               </div>
@@ -458,7 +459,7 @@ export function BookingRecord({
             <Panel title={strings.cancel}>
               <p
                 className={cn(
-                  "mb-3 font-board text-[11px] leading-relaxed",
+                  "mb-3 board-label leading-relaxed",
                   cancellation.refundKind === "none" ? "text-clay" : "text-line-dim",
                 )}
               >
@@ -507,7 +508,7 @@ function Field({
 }) {
   return (
     <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-line-dim">
+      <dt className="board-label board-label-sm">
         {label}
       </dt>
       <dd className="mt-0.5 text-[14px] text-line">{children}</dd>

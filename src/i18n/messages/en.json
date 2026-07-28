@@ -39,42 +39,87 @@
     "expired": "LAPSED",
     "openSeats": "{count} SEATS"
   },
-  "entryLine": {
-    "verb": "Book",
-    "court": "court",
-    "customer": "member",
-    "time": "time",
-    "duration": "duration",
-    "prompt": "Complete the entry",
-    "pickCourt": "Pick a court column",
-    "pickCustomer": "Search by phone or name",
-    "pickTime": "Pick an open hour",
-    "pickDuration": "Pick a duration",
-    "commit": "Write entry",
-    "clear": "Clear line",
-    "reads": "Reads",
-    "cannotParse": "The entry is incomplete",
-    "noRate": "No rate configured for this slot — set one on the Rate Card before confirming."
+  "compose": {
+    "title": "New entry",
+    "who": "Who is it for?",
+    "searchPlaceholder": "Search by phone or name",
+    "noMatch": "No member matches “{query}”.",
+    "anonymousNote": "Leave this empty to put the court on the board now and add the name when you have it.",
+    "blocked": "Blocked account",
+    "change": "Change",
+    "write": "Write entry",
+    "hold": "Hold",
+    "minutes": "{count} min"
+  },
+  "peek": {
+    "when": "When",
+    "length": "Length",
+    "total": "Total",
+    "outstanding": "Outstanding",
+    "party": "Party",
+    "source": "Source",
+    "phone": "Phone",
+    "series": "Weekly",
+    "seriesNote": "Part of a weekly series — changes here affect this week only.",
+    "noName": "No name yet",
+    "minutes": "{count} min",
+    "ofParty": "{on} of {of}",
+    "confirm": "Confirm the hold",
+    "confirmed": "Hold confirmed.",
+    "noShow": "Mark no-show",
+    "noShowed": "Marked as a no-show.",
+    "cancel": "Cancel entry",
+    "cancelReason": "Why is it being cancelled?",
+    "cancelReasonPlaceholder": "Called to cancel, weather, double booking…",
+    "cancelConfirm": "Cancel the entry",
+    "cancelled": "Entry cancelled.",
+    "keep": "Keep it",
+    "settled": "This entry is closed. Open the full record to see what happened to it.",
+    "failed": "That did not go through.",
+    "fullRecord": "Open the full record",
+    "sources": {
+      "web": "Web",
+      "walk_in": "Walk-in",
+      "phone": "Phone",
+      "staff": "Front desk",
+      "recurring": "Weekly",
+      "class": "Class",
+      "tournament": "Tournament"
+    }
   },
   "calendar": {
     "title": "Day Book",
     "today": "Today",
-    "previous": "Previous page",
-    "next": "Next page",
+    "week": "Week",
     "court": "Court",
-    "time": "Time",
-    "utilisation": "Utilisation",
+    "utilisation": "Full",
+    "utilisationPct": "{pct}% booked",
     "takings": "Takings",
-    "outstanding": "Outstanding",
-    "holdsExpiring": "Holds expiring",
+    "cash": "Cash",
+    "card": "Card",
+    "outstanding": "Unpaid",
     "closed": "Closed",
-    "noCourts": "No courts are open on this page.",
+    "resize": "Drag to change the length",
+    "noCourts": "No courts are open on this day. Court hours are set under Courts.",
     "justTaken": "Just taken — someone else confirmed that slot first.",
     "moved": "Entry moved.",
     "moveFailed": "Could not move — the destination is occupied.",
-    "expiresIn": "Expires in {time}",
-    "serial": "No.",
-    "page": "Page"
+    "resized": "Length changed to {count} min.",
+    "written": "Entry #{serial} written.",
+    "moveMode": "Moving. Arrows to place it, Enter to drop it, Esc to leave it.",
+    "wontFit": "It will not fit there.",
+    "jumpToNow": "Now · {time}",
+    "dismiss": "Dismiss",
+    "writing": "Writing…",
+    "sampleData": "Synthetic sample data — not real bookings.",
+    "filters": {
+      "label": "Show",
+      "all": "Everything",
+      "holds": "Holds",
+      "unpaid": "Unpaid",
+      "seats": "Open seats",
+      "blocked": "Blocked"
+    }
   },
   "booking": {
     "title": "Entry #{serial}",
@@ -107,6 +152,8 @@
     "openMatch": "Open match",
     "level": "Level",
     "seatsOpen": "{count} of {total} seats open",
+    "noPlayers": "Nobody is on this entry yet. Add a player to split the court fee between them.",
+    "noPayments": "Nothing taken against this entry yet.",
     "sources": {
       "web": "Web",
       "walk_in": "Walk-in",
@@ -144,6 +191,10 @@
     "new": "New member",
     "duplicateWarning": "A member already exists on this number.",
     "mergeSuggestion": "Possible duplicate — same number, different spelling.",
+    "duplicateShort": "DUP",
+    "bookings": "Bookings",
+    "needsAttention": "Needs attention",
+    "noMatch": "No member matches these filters. Clear them to see everyone.",
     "tiers": {
       "guest": "Guest",
       "member": "Member",
@@ -169,6 +220,8 @@
     "openedBy": "Opened by",
     "varianceNote": "Explain the variance",
     "noSession": "No shift is open.",
+    "closedShifts": "Closed shifts",
+    "noClosedShifts": "No shift has been closed yet. The first close of the day lands here with its variance.",
     "countPrompt": "Count the drawer, then enter the total."
   },
   "pricing": {
@@ -215,7 +268,30 @@
     "last30": "Last 30 days",
     "peakHour": "Peak hour",
     "quietestHour": "Quietest hour",
+    "hoursBooked": "Hours booked",
+    "share": "Share",
     "priceUpHint": "The fullest hours are the ones to price up."
+  },
+  "account": {
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "role": "Role",
+    "password": "Password",
+    "passwordHint": "At least {min} characters — read it out, they change it.",
+    "create": "Create account",
+    "creating": "Creating…",
+    "created": "Account created for {email}."
+  },
+  "staffPage": {
+    "accounts": "Logins",
+    "signedIn": "Last signed in",
+    "noAccounts": "No logins yet — the prototype opens as the front desk without one.",
+    "ownerOnly": "Only an owner can create a login.",
+    "permissions": "Permissions",
+    "permitted": "Permitted",
+    "notPermitted": "Not permitted",
+    "enforcementNote": "These are enforced server-side on every action, not by hiding buttons. When Supabase lands, row-level security becomes the real boundary and this table becomes the affordance on top of it."
   },
   "audit": {
     "title": "Audit",
@@ -224,7 +300,8 @@
     "what": "What",
     "amount": "Amount",
     "reason": "Reason",
-    "immutable": "This log is append-only. Entries cannot be edited or removed."
+    "immutable": "This log is append-only. Entries cannot be edited or removed.",
+    "none": "Nothing has been logged in this range. Every cancellation, discount and refund appears here as it happens."
   },
   "coaching": {
     "title": "Academy",
@@ -236,7 +313,8 @@
     "commission": "Commission",
     "attendance": "Attendance",
     "pricePerHead": "Per head",
-    "full": "Full"
+    "full": "Full",
+    "noClasses": "No classes on the schedule. Add a coach first, then a class against a court and an hour."
   },
   "shop": {
     "title": "Shop",
@@ -249,7 +327,9 @@
     "sell": "Sell",
     "toTab": "Add to a court tab",
     "standalone": "Standalone sale",
-    "cart": "Sale"
+    "cart": "Sale",
+    "noProducts": "No products match this filter. Clear it to see the whole shelf.",
+    "emptyCart": "Nothing on the counter. Pick a product to start a sale, or add it to an open court tab."
   },
   "tournaments": {
     "title": "Tournaments",
@@ -258,6 +338,8 @@
     "capacity": "Capacity",
     "entries": "Entries",
     "enter": "Enter",
+    "none": "No tournaments yet. A tournament blocks its courts for the day, so it goes in before the bookings do.",
+    "courtsBlocked": "{count} courts blocked",
     "formats": {
       "americano": "Americano",
       "mexicano": "Mexicano",

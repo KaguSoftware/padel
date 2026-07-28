@@ -222,3 +222,38 @@ export function TearMark({ className, size = 20 }: P) {
     </Svg>
   );
 }
+
+/**
+ * The registry — marks addressable by name.
+ *
+ * A server component cannot pass a component reference to a client one, which
+ * is why the console's nav list existed twice. With a name in the list and the
+ * lookup here, both sides read the same array.
+ */
+export const MARKS = {
+  club: CourtMark,
+  ledger: LedgerMark,
+  drawer: DrawerMark,
+  tariff: TariffMark,
+  card: CardMark,
+  stamp: StampMark,
+  racket: RacketMark,
+  shelf: ShelfMark,
+  bracket: BracketMark,
+  ledgers: LedgersMark,
+  staff: StaffMark,
+  courts: CourtsMark,
+  lock: LockMark,
+  tear: TearMark,
+} as const;
+
+export type MarkName = keyof typeof MARKS;
+
+export function Mark({
+  name,
+  className,
+  size = 20,
+}: P & { name: MarkName }) {
+  const Component = MARKS[name];
+  return <Component className={className} size={size} />;
+}

@@ -95,8 +95,8 @@ export function Counter({
       serial={`${todaysSales.length} sales today`}
       note={notice}
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="space-y-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <RuledInput
               type="search"
@@ -121,14 +121,14 @@ export function Counter({
 
           <Panel title={strings.product}>
             {visible.length === 0 ? (
-              <EmptyLine>{strings.empty}</EmptyLine>
+              <EmptyLine>{strings.noProducts}</EmptyLine>
             ) : (
               <LedgerTable
                 heads={[strings.sku, strings.product, strings.price, strings.stock, ""]}
               >
                 {visible.map((p) => (
                   <LedgerRow key={p.id}>
-                    <Cell className="font-board text-[11px] tracking-[0.06em] text-line-dim">
+                    <Cell className="text-[14px] text-line-dim">
                       {p.sku}
                     </Cell>
                     <Cell className="font-semibold">{p.name}</Cell>
@@ -176,7 +176,7 @@ export function Counter({
         <aside className="space-y-4">
           <Panel title={strings.cart}>
             {lines.length === 0 ? (
-              <EmptyLine>{strings.empty}</EmptyLine>
+              <EmptyLine>{strings.emptyCart}</EmptyLine>
             ) : (
               <>
                 <ul className="space-y-1">
@@ -264,7 +264,7 @@ export function Counter({
                 {todaysSales.slice(0, 8).map((s) => (
                   <li
                     key={s.id}
-                    className="flex items-baseline justify-between gap-3 border-b border-line/15 py-1.5 font-board text-[11px]"
+                    className="flex items-baseline justify-between gap-3 border-b border-line/15 py-1.5 text-[14px]"
                   >
                     <span className="text-amber">No. {s.serial}</span>
                     <span className="tabular-nums">

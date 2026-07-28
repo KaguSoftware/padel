@@ -6,38 +6,19 @@ import type { Claims } from "@/auth/claims";
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/ui/cn";
 import { Drawer, MenuButton } from "@/ui/Drawer";
-import {
-  BracketMark,
-  CardMark,
-  CourtMark,
-  CourtsMark,
-  DrawerMark,
-  LedgerMark,
-  RacketMark,
-  ShelfMark,
-  StaffMark,
-} from "@/ui/marks";
+import { CourtMark, Mark } from "@/ui/marks";
+import { NAV, currentEntry, isCurrent } from "./nav";
 import { RoleSwitcher } from "./RoleSwitcher";
 
 /**
  * The console's mobile navigation: a top bar with the club mark, the current
  * module's name, and a menu.
  *
- * The marks are declared here rather than passed in, because a server component
- * cannot hand component references to a client one. Labels come across as plain
- * strings, which keeps the translations on the server where they belong.
+ * The destinations come from `nav.ts`, which both this and the desk rail read —
+ * the list used to be duplicated here byte for byte because a server component
+ * cannot pass component references across the boundary. It passes a mark *name*
+ * now, and the registry does the rest.
  */
-const NAV = [
-  { href: "/admin/calendar", key: "calendar", Mark: LedgerMark },
-  { href: "/admin/customers", key: "customers", Mark: CardMark },
-  { href: "/admin/finances", key: "finances", Mark: DrawerMark },
-  { href: "/admin/courts", key: "courts", Mark: CourtsMark },
-  { href: "/admin/academy", key: "coaching", Mark: RacketMark },
-  { href: "/admin/shop", key: "shop", Mark: ShelfMark },
-  { href: "/admin/tournaments", key: "tournaments", Mark: BracketMark },
-  { href: "/admin/staff", key: "staff", Mark: StaffMark },
-] as const;
-
 export function AdminMobileNav({
   locale,
   labels,
@@ -59,21 +40,21 @@ export function AdminMobileNav({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
-  const current =
-    NAV.find((n) => pathname === n.href || pathname.startsWith(`${n.href}/`)) ??
-    NAV[0];
+  const current = currentEntry(pathname);
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-line/20 bg-board px-4 py-2.5 md:hidden">
-        <Link href="/admin/calendar" className="flex items-center gap-2.5">
-          <CourtMark size={24} className="shrink-0 text-ball" />
+      <header
+        className="sticky top-0 flex items-center justify-between gap-3 border-b border-line/20 bg-board px-4 py-3 md:hidden"
+        style={{ zIndex: "var(--z-topbar)" }}
+      >
+        <Link href="/admin/calendar" className="flex min-w-0 items-center gap-3">
+          <CourtMark size={26} className="shrink-0 text-ball" />
           <span className="min-w-0">
-            <span className="painted block text-[15px] leading-none">
+            <span className="painted block truncate text-[17px] leading-none">
               {labels[current.key]}
             </span>
-            <span className="block font-board text-[9px] uppercase leading-none tracking-[0.28em] text-amber">
+            <span className="mt-1 block font-board text-[10px] uppercase leading-none tracking-[0.24em] text-amber">
               Kagu Padel
             </span>
           </span>
@@ -84,30 +65,27 @@ export function AdminMobileNav({
 
       <Drawer open={open} onClose={() => setOpen(false)} title={menuLabel}>
         <nav className="py-2">
-          {NAV.map(({ href, key, Mark }) => {
-            const active =
-              pathname === href || pathname.startsWith(`${href}/`);
+          {NAV.map((n) => {
+            const active = isCurrent(pathname, n.href);
             return (
               <Link
-                key={href}
-                href={href}
+                key={n.href}
+                href={n.href}
                 onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-13 items-center gap-3.5 border-s-2 px-4 py-3 font-stadium text-[13px] uppercase tracking-[0.07em] transition-colors",
+                  "flex min-h-14 items-center gap-3.5 border-s-2 px-5 py-3 font-stadium text-[13px] uppercase tracking-[0.05em] transition-colors",
                   active
-                    ? "border-s-ball bg-line/8 text-line"
+                    ? "border-s-line bg-line/12 text-line"
                     : "border-s-transparent text-line/75 active:bg-line/10",
                 )}
               >
                 <Mark
+                  name={n.mark}
                   size={19}
-                  className={cn(
-                    "shrink-0",
-                    active ? "text-ball" : "text-line-dim",
-                  )}
+                  className={cn("shrink-0", active ? "text-line" : "text-line-dim")}
                 />
-                <span className="truncate">{labels[key]}</span>
+                <span className="truncate">{labels[n.key]}</span>
               </Link>
             );
           })}
@@ -124,7 +102,7 @@ export function AdminMobileNav({
             href="/admin/calendar"
             locale={locale === "ar" ? "en" : "ar"}
             onClick={() => setOpen(false)}
-            className="mt-4 flex min-h-11 items-center justify-center border border-line/25 font-board text-[11px] uppercase tracking-[0.18em] text-amber active:bg-line/10"
+            className="board-label mt-4 flex min-h-12 items-center justify-center border border-line/25 text-amber active:bg-line/10"
           >
             {languageLabel}
           </Link>

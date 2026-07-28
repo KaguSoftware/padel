@@ -207,6 +207,82 @@ describe("moving a booking", () => {
   });
 });
 
+describe("resizing a booking", () => {
+  let d: Db;
+  beforeEach(() => {
+    d = db();
+  });
+
+  it("shortens and lengthens in place, keeping court and start", async () => {
+    const m = await freeSpot(d, "crt-1", 180);
+    const b = await d.bookings.create(input("crt-1", m));
+
+    const longer = await d.bookings.resize(
+      b.id,
+      instantAt(DAY, m + 120),
+      LINES,
+      "usr-desk-1",
+    );
+    expect(longer.courtId).toBe("crt-1");
+    expect(longer.start.getTime()).toBe(instantAt(DAY, m).getTime());
+    expect(longer.end.getTime()).toBe(instantAt(DAY, m + 120).getTime());
+
+    const shorter = await d.bookings.resize(
+      b.id,
+      instantAt(DAY, m + 60),
+      LINES,
+      "usr-desk-1",
+    );
+    expect(shorter.end.getTime()).toBe(instantAt(DAY, m + 60).getTime());
+  });
+
+  it("refuses to grow into the booking that follows it, and changes nothing", async () => {
+    // The whole point of routing resize through the exclusion constraint: a
+    // lengthening collides with what sits AFTER it, which a move never does.
+    const m = await freeSpot(d, "crt-1", 240);
+    const first = await d.bookings.create(input("crt-1", m));
+    await d.bookings.create(input("crt-1", m + 90));
+
+    await expect(
+      d.bookings.resize(first.id, instantAt(DAY, m + 120), LINES, "usr-desk-1"),
+    ).rejects.toBeInstanceOf(SlotTakenError);
+
+    const unchanged = await d.bookings.get(first.id);
+    expect(unchanged?.end.getTime()).toBe(instantAt(DAY, m + 90).getTime());
+  });
+
+  it("refuses an end at or before the start", async () => {
+    const m = await freeSpot(d);
+    const b = await d.bookings.create(input("crt-1", m));
+    await expect(
+      d.bookings.resize(b.id, instantAt(DAY, m), LINES, "usr-desk-1"),
+    ).rejects.toBeInstanceOf(RuleViolation);
+  });
+
+  it("writes the new total from the lines it is handed", async () => {
+    const m = await freeSpot(d, "crt-1", 180);
+    const b = await d.bookings.create(input("crt-1", m));
+    const resized = await d.bookings.resize(
+      b.id,
+      instantAt(DAY, m + 120),
+      [{ code: "court", label: "Test", labelAr: "", amount: dirhams(260) }],
+      "usr-desk-1",
+    );
+    expect(resized.total).toBe(dirhams(260));
+  });
+
+  it("appends an audit row, because the price moved", async () => {
+    const m = await freeSpot(d, "crt-1", 180);
+    const b = await d.bookings.create(input("crt-1", m));
+    await d.bookings.resize(b.id, instantAt(DAY, m + 120), LINES, "usr-desk-1");
+
+    const log = await d.audit.recent(50);
+    expect(log.some((e) => e.action === "booking.resize" && e.entityId === b.id)).toBe(
+      true,
+    );
+  });
+});
+
 describe("holds", () => {
   let d: Db;
   beforeEach(() => {

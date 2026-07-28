@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { createStaffAccount } from "@/app/actions/account";
 import type { Role } from "@/data/types";
@@ -33,6 +34,7 @@ export function NewAccount({
   disabled: boolean;
   disabledNote: string;
 }) {
+  const t = useTranslations("account");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [notice, setNotice] = useState<
@@ -62,7 +64,7 @@ export function NewAccount({
       }
       setNotice({
         tone: "ok",
-        text: `Account created for ${String(form.get("email") ?? "")}.`,
+        text: t("created", { email: String(form.get("email") ?? "") }),
       });
       router.refresh();
     });
@@ -70,21 +72,21 @@ export function NewAccount({
 
   if (disabled) {
     return (
-      <p className="px-4 py-6 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim">
+      <p className="board-label px-5 py-8">
         {disabledNote}
       </p>
     );
   }
 
   return (
-    <form action={onSubmit} className="grid gap-4 px-4 py-5 sm:grid-cols-2">
+    <form action={onSubmit} className="grid gap-6 px-5 py-6 sm:grid-cols-2">
       <div>
-        <FieldLabel htmlFor="acc-name">Name</FieldLabel>
+        <FieldLabel htmlFor="acc-name">{t("name")}</FieldLabel>
         <RuledInput id="acc-name" name="name" required disabled={pending} />
       </div>
 
       <div>
-        <FieldLabel htmlFor="acc-phone">Phone</FieldLabel>
+        <FieldLabel htmlFor="acc-phone">{t("phone")}</FieldLabel>
         <RuledInput
           id="acc-phone"
           name="phone"
@@ -95,7 +97,7 @@ export function NewAccount({
       </div>
 
       <div>
-        <FieldLabel htmlFor="acc-email">Email</FieldLabel>
+        <FieldLabel htmlFor="acc-email">{t("email")}</FieldLabel>
         <RuledInput
           id="acc-email"
           name="email"
@@ -107,7 +109,7 @@ export function NewAccount({
       </div>
 
       <div>
-        <FieldLabel htmlFor="acc-role">Role</FieldLabel>
+        <FieldLabel htmlFor="acc-role">{t("role")}</FieldLabel>
         <RuledSelect id="acc-role" name="role" defaultValue="staff" disabled={pending}>
           {roles.map((r) => (
             <option key={r} value={r}>
@@ -118,7 +120,7 @@ export function NewAccount({
       </div>
 
       <div className="sm:col-span-2">
-        <FieldLabel htmlFor="acc-password">Password</FieldLabel>
+        <FieldLabel htmlFor="acc-password">{t("password")}</FieldLabel>
         <RuledInput
           id="acc-password"
           name="password"
@@ -128,15 +130,15 @@ export function NewAccount({
           minLength={MIN_PASSWORD_LENGTH}
           disabled={pending}
         />
-        <p className="mt-1.5 font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
-          At least {MIN_PASSWORD_LENGTH} characters · read it out, they change it
+        <p className="mt-1.5 board-label board-label-sm">
+          {t("passwordHint", { min: MIN_PASSWORD_LENGTH })}
         </p>
       </div>
 
       {notice && (
         <p
           role="status"
-          className={`sm:col-span-2 border-s-2 px-3 py-2 font-board text-[12px] leading-relaxed ${
+          className={`sm:col-span-2 border-s-2 px-3 py-2 text-[14px] leading-relaxed ${
             notice.tone === "ok"
               ? "border-s-ball bg-line/5 text-line"
               : "border-s-clay bg-clay/10 text-line"
@@ -148,7 +150,7 @@ export function NewAccount({
 
       <div className="sm:col-span-2">
         <InkButton type="submit" variant="primary" disabled={pending}>
-          {pending ? "Creating…" : "Create account"}
+          {pending ? t("creating") : t("create")}
         </InkButton>
       </div>
     </form>

@@ -1,13 +1,17 @@
-import { CourtLines } from "./court";
 import { cn } from "./cn";
 
 /**
- * The head every console module opens with.
+ * The head every admin module opens with.
  *
- * The console is the control desk at the side of the same floodlit court, so
- * the page opens on court surface with the module name painted across it and
- * the board's readout beside it. One spacing rhythm throughout — more space
- * above a heading than below it.
+ * It used to open on `court-surface` — the floodlit court, four hard pools of
+ * light under `mix-blend-mode: screen`. That is right on the public site and
+ * wrong here: the console's scene is a counter under bright light, where those
+ * pools are glare, and they were repainting on every page for a decoration
+ * nobody at the front desk is admiring at hour six. The head is now the board
+ * itself, flat and near-black, with the module name painted across it.
+ *
+ * One spacing rhythm throughout — more space above a heading than below it,
+ * and a measure cap so a ledger does not stretch to 2,000px on a desk monitor.
  */
 export function PageShell({
   title,
@@ -15,6 +19,7 @@ export function PageShell({
   actions,
   children,
   note,
+  bleed = false,
   guilloche = false,
 }: {
   title: React.ReactNode;
@@ -22,39 +27,57 @@ export function PageShell({
   actions?: React.ReactNode;
   children: React.ReactNode;
   note?: React.ReactNode;
+  /** The day board manages its own scroll geometry; it takes the full width. */
+  bleed?: boolean;
   /** Retained for API compatibility; the Board world marks documents with
    *  court line-plan rather than engraved ornament. */
   guilloche?: boolean;
 }) {
+  void guilloche;
+
   return (
-    <div className="court-world min-h-dvh bg-court-deep">
-      <header className="court-surface relative overflow-hidden border-b border-line/20">
-        {guilloche && (
-          <CourtLines className="pointer-events-none absolute inset-0 h-full w-full text-line/25" />
-        )}
-        <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-4 py-5 sm:px-5 sm:py-6">
-          <div className="flex flex-wrap items-baseline gap-4">
-            <h1 className="painted text-[clamp(1.6rem,3.4vw,2.4rem)]">{title}</h1>
+    <div className="desk court-world flex min-h-dvh flex-col bg-court-deep">
+      <header className="rule-strong border-b bg-board">
+        <div
+          className={cn(
+            "flex flex-wrap items-end justify-between gap-x-8 gap-y-4 px-5 py-6 sm:px-8 sm:py-7",
+            !bleed && "mx-auto w-full max-w-[var(--desk-max)]",
+          )}
+        >
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-2">
+            <h1 className="painted text-[26px] sm:text-[30px]">{title}</h1>
             {serial && (
-              <span className="font-board text-[11px] uppercase tracking-[0.22em] text-amber">
+              <span className="font-board text-[13px] tabular-nums tracking-[0.12em] text-amber">
                 {serial}
               </span>
             )}
           </div>
-          {actions && <div className="flex items-center gap-2">{actions}</div>}
+          {actions && <div className="flex flex-wrap items-center gap-2.5">{actions}</div>}
         </div>
         {note && (
-          <p className="relative border-t border-line/15 px-4 py-2 font-board text-[11px] tracking-[0.08em] text-line-dim sm:px-5">
+          <p
+            className={cn(
+              "rule-hair board-label border-t px-5 py-3 sm:px-8",
+              !bleed && "mx-auto w-full max-w-[var(--desk-max)]",
+            )}
+          >
             {note}
           </p>
         )}
       </header>
-      <div className="px-4 py-6 sm:px-5 sm:py-7">{children}</div>
+
+      {bleed ? (
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      ) : (
+        <div className="mx-auto w-full max-w-[var(--desk-max)] flex-1 px-5 py-8 sm:px-8 sm:py-10">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
 
-/** The board's tabular readout. Column heads in dot-matrix, rows lit faintly. */
+/** The board's tabular readout. Column heads as words, figures as figures. */
 export function LedgerTable({
   heads,
   children,
@@ -66,14 +89,14 @@ export function LedgerTable({
 }) {
   return (
     <div className={cn("scroll-x", className)}>
-      <table className="w-full min-w-max border-collapse text-[13px]">
+      <table className="w-full min-w-max border-collapse text-[14px]">
         <thead>
           <tr>
             {heads.map((h, i) => (
               <th
                 key={i}
                 scope="col"
-                className="border-b border-line/25 px-2.5 py-2 text-start font-board text-[10px] uppercase tracking-[0.2em] text-line-dim"
+                className="board-label rule-strong border-b px-4 py-3 text-start font-medium"
               >
                 {h}
               </th>
@@ -94,7 +117,7 @@ export function LedgerRow({
   return (
     <tr
       className={cn(
-        "border-b border-line/10 align-middle transition-colors duration-100 hover:bg-line/8",
+        "rule-hair border-b align-middle transition-colors duration-100 hover:bg-line/8",
         className,
       )}
       {...rest}
@@ -113,7 +136,9 @@ export function Cell({
   return (
     <td
       className={cn(
-        "px-2.5 py-2.5",
+        // 52px row floor: the reader is standing, and a row they cannot land a
+        // finger on is a row they will mis-tap under a queue.
+        "h-13 px-4 py-3.5",
         numeric && "text-end font-board tabular-nums",
         className,
       )}

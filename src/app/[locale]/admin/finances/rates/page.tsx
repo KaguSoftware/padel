@@ -38,11 +38,11 @@ export default async function PricingPage({
       serial={`${data.rules.filter((r) => r.active).length} rules`}
       note={t("reports.priceUpHint")}
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* A worked example, so the effect of the rate card is visible rather
             than inferred from a table of conditions. */}
         <Panel title="What a booking actually costs">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {data.sample.map((s) => (
               <Reading
                 key={s.label}
@@ -71,22 +71,22 @@ export default async function PricingPage({
               .map((r) => (
                 <LedgerRow key={r.id} className={r.active ? "" : "opacity-45"}>
                   <Cell className="font-semibold">{ar ? r.labelAr : r.label}</Cell>
-                  <Cell className="font-board text-[11px]">
+                  <Cell className="text-[14px]">
                     {r.weekdays.length === 0
                       ? t("pricing.allDays")
                       : r.weekdays.map((d) => weekdayNames[d]).join(" ")}
                   </Cell>
-                  <Cell className="font-board text-[11px] tabular-nums">
+                  <Cell className="font-board text-[14px] tabular-nums">
                     {r.fromMinute === null && r.toMinute === null
                       ? t("pricing.allHours")
                       : `${clockOf(r.fromMinute, "06:00")}–${clockOf(r.toMinute, "02:00")}`}
                   </Cell>
-                  <Cell className="font-board text-[11px]">
+                  <Cell className="text-[14px]">
                     {r.courtIds.length === 0 && r.courtTags.length === 0
                       ? t("pricing.allCourts")
                       : [...r.courtTags, ...r.courtIds].join(", ")}
                   </Cell>
-                  <Cell className="font-board text-[11px]">
+                  <Cell className="text-[14px]">
                     {r.tiers.length === 0
                       ? t("pricing.allTiers")
                       : r.tiers
@@ -95,7 +95,7 @@ export default async function PricingPage({
                           )
                           .join(", ")}
                   </Cell>
-                  <Cell className="font-board text-[11px] tabular-nums">
+                  <Cell className="font-board text-[14px] tabular-nums">
                     {r.durations.length === 0 ? "—" : r.durations.join(" / ")}
                   </Cell>
                   <Cell numeric>{r.priority}</Cell>
@@ -105,14 +105,14 @@ export default async function PricingPage({
                 </LedgerRow>
               ))}
           </LedgerTable>
-          <p className="mt-3 font-board text-[11px] leading-relaxed text-line-dim">
+          <p className="mt-3 board-label leading-relaxed">
             Highest priority wins; ties break on the more specific rule. The
             rule is matched against the slot&rsquo;s start, so a 21:00 booking is
             peak-priced whether it runs 60 or 120 minutes.
           </p>
         </Panel>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           <Panel title={t("pricing.promos")}>
             <LedgerTable
               heads={[
@@ -172,12 +172,12 @@ export default async function PricingPage({
                   </LedgerRow>
                 ))}
               <LedgerRow className="hover:bg-transparent">
-                <Cell colSpan={4} className="font-board text-[11px] text-clay">
+                <Cell colSpan={4} className="text-[14px] text-clay">
                   {t("pricing.noPolicy")}
                 </Cell>
               </LedgerRow>
             </LedgerTable>
-            <p className="mt-3 font-board text-[11px] leading-relaxed text-line-dim">
+            <p className="mt-3 board-label leading-relaxed">
               Under the shortest window no tier matches, so nothing is returned.
               That is expressed by absence rather than a 0% row, which keeps the
               copy honest at the counter.

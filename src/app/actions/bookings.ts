@@ -11,7 +11,7 @@ import { quote } from "@/domain/pricing";
 import { can } from "@/auth/guard";
 import { requireUser } from "@/auth/guard";
 import { fils, type Fils } from "@/lib/money";
-import { instantAt, localDate, operatingDayOf } from "@/lib/time";
+import { instantAt, localDate, minutesIntoDay, operatingDayOf } from "@/lib/time";
 
 /**
  * Server actions for the booking core.
@@ -183,6 +183,76 @@ export async function moveBooking(
     );
     revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { id: b.id } };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+const resizeSchema = z.object({
+  id: z.string().min(1),
+  durationMinutes: z.coerce.number().int().refine((n) => [60, 90, 120].includes(n)),
+});
+
+/**
+ * Drag-the-tail. The length changes, the court and the start do not.
+ *
+ * It re-quotes rather than scaling the old total, because the tariff is not
+ * linear in duration and never has been — an off-peak 60 extended to a peak 120
+ * crosses a rate boundary, and multiplying the first hour's price by two would
+ * quietly undercharge for the club's best slot.
+ *
+ * A booking that has been discounted is refused rather than silently re-priced
+ * at rack rate: someone approved that discount and the audit log has their name
+ * on it. Re-pricing it from a drag on a board would erase that.
+ */
+export async function resizeBooking(
+  input: z.input<typeof resizeSchema>,
+): Promise<ActionResult<{ id: string; total: Fils }>> {
+  const claims = await requireUser();
+  const parsed = resizeSchema.parse(input);
+  const db = getDb();
+
+  const booking = await db.bookings.get(parsed.id);
+  if (!booking) return { ok: false, code: "rule", message: "No such booking." };
+  if (booking.status === "blocked") {
+    return { ok: false, code: "rule", message: "A maintenance block is edited on the court, not the board." };
+  }
+  if (booking.priceLines.some((l) => l.code === "discount")) {
+    return {
+      ok: false,
+      code: "rule",
+      message: "This booking carries an approved discount — change its length on the record.",
+    };
+  }
+
+  const [courts, rules, customers] = await Promise.all([
+    db.courts.list(),
+    db.pricing.rules(),
+    booking.customerId ? db.customers.list() : Promise.resolve([]),
+  ]);
+  const court = courts.find((c) => c.id === booking.courtId);
+  if (!court) return { ok: false, code: "rule", message: "No such court." };
+
+  const day = operatingDayOf(booking.start);
+  const startMinute = minutesIntoDay(booking.start, day);
+  const q = quote({
+    day,
+    startMinute,
+    durationMinutes: parsed.durationMinutes,
+    court,
+    tier: customers.find((c) => c.id === booking.customerId)?.tier ?? "guest",
+    rules,
+  });
+
+  try {
+    const b = await db.bookings.resize(
+      parsed.id,
+      instantAt(day, startMinute + parsed.durationMinutes),
+      q.lines,
+      claims.userId,
+    );
+    revalidatePath("/[locale]/admin/calendar", "page");
+    return { ok: true, data: { id: b.id, total: b.total } };
   } catch (e) {
     return fail(e);
   }

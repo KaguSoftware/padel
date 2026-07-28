@@ -274,6 +274,39 @@ function bookingsPort(store: Store): BookingsPort {
       return b;
     },
 
+    async resize(id, end, lines, actorId) {
+      const b = store.bookings.find((x) => x.id === id);
+      if (!b) throw new RuleViolation("booking_missing", "No such booking");
+      if (end <= b.start) {
+        throw new RuleViolation("bad_duration", "A booking cannot end before it starts");
+      }
+
+      // Same constraint as a move, and it must run BEFORE the row changes:
+      // lengthening a booking collides with whatever sits after it, and the
+      // exclusion constraint is what catches that — not a measurement here.
+      assertFree(store, b.courtId, b.start, end, id);
+
+      const wasMinutes = Math.round((b.end.getTime() - b.start.getTime()) / 60_000);
+      const nowMinutes = Math.round((end.getTime() - b.start.getTime()) / 60_000);
+      const before = b.total;
+
+      b.end = end;
+      b.priceLines = lines;
+      b.total = addFils(...lines.map((l) => l.amount));
+
+      audit(store, {
+        actorId,
+        action: "booking.resize",
+        entity: "booking",
+        entityId: b.id,
+        summary: `#${b.serial} ${wasMinutes}min -> ${nowMinutes}min, ${before} -> ${b.total}`,
+        summaryAr: `#${b.serial} غُيّرت مدته`,
+        amount: subFils(b.total, before),
+        reason: null,
+      });
+      return b;
+    },
+
     async confirmHold(id, actorId) {
       const b = store.bookings.find((x) => x.id === id);
       if (!b) throw new RuleViolation("booking_missing", "No such booking");

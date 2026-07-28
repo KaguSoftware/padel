@@ -48,7 +48,7 @@ export default async function CourtsPage({
 
   return (
     <PageShell title={t("courts.title")} serial={`${courts.length} courts`}>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {courts.map((c) => (
             <article
@@ -65,7 +65,7 @@ export default async function CourtsPage({
                 </h2>
                 <CourtMark size={26} className="shrink-0 text-line-dim" />
               </div>
-              <dl className="relative mt-3 space-y-1 font-board text-[11px] uppercase tracking-[0.08em] text-line-dim">
+              <dl className="relative mt-3 space-y-1 board-label">
                 <div className="flex justify-between gap-2">
                   <dt>{t("courts.surface")}</dt>
                   <dd className="text-line">
@@ -85,7 +85,7 @@ export default async function CourtsPage({
                 {c.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="border border-line/15 px-1.5 py-0.5 font-board text-[10px] uppercase tracking-[0.1em] text-line-dim"
+                    className="border border-line/15 px-1.5 py-0.5 board-label board-label-sm"
                   >
                     {tag}
                   </span>
@@ -117,7 +117,7 @@ export default async function CourtsPage({
                     templates.find((x) => x.courtId === c.id && x.weekday === d) ??
                     templates.find((x) => x.courtId === null && x.weekday === d);
                   return (
-                    <Cell key={d} className="font-board text-[11px] tabular-nums">
+                    <Cell key={d} className="font-board text-[14px] tabular-nums">
                       {tpl
                         ? `${clockOf(tpl.openMinute)}–${clockOf(tpl.closeMinute)}`
                         : t("calendar.closed")}
@@ -128,7 +128,7 @@ export default async function CourtsPage({
             ))}
           </LedgerTable>
 
-          <h3 className="mt-7 border-b border-line/20 pb-1.5 font-board text-[10px] uppercase tracking-[0.22em] text-line-dim">
+          <h3 className="mt-7 border-b border-line/20 pb-1.5 board-label">
             {`${t("courts.ramadan")} — ${t("courts.exceptions")}`}
           </h3>
           <LedgerTable heads={["", "", "", ""]} className="mt-2">
@@ -142,7 +142,7 @@ export default async function CourtsPage({
                     {e.kind}
                   </Stamp>
                 </Cell>
-                <Cell className="font-board text-[11px] tabular-nums">
+                <Cell className="font-board text-[14px] tabular-nums">
                   {e.openMinute === null || e.closeMinute === null
                     ? t("calendar.closed")
                     : `${clockOf(e.openMinute)}–${clockOf(e.closeMinute)}`}
@@ -151,7 +151,7 @@ export default async function CourtsPage({
               </LedgerRow>
             ))}
           </LedgerTable>
-          <p className="mt-3 font-board text-[11px] leading-relaxed text-line-dim">
+          <p className="mt-3 board-label leading-relaxed">
             Ramadan hours are exception rows over a date range, not a branch in
             code — the dates move about eleven days earlier each Gregorian year
             and the club edits them here.

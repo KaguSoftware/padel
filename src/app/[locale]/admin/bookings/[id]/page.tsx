@@ -137,7 +137,8 @@ export default async function BookingPage({
         openMatch: t("booking.openMatch"),
         level: t("booking.level"),
         credit: t("customer.credit"),
-        empty: t("common.empty"),
+        noPlayers: t("booking.noPlayers"),
+        noPayments: t("booking.noPayments"),
         save: t("common.save"),
         sources: {
           web: t("booking.sources.web"),

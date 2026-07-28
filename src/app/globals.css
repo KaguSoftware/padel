@@ -70,6 +70,21 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* --------------------------------------------------------------------------
+   Layering. Five sticky bars were competing on ad-hoc z-10/20/30/40/50 with
+   nothing naming the order, which is how a court head ends up over a drawer.
+   One ladder, declared once.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --z-lane-head: 10;
+  --z-board-head: 20;
+  --z-section: 30;
+  --z-topbar: 40;
+  --z-peek: 50;
+  --z-drawer: 60;
+}
+
 /*
  * Bottom bars sit above the iOS home indicator, and any fixed bar's height is
  * reserved by the scroll container so the last row is never trapped under it.
@@ -119,72 +134,119 @@ input[type="number"] {
   );
 }
 
-/* --------------------------------------------------------------------------
-   Calendar performance
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   THE DAY BOARD — courts are lanes, time runs across.
 
-.hour-band {
-  /* A 20-hour day is ~40 bands x 5 courts; only the visible ones need layout. */
-  content-visibility: auto;
-  contain-intrinsic-size: auto var(--row-px);
-  height: var(--row-px);
-}
+   The board used to run courts as columns and 30-minute bands as rows, which
+   made a 06:00–02:00 day roughly forty bands tall: you saw four hours at a
+   time and a 90-minute booking was a 96px-tall, 120px-wide sliver. Turned on
+   its side, four courts are ~19rem of height and seven hours fit across a
+   tablet, and a booking card is finally wide enough to carry its own name,
+   clock, price and state without abbreviating any of them.
 
-/*
- * The time ruling. Every 30-minute band is bounded, not just every hour: a
- * booking can start on the half hour, and with a rule only every hour a 19:30
- * card floated between two lines with nothing naming where it began. The hour
- * rule is stronger than the half-hour rule so the axis still has a hierarchy
- * to read at a glance.
- */
-.rule-hour {
-  border-top: 1px solid color-mix(in srgb, var(--color-line) 26%, transparent);
-}
+   Three tokens, and every card's inline offset and width is `calc()`d off
+   them, so a card cannot drift off the band it starts on.
+   ========================================================================== */
 
-.rule-half {
-  border-top: 1px solid color-mix(in srgb, var(--color-line) 9%, transparent);
-}
-
-/*
- * The hour margin stays put while the courts scroll under it. Without this, a
- * phone user scrolls to court 4 and has no idea what time they are looking at,
- * which makes the board useless on the device most players hold.
- */
-.hour-gutter {
-  position: sticky;
-  inset-inline-start: 0;
-  z-index: 5;
-  background: var(--color-board);
-  border-inline-end: 1px solid color-mix(in srgb, var(--color-line) 20%, transparent);
-}
-
-/*
- * Day-board metrics. Phone first: two courts plus the hour on a 375px screen.
- *
- * `--row-px` is one 30-minute band, and it is the single source of truth for
- * the ruling AND for where a booking card sits — the card's top and height are
- * `calc()` off this var, so the two can never drift. It is 44px because an
- * empty cell is a tap target for a standing user on a tablet, and 30px was
- * below the floor this product sets for itself.
- */
 :root {
-  --gutter-w: 3.25rem;
-  --col-w: 7.5rem;
-  --row-px: 44px;
+  --lane-h: 4.5rem; /* one court lane */
+  --slot-w: 5rem; /* one 30-minute band */
+  --rail-w: 8.5rem; /* the court-name rail, sticky at the inline start */
+  --axis-h: 2.25rem; /* the clock strip above the lanes */
 }
 
 @media (min-width: 640px) {
   :root {
-    --gutter-w: 4.25rem;
-    --col-w: 9.5rem;
-    --row-px: 48px;
+    --lane-h: 5rem;
+    --slot-w: 6rem;
+    --rail-w: 10.5rem;
+    --axis-h: 2.5rem;
   }
+}
+
+/*
+ * The lane: one court, the full width of the day. `content-visibility` keeps
+ * the off-screen half of a twenty-hour day out of layout.
+ */
+.lane {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--lane-h);
+  height: var(--lane-h);
+}
+
+/*
+ * The time ruling, now vertical. Every 30-minute band is bounded, not just
+ * every hour — half of all starts are on the :30, and a rule only on the hour
+ * leaves those cards floating with nothing naming where they began. The hour
+ * rule is stronger than the half-hour rule so the axis keeps a hierarchy you
+ * can read at a glance across a room.
+ */
+.rule-hour {
+  border-inline-start: 1px solid color-mix(in srgb, var(--color-line) 24%, transparent);
+}
+
+.rule-half {
+  border-inline-start: 1px solid color-mix(in srgb, var(--color-line) 8%, transparent);
+}
+
+/*
+ * The court rail stays put while the day scrolls under it. Without it you
+ * scroll to 21:00 and no longer know which court you are looking at, which is
+ * the one question the board exists to answer.
+ */
+.court-rail {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: var(--z-lane-head);
+  background: var(--color-board);
+  border-inline-end: 1px solid color-mix(in srgb, var(--color-line) 20%, transparent);
+}
+
+/* The clock strip rides the top of the scroller. */
+.time-axis {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-board-head);
+  height: var(--axis-h);
+  background: var(--color-board);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 20%, transparent);
+}
+
+/*
+ * A free band. Unlit court seen through the board; it lights to optic yellow
+ * under a finger, because that is how a board says "here". `background-color`
+ * only — no layout property moves, so a 40-column lane does not relayout on
+ * every hover.
+ */
+.band-free {
+  background: color-mix(in srgb, var(--color-court-lit) 14%, transparent);
+  transition: background-color 100ms ease-out;
+}
+
+@media (hover: hover) {
+  .band-free:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-ball) 26%, transparent);
+  }
+}
+
+.band-closed {
+  background: color-mix(in srgb, var(--color-court-deep) 70%, transparent);
+  cursor: not-allowed;
 }
 
 .dragging {
   /* Transform only — no layout-affecting property moves during a drag. */
   will-change: transform;
   cursor: grabbing;
+  user-select: none;
+}
+
+/* While a card is being dragged or drawn, nothing on the board selects. */
+.board-gesture,
+.board-gesture * {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -209,6 +271,44 @@ input[type="number"] {
 .drawer-panel {
   box-shadow: 0 0 60px -10px rgba(0, 0, 0, 0.9);
   animation: drawer-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/*
+ * The peek sheet arrives from the edge it is attached to — up from the bottom
+ * on a phone, in from the inline end on a desk. 160ms: staff are mid-task and
+ * mid-sentence, and a sheet they have to wait for is a sheet they resent.
+ */
+.sheet-panel {
+  box-shadow: 0 0 60px -10px rgba(0, 0, 0, 0.9);
+  animation: sheet-up 160ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes sheet-up {
+  from {
+    translate: 0 14px;
+    opacity: 0.5;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sheet-panel {
+    animation-name: sheet-in;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    translate: calc(18px * var(--drawer-dir, 1)) 0;
+    opacity: 0.5;
+  }
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
 }
 
 @keyframes drawer-in {
@@ -376,6 +476,75 @@ html[dir="rtl"] {
   letter-spacing: 0.02em;
 }
 
+/*
+ * THE LABEL — and the one place the dot-matrix face is NOT used.
+ *
+ * Doto earns its place on a clock, a serial, a money column: things that are
+ * figures on a mechanical board. It had also been carrying every running label
+ * in the console — 9-11px, uppercase, tracked anywhere between 0.07em and
+ * 0.28em, in ten different values for one idiom. Uppercase plus heavy tracking
+ * destroys word-shape, and word-shape is what reading at a glance runs on. A
+ * front-desk shift is eight hours of that.
+ *
+ * So: figures stay mechanical, words become words. Sentence case, the body
+ * grotesque, one tracking value, at a size a standing user can actually read.
+ */
+.board-label {
+  font-family: var(--font-body);
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  color: var(--color-line-dim);
+}
+
+[lang="ar"] .board-label {
+  font-family: var(--font-arabic);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+/* The quieter tier, for a caption under a figure or inside a dense card. */
+.board-label-sm {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1.3;
+}
+
+/* --------------------------------------------------------------------------
+   Admin comfort layer.
+
+   The console is the same floodlit court seen from the control desk, but the
+   scene is different: one person, standing, under bright counter lighting, on
+   the same screen for a whole shift. Two things the public surface can afford
+   and this one cannot — the floodlight bloom, which is glare here, and a
+   backdrop blur behind every panel, which buys nothing over an opaque ground
+   and forces a compositing layer for each one.
+   -------------------------------------------------------------------------- */
+
+.desk {
+  /* The measure: a ledger stretched across a 27" desk monitor is unreadable. */
+  --desk-max: 110rem;
+}
+
+.desk .glass-pane {
+  backdrop-filter: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-court-glass) 18%, transparent),
+    color-mix(in srgb, var(--color-court-deep) 55%, transparent)
+  );
+}
+
+/* Hairlines carry structure here, so there are two of them and not six. */
+.desk .rule-strong {
+  border-color: color-mix(in srgb, var(--color-line) 22%, transparent);
+}
+
+.desk .rule-hair {
+  border-color: color-mix(in srgb, var(--color-line) 11%, transparent);
+}
+
 /* --------------------------------------------------------------------------
    Line paint. Headlines are painted onto the court, not set on a page:
    heavy, wide, slightly worn at the edge.
@@ -394,6 +563,22 @@ html[dir="rtl"] {
   font-family: var(--font-kufi);
   letter-spacing: 0;
   line-height: 1.18;
+}
+
+/*
+ * Working. Three board lamps stepping in sequence — the mechanical readout's
+ * own idle, not a rotating ring. `steps(1)` so each lamp snaps rather than
+ * fading: this world has no eased glow.
+ */
+@keyframes tick-step {
+  0%,
+  33% {
+    opacity: 1;
+  }
+  34%,
+  100% {
+    opacity: 0.25;
+  }
 }
 
 /* The one live mark. Optic yellow means available-to-take, and nothing else. */

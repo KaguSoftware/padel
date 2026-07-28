@@ -24,7 +24,7 @@ export function UtilisationBars({
           const isPeak = r.value === peak && r.value > 0;
           return (
             <div key={r.hour} className="flex w-11 flex-col items-center gap-1">
-              <span className="font-board text-[10px] tabular-nums text-line-dim">
+              <span className="font-board text-[13px] tabular-nums text-line-dim">
                 {r.value > 0 ? `${Math.round(r.value * 100)}` : ""}
               </span>
               <div
@@ -44,7 +44,7 @@ export function UtilisationBars({
         {rows.map((r) => (
           <span
             key={r.hour}
-            className="w-11 text-center font-board text-[9px] tabular-nums text-line-dim"
+            className="w-11 text-center font-board text-[12px] tabular-nums text-line-dim"
           >
             {r.hour % 2 === 0 ? r.clock.slice(0, 2) : ""}
           </span>

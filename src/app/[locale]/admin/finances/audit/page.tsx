@@ -62,7 +62,7 @@ export default async function AuditPage({
       note={t("audit.immutable")}
     >
       {data.entries.length === 0 ? (
-        <EmptyLine>{t("common.empty")}</EmptyLine>
+        <EmptyLine>{t("audit.none")}</EmptyLine>
       ) : (
         <LedgerTable
           heads={[
@@ -75,7 +75,7 @@ export default async function AuditPage({
         >
           {data.entries.map((e) => (
             <LedgerRow key={e.id}>
-              <Cell className="whitespace-nowrap font-board text-[11px] tabular-nums text-line-dim">
+              <Cell className="whitespace-nowrap font-board text-[14px] tabular-nums text-line-dim">
                 {new Date(e.at).toLocaleString(locale, {
                   timeZone: "Asia/Dubai",
                   dateStyle: "short",
@@ -85,7 +85,7 @@ export default async function AuditPage({
               <Cell className="whitespace-nowrap">{staffName(e.actorId)}</Cell>
               <Cell>
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className="font-board text-[10px] uppercase tracking-[0.1em] text-amber">
+                  <span className="board-label board-label-sm text-amber">
                     {e.action}
                   </span>
                   <span>{ar ? e.summaryAr : e.summary}</span>
@@ -99,7 +99,7 @@ export default async function AuditPage({
                   ? "—"
                   : formatMoney(e.amount, locale, { showCurrency: false })}
               </Cell>
-              <Cell className="max-w-72 truncate font-board text-[11px] text-line-dim">
+              <Cell className="max-w-72 truncate text-[14px] text-line-dim">
                 {e.reason ?? ""}
               </Cell>
             </LedgerRow>

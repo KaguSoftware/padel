@@ -52,7 +52,10 @@ export function Stamp({ tone, children, land, className, title }: Props) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap px-2 py-1 font-board text-[10px] font-bold uppercase leading-none tracking-[0.16em]",
+        // The word is the state; the colour only agrees with it. At 10px with
+        // 0.16em of tracking it was a texture rather than a word, on the one
+        // element in the product whose whole job is being read across a room.
+        "inline-flex min-h-6 items-center gap-1.5 whitespace-nowrap px-2 py-1 font-board text-[11px] font-bold uppercase leading-none tracking-[0.08em]",
         TONE[tone],
         land && "flap-in",
         className,

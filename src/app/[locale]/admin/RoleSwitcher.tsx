@@ -37,9 +37,7 @@ export function RoleSwitcher({
 
   return (
     <div className="px-1">
-      <div className="font-board text-[10px] uppercase tracking-[0.14em] text-line-dim">
-        {signedInAs}
-      </div>
+      <div className="board-label board-label-sm">{signedInAs}</div>
       <label className="sr-only" htmlFor="role-switch">
         {label}
       </label>
@@ -51,7 +49,7 @@ export function RoleSwitcher({
           const next = ROLES.find((r) => r.role === e.target.value);
           if (next) start(() => void switchRole(next));
         }}
-        className="min-h-9 w-full border-0 border-b border-line/20 bg-transparent py-1 text-[13px] text-line focus:border-amber focus:outline-none"
+        className="mt-1 min-h-11 w-full border-0 border-b border-line/20 bg-transparent py-1 text-[14px] text-line focus:border-amber focus:outline-none disabled:opacity-50"
       >
         {ROLES.map((r) => (
           <option key={r.role} value={r.role} className="bg-court-deep text-line">

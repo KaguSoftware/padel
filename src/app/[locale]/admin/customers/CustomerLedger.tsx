@@ -50,6 +50,9 @@ interface Strings {
   mergeSuggestion: string;
   empty: string;
   all: string;
+  bookings: string;
+  needsAttention: string;
+  duplicateShort: string;
   tiers: Record<MembershipTier, string>;
 }
 
@@ -101,7 +104,7 @@ export function CustomerLedger({
       title={strings.title}
       serial={`${filtered.length} / ${rows.length}`}
     >
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <RuledInput
             value={query}
@@ -134,14 +137,14 @@ export function CustomerLedger({
             inputMode="decimal"
           />
         </div>
-        <label className="flex min-h-11 items-center gap-2 text-[13px] text-line-dim">
+        <label className="flex min-h-13 cursor-pointer items-center gap-2.5 text-[14px] text-line-dim transition-colors hover:text-line">
           <input
             type="checkbox"
             checked={onlyIssues}
             onChange={(e) => setOnlyIssues(e.target.checked)}
-            className="size-4 accent-[var(--color-ball)]"
+            className="size-4.5 accent-[var(--color-ball)]"
           />
-          Needs attention
+          {strings.needsAttention}
         </label>
       </div>
 
@@ -154,7 +157,7 @@ export function CustomerLedger({
             strings.phone,
             strings.level,
             strings.tier,
-            "Bookings",
+            strings.bookings,
             strings.noShows,
             strings.credit,
             strings.spend,
@@ -174,7 +177,7 @@ export function CustomerLedger({
                     {r.name}
                   </span>
                   {r.altName && (
-                    <span className="text-[11px] text-line-dim">{r.altName}</span>
+                    <span className="text-[13px] text-line-dim">{r.altName}</span>
                   )}
                 </span>
               </Cell>
@@ -187,7 +190,7 @@ export function CustomerLedger({
                 )}
               </Cell>
               <Cell>
-                <span className="font-board text-[11px] uppercase tracking-[0.1em] text-line-dim">
+                <span className="board-label">
                   {strings.tiers[r.tier]}
                 </span>
               </Cell>
@@ -210,7 +213,7 @@ export function CustomerLedger({
                   )}
                   {r.duplicate && (
                     <Stamp tone="part" title={strings.mergeSuggestion}>
-                      DUP
+                      {strings.duplicateShort}
                     </Stamp>
                   )}
                 </span>

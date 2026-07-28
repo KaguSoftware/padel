@@ -90,6 +90,20 @@ export interface BookingsPort {
   create(input: CreateBookingInput): Promise<Booking>;
   /** Throws SlotTakenError if the destination is occupied; the origin is freed atomically. */
   move(id: Id, courtId: Id, start: Date, actorId: Id): Promise<Booking>;
+  /**
+   * Change a booking's length in place, keeping its court and start.
+   *
+   * Separate from `move` because it collides differently: lengthening runs into
+   * whatever sits after it, and the same exclusion constraint has to catch that
+   * rather than the caller measuring first. `priceLines` come from the caller,
+   * which re-quotes — the driver does not know the tariff.
+   */
+  resize(
+    id: Id,
+    end: Date,
+    lines: PriceLine[],
+    actorId: Id,
+  ): Promise<Booking>;
   confirmHold(id: Id, actorId: Id): Promise<Booking>;
   cancel(
     id: Id,

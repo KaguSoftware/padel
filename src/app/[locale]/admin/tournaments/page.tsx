@@ -32,9 +32,9 @@ export default async function TournamentsPage({
       title={t("tournaments.title")}
       serial={`${data.tournaments.length}`}
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         {data.tournaments.length === 0 && (
-          <EmptyLine>{t("common.empty")}</EmptyLine>
+          <EmptyLine>{t("tournaments.none")}</EmptyLine>
         )}
 
         {data.tournaments.map((tn) => {
@@ -59,7 +59,7 @@ export default async function TournamentsPage({
                 </Stamp>
               }
             >
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
                 <Reading
                   label={t("tournaments.format")}
                   value={t(
@@ -74,7 +74,7 @@ export default async function TournamentsPage({
                 <Reading
                   label={t("tournaments.entries")}
                   value={`${entries.length}/${tn.capacity}`}
-                  sub={`${tn.courtIds.length} courts blocked`}
+                  sub={t("tournaments.courtsBlocked", { count: tn.courtIds.length })}
                 />
                 <Reading
                   label={t("tournaments.entryFee")}
@@ -112,7 +112,7 @@ export default async function TournamentsPage({
                         <Cell>
                           {c ? (ar ? (c.nameAr ?? c.name) : c.name) : "—"}
                           {c?.level !== null && c?.level !== undefined && (
-                            <span className="ms-2 font-board text-[11px] text-line-dim">
+                            <span className="ms-2 text-[14px] text-line-dim">
                               {c.level}
                             </span>
                           )}

@@ -62,7 +62,11 @@ export function Drawer({
   if (!open) return null;
 
   return createPortal(
-    <div className="drawer-root fixed inset-0 z-50 md:hidden" role="presentation">
+    <div
+      className="drawer-root fixed inset-0 md:hidden"
+      style={{ zIndex: "var(--z-drawer)" }}
+      role="presentation"
+    >
       {/* The court behind, dimmed. Tapping it closes. */}
       <button
         type="button"
@@ -82,11 +86,8 @@ export function Drawer({
           side === "start" ? "start-0 border-e" : "end-0 border-s",
         )}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line/20 px-4 py-3">
-          <span
-            id={labelId}
-            className="font-board text-[10px] uppercase tracking-[0.28em] text-amber"
-          >
+        <div className="flex items-center justify-between gap-3 border-b border-line/20 px-4 py-3.5">
+          <span id={labelId} className="board-label text-amber">
             {title}
           </span>
           <button

@@ -110,7 +110,7 @@ export default async function ReportsPage({
             <Link
               key={n}
               href={`/admin/finances/ledgers?range=${n}`}
-              className={`min-h-9 border px-3 py-1.5 font-board text-[11px] uppercase tracking-[0.14em] ${
+              className={`min-h-9 border px-3 py-1.5 board-label text-inherit ${
                 days === n
                   ? "border-amber bg-court-lit/30 text-amber"
                   : "border-line/20 text-line-dim"
@@ -123,9 +123,9 @@ export default async function ReportsPage({
       }
       note={t("reports.priceUpHint")}
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         <Panel title={t("reports.revenue")}>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             <Reading
               label={t("reports.revenue")}
               value={formatMoney(revenue, locale)}
@@ -161,9 +161,9 @@ export default async function ReportsPage({
           <UtilisationBars rows={utilisation} />
         </Panel>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           <Panel title={t("reports.utilisationByCourt")}>
-            <LedgerTable heads={["", "Hours booked", "Share"]}>
+            <LedgerTable heads={["", t("reports.hoursBooked"), t("reports.share")]}>
               {data.courts.map((c) => {
                 const mins = bookedMinutesByCourt.get(c.id) ?? 0;
                 const totalMins = [...bookedMinutesByCourt.values()].reduce(

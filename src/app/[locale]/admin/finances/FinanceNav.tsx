@@ -22,8 +22,10 @@ export interface FinanceItem {
  * permission. A locked entry that names who can open it teaches the rule; a
  * missing entry teaches nothing and looks broken.
  *
- * The active item is marked by a solid optic-yellow edge as well as by weight,
+ * The active item is marked by a solid line-paint edge as well as by weight,
  * and locked items by a padlock as well as by dimming — never colour alone.
+ * The edge is line paint and not optic yellow: yellow is reserved for
+ * available-or-live, and a tab you are standing on is neither.
  */
 export function FinanceNav({
   items,
@@ -35,14 +37,15 @@ export function FinanceNav({
   const pathname = usePathname();
 
   return (
-    <div className="sticky top-0 z-30 border-b border-line/20 bg-board">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 pt-3 sm:px-5">
-        <span className="font-board text-[10px] uppercase tracking-[0.28em] text-amber">
-          {title}
-        </span>
+    <div
+      className="sticky top-0 border-b border-line/20 bg-board"
+      style={{ zIndex: "var(--z-section)" }}
+    >
+      <div className="mx-auto flex w-full max-w-[var(--desk-max)] flex-wrap items-center gap-x-6 gap-y-2 px-5 pt-4 sm:px-8">
+        <span className="board-label text-amber">{title}</span>
       </div>
 
-      <nav className="scroll-x flex gap-1 px-4 pb-0 pt-2 sm:px-5">
+      <nav className="scroll-x mx-auto flex w-full max-w-[var(--desk-max)] gap-1 px-5 pb-0 pt-2.5 sm:px-8">
         {items.map((item) => {
           // usePathname() from next-intl is already locale-stripped.
           const active =
@@ -54,9 +57,9 @@ export function FinanceNav({
                 key={item.href}
                 title={`${item.label} — ${item.needs}`}
                 aria-disabled="true"
-                className="flex min-h-11 cursor-not-allowed items-center gap-1.5 whitespace-nowrap border-b-2 border-b-transparent px-4 font-stadium text-[11px] uppercase tracking-[0.08em] text-line-dim/55"
+                className="flex min-h-12 cursor-not-allowed items-center gap-2 whitespace-nowrap border-b-2 border-b-transparent px-4 font-stadium text-[12px] uppercase tracking-[0.05em] text-line-dim/55"
               >
-                <LockMark size={13} className="shrink-0" />
+                <LockMark size={14} className="shrink-0" />
                 {item.label}
               </span>
             );
@@ -68,9 +71,9 @@ export function FinanceNav({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-11 items-center whitespace-nowrap border-b-2 px-4 font-stadium text-[11px] uppercase tracking-[0.08em] transition-colors",
+                "flex min-h-12 items-center whitespace-nowrap border-b-2 px-4 font-stadium text-[12px] uppercase tracking-[0.05em] transition-colors",
                 active
-                  ? "border-b-ball text-line"
+                  ? "border-b-line text-line"
                   : "border-b-transparent text-line-dim hover:border-b-line/30 hover:text-line",
               )}
             >

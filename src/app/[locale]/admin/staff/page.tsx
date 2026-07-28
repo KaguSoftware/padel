@@ -84,14 +84,14 @@ export default async function StaffPage({
 
   return (
     <PageShell title={t("nav.staff")} serial={`${staff.length}`}>
-      <div className="space-y-6">
-        <Panel title="Accounts">
-          <LedgerTable heads={["Email", "Role", "Signed in", ""]}>
+      <div className="space-y-8">
+        <Panel title={t("staffPage.accounts")}>
+          <LedgerTable heads={[t("account.email"), t("account.role"), t("staffPage.signedIn"), ""]}>
             {accounts.map((a) => (
               <LedgerRow key={a.id}>
                 <Cell className="font-semibold">{a.email}</Cell>
                 <Cell>
-                  <span className="font-board text-[11px] uppercase tracking-[0.1em]">
+                  <span className="board-label text-inherit">
                     {roleLabels[a.role] ?? a.role}
                   </span>
                 </Cell>
@@ -108,21 +108,21 @@ export default async function StaffPage({
           </LedgerTable>
 
           {accounts.length === 0 && (
-            <p className="px-4 pb-4 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim">
-              No accounts yet — the prototype opens as the front desk without one
+            <p className="px-4 pb-4 board-label">
+              {t("staffPage.noAccounts")}
             </p>
           )}
 
           <NewAccount
             roleLabels={roleLabels}
             disabled={!isOwner}
-            disabledNote="Only an owner can create a login"
+            disabledNote={t("staffPage.ownerOnly")}
           />
         </Panel>
 
         <Panel title={t("nav.staff")}>
           <LedgerTable
-            heads={[t("customer.name"), t("customer.phone"), "Role", ""]}
+            heads={[t("customer.name"), t("customer.phone"), t("account.role"), ""]}
           >
             {staff.map((s) => (
               <LedgerRow key={s.id}>
@@ -131,7 +131,7 @@ export default async function StaffPage({
                   {formatPhone(s.phone)}
                 </Cell>
                 <Cell>
-                  <span className="font-board text-[11px] uppercase tracking-[0.1em]">
+                  <span className="board-label text-inherit">
                     {t(`common.roles.${s.role}` as "common.roles.owner")}
                   </span>
                 </Cell>
@@ -143,7 +143,7 @@ export default async function StaffPage({
           </LedgerTable>
         </Panel>
 
-        <Panel title="Permissions">
+        <Panel title={t("staffPage.permissions")}>
           <LedgerTable
             heads={[
               "",
@@ -157,15 +157,15 @@ export default async function StaffPage({
                   <Cell key={r} className="text-center">
                     {c.roles.includes(r) ? (
                       <span
-                        className="font-board text-[13px] text-ball"
-                        aria-label="permitted"
+                        className="font-board text-[15px] text-ball"
+                        aria-label={t("staffPage.permitted")}
                       >
                         ✓
                       </span>
                     ) : (
                       <span
-                        className="font-board text-[13px] text-line-dim"
-                        aria-label="not permitted"
+                        className="font-board text-[15px] text-line-dim"
+                        aria-label={t("staffPage.notPermitted")}
                       >
                         —
                       </span>
@@ -175,10 +175,8 @@ export default async function StaffPage({
               </LedgerRow>
             ))}
           </LedgerTable>
-          <p className="mt-3 font-board text-[11px] leading-relaxed text-line-dim">
-            These are enforced server-side per action, not by hiding buttons.
-            When Supabase lands, RLS becomes the real boundary and this table
-            becomes the affordance on top of it.
+          <p className="mt-5 board-label leading-relaxed">
+            {t("staffPage.enforcementNote")}
           </p>
         </Panel>
       </div>
