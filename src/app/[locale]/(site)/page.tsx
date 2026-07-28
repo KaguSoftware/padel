@@ -266,11 +266,11 @@ export default async function Landing({
       {/* ================= COURTS ================= */}
       <section className="border-t border-line/15 bg-court-deep">
         <div className="mx-auto w-full max-w-7xl px-5 py-16">
-          <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
+          <h2 className="painted paint-in text-[clamp(1.8rem,4vw,2.75rem)]">
             {t("site.courtsTitle")}
           </h2>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="flap-stage mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {courts.map((c) => {
               const free = bookableStarts(grid, c.id, 90).filter(
                 (m) => m >= EVENING,
@@ -278,13 +278,16 @@ export default async function Landing({
               return (
                 <article
                   key={c.id}
-                  className="glass-pane relative min-h-52 overflow-hidden p-5"
+                  className="glass-pane flap-scroll relative min-h-52 overflow-hidden p-5"
                 >
                   <CourtPlate
                     n={c.ordinal}
                     className="pointer-events-none absolute -end-2 -top-5 text-[6.5rem]"
                   />
-                  <CourtLines className="pointer-events-none absolute inset-x-4 bottom-12 h-9 text-line/20" />
+                  <CourtLines
+                    paint
+                    className="pointer-events-none absolute inset-x-4 bottom-12 h-9 text-line/20"
+                  />
 
                   <h3 className="relative font-stadium text-[15px] uppercase tracking-[0.06em] text-line">
                     {ar ? c.nameAr : c.name}
@@ -297,7 +300,7 @@ export default async function Landing({
                     {t(`courts.surfaces.${c.surface}` as "courts.surfaces.glass")}
                   </p>
 
-                  <p className="absolute inset-inline-start-5 bottom-5 font-board text-[11px] uppercase tracking-[0.12em]">
+                  <p className="absolute bottom-5 start-5 font-board text-[11px] uppercase tracking-[0.12em]">
                     {free > 0 ? (
                       <span className="live">
                         {free} {ar ? "متاح مساءً" : "open tonight"}
@@ -319,7 +322,7 @@ export default async function Landing({
       <section className="court-surface relative overflow-hidden border-t border-line/15">
         <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-16 md:grid-cols-2">
           <div>
-            <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
+            <h2 className="painted paint-in text-[clamp(1.8rem,4vw,2.75rem)]">
               {t("site.ratesTitle")}
             </h2>
             <dl className="mt-7">
@@ -345,7 +348,7 @@ export default async function Landing({
           </div>
 
           <div>
-            <h2 className="painted text-[clamp(1.8rem,4vw,2.75rem)]">
+            <h2 className="painted paint-in text-[clamp(1.8rem,4vw,2.75rem)]">
               {t("site.hoursTitle")}
             </h2>
             <dl className="mt-7">
@@ -374,9 +377,15 @@ export default async function Landing({
 
       {/* ================= CLOSE ================= */}
       <section className="relative overflow-hidden border-t border-line/15 bg-court-deep">
-        <CourtLines className="pointer-events-none absolute inset-0 h-full w-full text-line/12" />
+        {/* The closing court marks itself out at full page width as the reader
+            arrives — the one large draw on the way down, and the counterpart to
+            the trace at the top. */}
+        <CourtLines
+          paint
+          className="pointer-events-none absolute inset-0 h-full w-full text-line/12"
+        />
         <div className="relative mx-auto flex w-full max-w-7xl flex-col items-start gap-6 px-5 py-20">
-          <h2 className="painted max-w-3xl text-[clamp(2rem,6vw,4rem)]">
+          <h2 className="painted paint-in max-w-3xl text-[clamp(2rem,6vw,4rem)]">
             {ar ? (
               <>
                 لديك لاعبان؟ <span className="live">اطرح المباراة.</span>

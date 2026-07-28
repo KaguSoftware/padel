@@ -185,7 +185,7 @@ export function EntryLine({
               )}
             />
             {matches.length > 0 && (
-              <ul className="glass-pane absolute inset-inline-start-0 top-full z-30 mt-1 max-h-64 w-full overflow-y-auto bg-board py-1 sm:w-72">
+              <ul className="glass-pane absolute start-0 top-full z-30 mt-1 max-h-64 w-full overflow-y-auto bg-board py-1 sm:w-72">
                 {matches.map((c) => (
                   <li key={c.id}>
                     <button

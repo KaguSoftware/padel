@@ -14,7 +14,7 @@ import { Link } from "@/i18n/routing";
 import { cn } from "@/ui/cn";
 import { ColumnHead, InkButton, Reading, Serial } from "@/ui/primitives";
 import { Stamp, slipTreatment, statusStamp } from "@/ui/Stamp";
-import { useCountdown, useHoldProgress } from "@/ui/Ticker";
+import { useCountdown, useHoldProgress, useNow } from "@/ui/Ticker";
 import { EntryLine, type EntryDraft } from "./EntryLine";
 
 /**
@@ -33,7 +33,13 @@ import { EntryLine, type EntryDraft } from "./EntryLine";
  *  - the move is optimistic and reconciles against the server's conflict answer
  */
 
-const ROW_PX = 30; // one 30-minute cell
+/**
+ * One 30-minute band, in CSS. The ruling, the cell heights and every booking
+ * card's top and height all resolve off `--row-px`, so the card can never drift
+ * off the line it is supposed to start on. Defined in `globals.css` so it can
+ * grow on a tablet without JS knowing.
+ */
+const bandOffset = (bands: number) => `calc(var(--row-px) * ${bands})`;
 
 export interface CourtColumn {
   id: string;
@@ -325,13 +331,45 @@ export function DayBook(props: Props) {
                   if (dragId) commitMove(dragId, courtId, minute);
                   setDragId(null);
                 }}
-                isNow={
-                  nowMinute !== null &&
-                  nowMinute >= minute &&
-                  nowMinute < minute + step
-                }
               />
             ))}
+
+            {/* Now, at the actual minute, drawn across every court at once.
+                It used to snap to the bottom of the current 30-minute band,
+                which put it up to half an hour away from the truth on the one
+                screen where "is that court free right now" is the question. */}
+            {nowMinute !== null &&
+              nowMinute >= firstMinute &&
+              nowMinute < lastMinute && (
+                <div
+                  className="pointer-events-none relative z-20"
+                  style={{
+                    gridColumn: "1 / -1",
+                    gridRow: `2 / span ${rowMinutes.length}`,
+                  }}
+                >
+                  <span
+                    className="absolute inset-x-0 block h-0.5 bg-ball"
+                    style={{
+                      top: bandOffset((nowMinute - firstMinute) / step),
+                    }}
+                  />
+                  {/* The clock rides the line and stays in view when the courts
+                      scroll sideways. It sits here rather than in the hour
+                      margin because that margin carries `content-visibility`,
+                      whose paint containment would clip it in half. */}
+                  <span
+                    className="absolute inset-x-0 flex"
+                    style={{
+                      top: bandOffset((nowMinute - firstMinute) / step),
+                    }}
+                  >
+                    <span className="live-block sticky start-0 -translate-y-1/2 px-1 py-px font-board text-[10px] font-bold leading-none tabular-nums sm:text-[11px]">
+                      {clockOf(nowMinute)}
+                    </span>
+                  </span>
+                </div>
+              )}
 
             {/* Slips, absolutely positioned over the ruling. */}
             {columns.map((c, colIndex) => (
@@ -378,7 +416,6 @@ function Row({
   draft,
   onPick,
   onDrop,
-  isNow,
 }: {
   minute: number;
   columns: CourtColumn[];
@@ -387,28 +424,30 @@ function Row({
   draft: EntryDraft;
   onPick: (courtId: string) => void;
   onDrop: (courtId: string) => void;
-  isNow: boolean;
 }) {
   const onHour = minute % 60 === 0;
   const label = clockOf(minute);
 
   return (
     <>
+      {/* The axis. Both the hour and the half hour are named: staff read a
+          card's start off this margin, and half of all starts are on the :30. */}
       <div
         className={cn(
-          "hour-gutter hour-band relative px-1.5 text-end sm:px-2",
-          onHour ? "border-b border-line/15" : "",
+          "hour-gutter hour-band relative px-1.5 pt-0.5 text-end sm:px-2",
+          onHour ? "rule-hour" : "rule-half",
         )}
-        style={{ height: ROW_PX }}
       >
-        {onHour && (
+        {onHour ? (
           <span className="board-digit text-[11px] leading-none sm:text-[13px]">
             {label}
           </span>
+        ) : (
+          <span className="board-digit text-[10px] leading-none text-line-dim opacity-70 sm:text-[11px]">
+            :30
+          </span>
         )}
-        {isNow && (
-          <span className="absolute inset-inline-0 bottom-0 z-20 block h-0.5 bg-ball" />
-        )}
+
       </div>
 
       {columns.map((c) => {
@@ -432,7 +471,7 @@ function Row({
             }}
             className={cn(
               "hour-band relative border-e border-line/12 transition-colors duration-100 last:border-e-0",
-              onHour && "border-b border-line/15",
+              onHour ? "rule-hour" : "rule-half",
               // An unlit cell is court surface seen through the board; a free
               // one lights under the cursor, which is how a board says "here".
               !closed && !taken && "bg-court-lit/12 hover:bg-ball/25",
@@ -440,13 +479,8 @@ function Row({
               closed && "hatched cursor-not-allowed bg-court-deep/70",
               selected && "bg-ball/40 ring-1 ring-inset ring-ball",
             )}
-            style={{ height: ROW_PX }}
             aria-label={`${c.name} ${label}`}
-          >
-            {isNow && (
-              <span className="pointer-events-none absolute inset-inline-0 bottom-0 z-20 block h-0.5 bg-ball" />
-            )}
-          </button>
+          />
         );
       })}
     </>
@@ -477,9 +511,17 @@ function BookingSlip({
   const countdown = useCountdown(slip.holdExpiresAt);
   const progress = useHoldProgress(slip.holdIssuedAt, slip.holdExpiresAt);
 
-  const top = ((slip.startMinute - firstMinute) / step) * ROW_PX;
-  const height = Math.max((slip.durationMinutes / step) * ROW_PX - 2, 24);
   if (slip.startMinute >= lastMinute) return null;
+
+  // Off the same `--row-px` the ruling uses, so a 19:30 card starts exactly on
+  // the 19:30 rule instead of two pixels above it.
+  const top = bandOffset((slip.startMinute - firstMinute) / step);
+  const height = `max(${bandOffset(slip.durationMinutes / step)}, 24px)`;
+
+  // A card an hour or longer has room for the second line; a 30-minute one
+  // does not. Decided from the booking, not from a pixel count, so it survives
+  // the row growing on a tablet.
+  const roomy = slip.durationMinutes >= 60;
 
   const stamp = statusStamp(slip, slip.participantCount);
   const stampText =
@@ -503,7 +545,9 @@ function BookingSlip({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       className={cn(
-        "pointer-events-auto absolute inset-inline-1 overflow-hidden border border-line/20 border-s-[3px] bg-board/85 px-2 py-1.5 backdrop-blur-[1px]",
+        // Flush to its column and to the ruling: inset a few pixels, the card
+        // read as floating over the grid rather than occupying a slot in it.
+        "pointer-events-auto absolute inset-x-0 overflow-hidden border border-line/20 border-s-[3px] bg-board/85 px-2 py-1.5 backdrop-blur-[1px]",
         "transition-shadow duration-100",
         edge,
         slipTreatment(slip.status),
@@ -532,7 +576,7 @@ function BookingSlip({
           <Serial value={slip.serial} className="shrink-0 opacity-70" />
         </div>
 
-        {height > 44 ? (
+        {roomy ? (
           <div className="flex items-end justify-between gap-1">
             <span className="board-digit text-[11px] leading-none">
               {clockOf(slip.startMinute)}
@@ -606,18 +650,22 @@ function clockOf(minute: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-/** Where "now" falls on this page, or null when the page is not today. */
+/**
+ * Where "now" falls on this page, or null when the page is not today.
+ *
+ * Driven by the one 1Hz ticker, so the line actually moves down the board over
+ * a shift. It used to be computed once at mount, which meant a tablet left open
+ * at the desk all evening showed a now line stuck at whenever it was opened —
+ * on the screen whose whole job is telling staff what is happening now.
+ */
 function useNowMinute(day: string, today: string): number | null {
-  const [minute] = useState(() => {
-    if (day !== today) return null;
-    const now = new Date();
-    const dubai = new Date(
-      now.toLocaleString("en-US", { timeZone: "Asia/Dubai" }),
-    );
-    const raw = dubai.getHours() * 60 + dubai.getMinutes() - 6 * 60;
-    return raw < 0 ? raw + 24 * 60 : raw;
-  });
-  return minute;
+  const now = useNow();
+  if (day !== today || now === 0) return null;
+  const dubai = new Date(
+    new Date(now).toLocaleString("en-US", { timeZone: "Asia/Dubai" }),
+  );
+  const raw = dubai.getHours() * 60 + dubai.getMinutes() - 6 * 60;
+  return raw < 0 ? raw + 24 * 60 : raw;
 }
 
 export { InkButton, Reading };

@@ -45,6 +45,46 @@ renders, and the domain is heavily unit-tested, but nobody has dragged a
 booking, taken a cash payment, or closed a shift in a browser. That is the next
 thing worth doing — see *Browser pass* below.
 
+### 2026-07-28 — four defects found by looking at it on a phone
+
+The first real phone screenshot found three things that route smoke tests
+cannot see, all fixed (typechecked, linted, 104 tests green, EN + AR
+re-fetched):
+
+1. **The mobile drawer opened empty.** Root cause below under *gotchas* — a
+   `backdrop-filter` on the site header was the containing block for the
+   drawer's `position: fixed`. It now portals to `<body>`.
+2. **Four Tailwind classes were silently doing nothing** (`inset-inline-start-0`
+   and friends are not v4 utilities). One of them was the reason the drawer was
+   never pinned to an edge.
+3. **The nav lit "Book a court" on every `/play/*` route.** Prefix matching;
+   now longest-match.
+The landing page's order-of-play board was rebuilt as a time × court grid in
+the same pass and **reverted at Parsa's request — the court-per-row board is
+the one he wants.** Do not redo it.
+
+Then the **console day book's time ruling** was fixed, which is what "the
+calendar is hard to read" actually meant:
+
+- Every 30-minute band is now ruled and labelled, not just the hour. A 19:30
+  card used to float between two hour lines with nothing marking 19:30.
+- **The now line is at the real minute and moves.** It was quantised to the
+  bottom of the current 30-minute band (up to half an hour wrong) *and*
+  computed once at mount, so a tablet left open all evening froze it. It now
+  runs off the shared 1Hz ticker and carries the clock in a sticky chip.
+- Cards sit flush to their column and to the ruling — they were inset 4px each
+  side and cut 2px short, so they never aligned with anything.
+- **`--row-px` is now the single source of truth** for row height, cell height
+  and every card's `top`/`height`. It is 44px, up from 30px, so an empty cell
+  finally meets the touch floor this product sets for itself; 48px from 640px
+  up, where the screen is the front desk's tablet.
+
+Scroll motion was added to the landing page at the same time: the court's line
+plan marks itself out as you descend, and the court cards land on the board's
+existing flap. Both are scroll-timeline driven and fall back to the finished
+state where scroll timelines are unsupported. **Neither has been watched in a
+browser yet** — see the browser pass.
+
 ### The design went through one full replacement
 
 The first build shipped a "club ledger" world — green-bar ledger paper, indigo
@@ -110,7 +150,8 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
 | [src/lib/text.ts](src/lib/text.ts) | `fold()` Arabic-aware search, `normalisePhone()` dedupe key, `withinBound()` null-safe filters |
 | [src/auth/claims.ts](src/auth/claims.ts) | `getClaims()` — **zero I/O**. Becomes local JWT verification, never `getUser()` |
 | [src/auth/guard.ts](src/auth/guard.ts) | ONE guard. `require*` throws (for actions); `allow*` returns null (for pages) |
-| [src/ui/board.tsx](src/ui/board.tsx) · [src/ui/court.tsx](src/ui/court.tsx) | The Board's own components: panels, flap rows, digits, court plan, rebound trace |
+| [src/ui/board.tsx](src/ui/board.tsx) · [src/ui/court.tsx](src/ui/court.tsx) | The Board's own components: panels, flap rows, digits, court plan, rebound trace. `CourtLines paint` draws itself on scroll |
+| [src/ui/Drawer.tsx](src/ui/Drawer.tsx) | The one mobile drawer, shared by both surfaces. **Portals to `<body>`** — read the `backdrop-filter` gotcha before changing it |
 | [src/app/[locale]/console/calendar/](src/app/[locale]/console/calendar/) | The day book. `EntryLine.tsx` is the command-sentence create flow |
 | [src/app/[locale]/console/finances/](src/app/[locale]/console/finances/) | Cash book, ledgers, rate card and audit behind one nav entry. Its sub-rail only offers what your role can open |
 | [supabase/migrations/](supabase/migrations/) | Authored, **unapplied**. `0001` core + the constraint, `0002` money/config, `0003` RLS + jobs |
@@ -144,10 +185,40 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
   Without it a phone user scrolls to court 4 with no idea what time they are
   looking at. Column widths come from `--col-w`/`--gutter-w`, which narrow
   below 640px so two courts plus the hour fit on a 375px screen.
+- ⚠️ **`--row-px` is the day book's single source of truth.** Row height, cell
+  height and every booking card's `top`/`height` all `calc()` off it. **Never
+  reintroduce a JS pixel constant for row height** — the previous `ROW_PX = 30`
+  had the card maths in JS and the ruling in CSS, and they disagreed by 2px on
+  every card. If you need a pixel decision (e.g. "is there room for a second
+  line"), decide it from the booking's *duration*, not from a computed height.
+- ⚠️ **`.hour-band` carries `content-visibility: auto`, which brings paint
+  containment** — anything absolutely positioned inside a band that overflows
+  it gets clipped. This is why the now-clock chip lives in the grid-wide
+  overlay and not in the hour margin.
 - ⚠️ **Mobile navigation is a DRAWER, not a bottom strip** (`src/ui/Drawer.tsx`,
   `ConsoleMobileNav.tsx`, `(site)/SiteNav.tsx`). A strip either truncated the
   destinations or shrank them below a thumb's width, and this product has
   enough modules that it did both.
+- ⚠️ **`backdrop-filter` makes an element the containing block for every
+  `position: fixed` descendant.** The site header carries `backdrop-blur-md`,
+  so the drawer's `fixed inset-0` resolved against a 60px header strip, its
+  title row ate the whole height, and `flex-1 overflow-y-auto` clipped every
+  nav link to nothing. The menu opened looking empty. **The drawer therefore
+  portals to `document.body`** (`createPortal`), which also puts it outside
+  `.court-world` — hence the `.drawer-root` rule in `globals.css` that carries
+  the world's type across. Same trap applies to any future fixed overlay
+  rendered inside a blurred bar.
+- ⚠️ **`inset-inline-*` is NOT a Tailwind v4 utility and compiles to nothing.**
+  Four of them shipped and were silently dead. The real ones are `start-*` /
+  `end-*` (inline start/end), `inset-s-*` / `inset-e-*`, and `inset-x-*` for
+  both. Verify a suspect class by generating it rather than trusting the name:
+  `@source inline("<class>")` through `npx @tailwindcss/cli` and see whether a
+  rule comes out.
+- ⚠️ **Nav highlighting needs longest-match, not `startsWith`.** `/play/matches`
+  prefix-matches `/play`, so "Book a court" lit on every page in the booking
+  flow. `SiteNav.tsx` now matches on segment boundaries and keeps only the
+  longest hit, so `/play` still lights for `/play/checkout/<id>` but loses to
+  `/play/matches`.
 - ⚠️ **Never filter a nav item out because the role cannot open it.** Show it
   locked, naming who can. A front-desk session with the money modules filtered
   out showed a lone "Cash Book" and read as a half-built product.
@@ -181,7 +252,16 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
      Switch to Owner → all four appear.
    - **Every screen at 375px.** The structural causes of horizontal overflow
      are fixed (see below) but no breakpoint has been eyeballed.
-   - Every screen in `ar`, including the day book grid mirroring.
+   - **The mobile menu on both surfaces** — it must be full-height, pinned to
+     the inline edge, with all destinations reachable. It shipped broken once
+     and route tests did not catch it.
+   - **The landing page's scroll motion**, which has never been watched: the
+     court lines should mark themselves out as you descend the Courts and
+     closing sections, and the court cards should flap in rather than fade.
+     Check it also with OS "reduce motion" on (everything must sit at its
+     finished state) and in Firefox (no scroll timelines — same expectation).
+   - Every screen in `ar`, including the day book grid mirroring, and the
+     landing board's time gutter sitting on the correct side.
 2. **Decide the payment provider.** Checkout is built against a simulated
    adapter; "pay now" records a card payment so the till and receipt behave
    correctly end to end. No provider is assumed.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "./cn";
 
 /**
@@ -13,6 +14,11 @@ import { cn } from "./cn";
  * Behaviour a "just toggle a div" version gets wrong, and this does not: Escape
  * closes it, the page behind does not scroll, focus moves into the panel and
  * returns to the trigger on close, and it is a real dialog to a screen reader.
+ *
+ * It renders through a portal to <body> because the trigger lives inside a
+ * header carrying `backdrop-blur`, and a backdrop-filter makes its element a
+ * containing block for `position: fixed` descendants — so an in-place panel
+ * resolves `inset-0` against the 60px header strip and clips its own links away.
  */
 export function Drawer({
   open,
@@ -51,10 +57,12 @@ export function Drawer({
     };
   }, [open, onClose]);
 
+  // `open` can only become true from a click, so the server never reaches the
+  // portal and there is nothing for hydration to disagree about.
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 md:hidden" role="presentation">
+  return createPortal(
+    <div className="drawer-root fixed inset-0 z-50 md:hidden" role="presentation">
       {/* The court behind, dimmed. Tapping it closes. */}
       <button
         type="button"
@@ -71,9 +79,7 @@ export function Drawer({
         tabIndex={-1}
         className={cn(
           "drawer-panel safe-bottom absolute inset-y-0 flex w-[min(20rem,86vw)] flex-col border-line/20 bg-board outline-none",
-          side === "start"
-            ? "inset-inline-start-0 border-e"
-            : "inset-inline-end-0 border-s",
+          side === "start" ? "start-0 border-e" : "end-0 border-s",
         )}
       >
         <div className="flex items-center justify-between gap-3 border-b border-line/20 px-4 py-3">
@@ -95,7 +101,8 @@ export function Drawer({
 
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

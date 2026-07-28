@@ -11,8 +11,21 @@
  * sport does — angle in, angle out, off the glass.
  */
 
-/** The court's line marking, in plan, sized to whatever box it is dropped into. */
-export function CourtLines({ className }: { className?: string }) {
+/**
+ * The court's line marking, in plan, sized to whatever box it is dropped into.
+ *
+ * `paint` marks it out as the reader arrives at it instead of having it already
+ * there — `pathLength={1}` normalises every line so the perimeter and a service
+ * line draw at the same rate despite being wildly different lengths.
+ */
+export function CourtLines({
+  className,
+  paint = false,
+}: {
+  className?: string;
+  paint?: boolean;
+}) {
+  const drawn = paint ? 1 : undefined;
   return (
     <svg
       viewBox="0 0 200 100"
@@ -22,21 +35,31 @@ export function CourtLines({ className }: { className?: string }) {
       role="presentation"
     >
       <g
+        className={paint ? "paint-lines" : undefined}
         fill="none"
         stroke="currentColor"
         strokeWidth="0.7"
         vectorEffect="non-scaling-stroke"
       >
+        {/* pathLength normalises each line to 1, so a 592-unit perimeter and a
+            70-unit service line draw over the same progress. */}
         {/* Perimeter */}
-        <rect x="1" y="1" width="198" height="98" />
+        <rect x="1" y="1" width="198" height="98" pathLength={drawn} />
         {/* Net */}
-        <line x1="100" y1="1" x2="100" y2="99" strokeWidth="1.6" />
+        <line
+          x1="100"
+          y1="1"
+          x2="100"
+          y2="99"
+          strokeWidth="1.6"
+          pathLength={drawn}
+        />
         {/* Service lines, 6.95m each side of the net */}
-        <line x1="30.5" y1="1" x2="30.5" y2="99" />
-        <line x1="169.5" y1="1" x2="169.5" y2="99" />
+        <line x1="30.5" y1="1" x2="30.5" y2="99" pathLength={drawn} />
+        <line x1="169.5" y1="1" x2="169.5" y2="99" pathLength={drawn} />
         {/* Centre service lines, splitting each service box */}
-        <line x1="30.5" y1="50" x2="100" y2="50" />
-        <line x1="100" y1="50" x2="169.5" y2="50" />
+        <line x1="30.5" y1="50" x2="100" y2="50" pathLength={drawn} />
+        <line x1="100" y1="50" x2="169.5" y2="50" pathLength={drawn} />
       </g>
     </svg>
   );

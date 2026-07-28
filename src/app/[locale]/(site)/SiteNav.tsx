@@ -31,8 +31,21 @@ export function SiteNav({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  // Longest match wins. Prefix matching alone lit "Book a court" (/play) on
+  // /play/matches and /play/account too, so the nav claimed the wrong room on
+  // every page but one. Segment boundaries keep /play off /playground; the
+  // longest-wins step keeps it off its own siblings while still lighting it for
+  // its genuine children, e.g. /play/checkout/<id>.
+  const activeHref = links
+    .filter(
+      (l) => pathname === l.href || pathname.startsWith(`${l.href}/`),
+    )
+    .reduce<string | null>(
+      (best, l) => (best && best.length >= l.href.length ? best : l.href),
+      null,
+    );
+
+  const isActive = (href: string) => href === activeHref;
 
   return (
     <>

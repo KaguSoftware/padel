@@ -126,7 +126,23 @@ input[type="number"] {
 .hour-band {
   /* A 20-hour day is ~40 bands x 5 courts; only the visible ones need layout. */
   content-visibility: auto;
-  contain-intrinsic-size: auto 60px;
+  contain-intrinsic-size: auto var(--row-px);
+  height: var(--row-px);
+}
+
+/*
+ * The time ruling. Every 30-minute band is bounded, not just every hour: a
+ * booking can start on the half hour, and with a rule only every hour a 19:30
+ * card floated between two lines with nothing naming where it began. The hour
+ * rule is stronger than the half-hour rule so the axis still has a hierarchy
+ * to read at a glance.
+ */
+.rule-hour {
+  border-top: 1px solid color-mix(in srgb, var(--color-line) 26%, transparent);
+}
+
+.rule-half {
+  border-top: 1px solid color-mix(in srgb, var(--color-line) 9%, transparent);
 }
 
 /*
@@ -142,16 +158,26 @@ input[type="number"] {
   border-inline-end: 1px solid color-mix(in srgb, var(--color-line) 20%, transparent);
 }
 
-/* Day-board metrics. Phone first: two courts plus the hour on a 375px screen. */
+/*
+ * Day-board metrics. Phone first: two courts plus the hour on a 375px screen.
+ *
+ * `--row-px` is one 30-minute band, and it is the single source of truth for
+ * the ruling AND for where a booking card sits — the card's top and height are
+ * `calc()` off this var, so the two can never drift. It is 44px because an
+ * empty cell is a tap target for a standing user on a tablet, and 30px was
+ * below the floor this product sets for itself.
+ */
 :root {
   --gutter-w: 3.25rem;
   --col-w: 7.5rem;
+  --row-px: 44px;
 }
 
 @media (min-width: 640px) {
   :root {
     --gutter-w: 4.25rem;
     --col-w: 9.5rem;
+    --row-px: 48px;
   }
 }
 
@@ -164,6 +190,21 @@ input[type="number"] {
 /* --------------------------------------------------------------------------
    The mobile menu slides off the board's edge, the way a panel would.
    -------------------------------------------------------------------------- */
+
+/*
+ * The drawer portals to <body> to escape the header's backdrop-filter, which
+ * would otherwise be its containing block and crush it to the height of the
+ * header strip. That puts it outside `.court-world`, so it carries the world's
+ * type and line paint with it rather than falling back to the browser default.
+ */
+.drawer-root {
+  font-family: var(--font-body);
+  color: var(--color-line);
+}
+
+[lang="ar"] .drawer-root {
+  font-family: var(--font-arabic);
+}
 
 .drawer-panel {
   box-shadow: 0 0 60px -10px rgba(0, 0, 0, 0.9);
@@ -440,6 +481,92 @@ html[dir="rtl"] {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+/* --------------------------------------------------------------------------
+   Scroll-driven motion. Two verbs, both the world's own, both tied to the
+   reader's position rather than to a timer:
+
+   PAINT DRAWS. The court's line plan lays itself down as you descend the page,
+   the same stroke-dash draw as the rebound trace. The scroll relationship is
+   the meaning — you are walking the length of a court, and the paint is going
+   down ahead of you. `pathLength="1"` normalises every line so the perimeter,
+   the net and the service lines draw at one rate regardless of their length.
+
+   FLAPS LAND. A court arriving on screen is a row arriving on the board, so it
+   uses the board's existing 260ms flap rather than a generic fade-and-rise.
+
+   All of it lives inside `@supports`, so a browser without scroll timelines
+   (Firefox, today) renders the finished state and never hides a thing. The
+   trace itself stays a once-on-load draw: it is padel's signature and repeating
+   it on scroll would spend it.
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* The wipe runs with the text, so it flips with the direction. */
+  --wipe-far: 100%;
+  --wipe-near: 0%;
+}
+
+html[dir="rtl"] {
+  --wipe-far: 0%;
+  --wipe-near: 100%;
+}
+
+@keyframes paint-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes paint-in {
+  from {
+    clip-path: inset(0 var(--wipe-far) 0 var(--wipe-near));
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media not (prefers-reduced-motion: reduce) {
+    /* Painted headings arrive the way paint does: pulled across, not faded. */
+    .paint-in {
+      animation: paint-in linear both;
+      animation-timeline: view();
+      animation-range: entry 12% cover 32%;
+    }
+
+    .paint-lines > * {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: paint-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+
+    /* Perimeter first, then the net, then the service lines — the order a
+       court is actually marked out in. */
+    .paint-lines > :nth-child(n + 2) {
+      animation-range: entry 25% cover 48%;
+    }
+    .paint-lines > :nth-child(n + 4) {
+      animation-range: entry 35% cover 55%;
+    }
+
+    .flap-scroll {
+      animation: flap linear both;
+      animation-timeline: view();
+      animation-range: entry 15% entry 95%;
+      transform-origin: center top;
+      backface-visibility: hidden;
+    }
+  }
+}
+
+/* Rows of flaps need somewhere to rotate into. */
+.flap-stage {
+  perspective: 900px;
 }
 
 @media (prefers-reduced-motion: reduce) {

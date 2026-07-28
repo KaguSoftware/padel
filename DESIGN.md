@@ -157,6 +157,18 @@ RTL is structural, not a stylesheet at the end.
   hatched. The whole panel is the hit area, ≥44px.
 - **Card** (a booking) — a panel whose leading edge carries the state colour, with
   the serial in amber dot-matrix in the corner.
+- **Time ruling** — the day book's axis. Every 30-minute band is bounded, not
+  only every hour: half of all starts are on the `:30`, and a rule only on the
+  hour left those cards floating with nothing naming where they began. The hour
+  rule is `line/26` and its label is full board digits; the half-hour rule is
+  `line/9` and its label is a dimmed `:30`. **One token, `--row-px`, drives the
+  ruling, the cell heights and every card's `top` and `height`**, so a card
+  cannot drift off the line it starts on.
+- **Now** — a 2px optic-yellow line at the actual minute, across every court at
+  once, with the clock riding it in a painted block that sticks to the inline
+  start as the courts scroll under it. It moves off the one 1Hz ticker. It is
+  never rounded to the nearest band: "is court 3 free right now" is the question
+  this screen exists to answer.
 - **Court plate** — the monumental outlined number bolted to the fence, used as
   wayfinding wherever a court is named.
 - **Glass pane** — the section container: a translucent blue pane with a lit top
@@ -180,6 +192,19 @@ The world's native motion is mechanical, not eased-and-floaty.
 - **Flaps land.** A row whose content changed flips in over 260ms on `rotateX`,
   from −92° through a 12° overshoot. One per change.
 - **The rebound trace draws once** on first paint, 2.6s, then stays.
+- **Paint goes down ahead of the reader.** On the landing page the court's line
+  plan marks itself out as you descend — perimeter, then net, then service
+  lines, the order a court is actually marked in. It is tied to scroll position
+  rather than to a timer, because the meaning is spatial: you are walking the
+  length of a court. `pathLength="1"` normalises every line so they draw at one
+  rate. The rebound trace is never reused for this; it is spent on load.
+- **A court arriving is a row arriving.** Sections do not fade and rise. The
+  court cards land on the board's own 260ms flap, driven by the same scroll
+  timeline. There is no third entrance verb, and no section gets an entrance
+  merely for existing.
+- Scroll-driven motion lives entirely inside `@supports (animation-timeline:
+  view())`, so a browser without scroll timelines renders the finished state.
+  Nothing is ever hidden by a reveal that might not fire.
 - **Holds burn down.** A held slot's amber edge shortens in real time; on
   checkout it is a bar across the head of the card. It is not a progress
   indicator — the slot is physically going away.
@@ -205,7 +230,10 @@ on a phone, and the front desk's tablet is a narrow viewport in portrait.
   container and silently breaks every sticky header in the app.
 - **The day board's hour gutter is sticky** at the inline start. Column widths
   come from `--col-w` / `--gutter-w`, which narrow below 640px so two courts and
-  the hour fit on a 375px screen; the rest scroll under the gutter.
+  the hour fit on a 375px screen; the rest scroll under the gutter. Row height
+  is `--row-px`, and it goes the other way: 44px on a phone, 48px from 640px up,
+  because the wider screen here is the front desk's tablet and its user is
+  standing.
 - **The mobile rail carries every destination.** A bottom bar that silently
   drops its last entries hides part of the product. `.pad-for-bar` reserves its
   height so the last row of any page is reachable, and `.safe-bottom` keeps it
