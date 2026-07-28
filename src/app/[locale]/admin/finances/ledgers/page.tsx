@@ -109,7 +109,7 @@ export default async function ReportsPage({
           {[7, 30].map((n) => (
             <Link
               key={n}
-              href={`/console/finances/ledgers?range=${n}`}
+              href={`/admin/finances/ledgers?range=${n}`}
               className={`min-h-9 border px-3 py-1.5 font-board text-[11px] uppercase tracking-[0.14em] ${
                 days === n
                   ? "border-amber bg-court-lit/30 text-amber"

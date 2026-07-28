@@ -39,6 +39,7 @@ import type {
   TillSession,
 } from "../types";
 import { OCCUPYING_STATUSES } from "../types";
+import { accountsPort } from "./accounts";
 import { getStore, nextId, type Store } from "./store";
 
 /**
@@ -1042,9 +1043,16 @@ function staffPort(store: Store): StaffPort {
     },
     async save(u) {
       const i = store.staff.findIndex((x) => x.id === u.id);
-      if (i >= 0) store.staff[i] = u;
-      else store.staff.push({ ...u, id: u.id || nextId(store, "usr") });
-      return u;
+      if (i >= 0) {
+        store.staff[i] = u;
+        return u;
+      }
+      // Return the STORED row, not the input: on an insert the input's id is
+      // empty and the generated one is the only way the caller can refer to
+      // what it just created.
+      const created = { ...u, id: u.id || nextId(store, "usr") };
+      store.staff.push(created);
+      return created;
     },
   };
 }
@@ -1095,6 +1103,10 @@ function notificationsPort(store: Store): NotificationsPort {
 export function createMemoryDb(): Db {
   const store = getStore();
   return {
+    accounts: accountsPort(
+      (prefix) => nextId(store, prefix),
+      (e) => void audit(store, { ...e, amount: null, reason: null }),
+    ),
     courts: courtsPort(store),
     availability: availabilityPort(store),
     bookings: bookingsPort(store),

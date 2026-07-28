@@ -54,8 +54,8 @@ export async function takePayment(
     );
   }
 
-  revalidatePath("/[locale]/console/calendar", "page");
-  revalidatePath("/[locale]/console/finances/till", "page");
+  revalidatePath("/[locale]/admin/calendar", "page");
+  revalidatePath("/[locale]/admin/finances/till", "page");
   return { ok: true, data: { id: payment.id } };
 }
 
@@ -101,7 +101,7 @@ export async function settleAllShares(
     note: `Settled ${unpaid.length} shares`,
   });
 
-  revalidatePath("/[locale]/console/calendar", "page");
+  revalidatePath("/[locale]/admin/calendar", "page");
   return { ok: true, data: { settled: unpaid.length, amount: split.outstanding } };
 }
 
@@ -116,7 +116,7 @@ export async function openTill(
       fils(Math.round(openingFloatFils)),
       claims.userId,
     );
-    revalidatePath("/[locale]/console/finances/till", "page");
+    revalidatePath("/[locale]/admin/finances/till", "page");
     return { ok: true, data: { id: s.id } };
   } catch (e) {
     if (e instanceof RuleViolation) {
@@ -149,7 +149,7 @@ export async function closeTill(
     claims.userId,
   );
 
-  revalidatePath("/[locale]/console/finances/till", "page");
+  revalidatePath("/[locale]/admin/finances/till", "page");
   return { ok: true, data: { variance: session.variance ?? fils(0) } };
 }
 
@@ -207,6 +207,6 @@ export async function recordSale(
     }
   });
 
-  revalidatePath("/[locale]/console/shop", "page");
+  revalidatePath("/[locale]/admin/shop", "page");
   return { ok: true, data: { serial: sale.serial } };
 }

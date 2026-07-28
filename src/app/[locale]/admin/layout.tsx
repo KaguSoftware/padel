@@ -13,7 +13,7 @@ import {
   ShelfMark,
   StaffMark,
 } from "@/ui/marks";
-import { ConsoleMobileNav } from "./ConsoleMobileNav";
+import { AdminMobileNav } from "./AdminMobileNav";
 import { RoleSwitcher } from "./RoleSwitcher";
 
 /**
@@ -27,14 +27,14 @@ import { RoleSwitcher } from "./RoleSwitcher";
  */
 
 const NAV = [
-  { href: "/console/calendar", key: "calendar", Mark: LedgerMark },
-  { href: "/console/customers", key: "customers", Mark: CardMark },
-  { href: "/console/finances", key: "finances", Mark: DrawerMark },
-  { href: "/console/courts", key: "courts", Mark: CourtsMark },
-  { href: "/console/academy", key: "coaching", Mark: RacketMark },
-  { href: "/console/shop", key: "shop", Mark: ShelfMark },
-  { href: "/console/tournaments", key: "tournaments", Mark: BracketMark },
-  { href: "/console/staff", key: "staff", Mark: StaffMark },
+  { href: "/admin/calendar", key: "calendar", Mark: LedgerMark },
+  { href: "/admin/customers", key: "customers", Mark: CardMark },
+  { href: "/admin/finances", key: "finances", Mark: DrawerMark },
+  { href: "/admin/courts", key: "courts", Mark: CourtsMark },
+  { href: "/admin/academy", key: "coaching", Mark: RacketMark },
+  { href: "/admin/shop", key: "shop", Mark: ShelfMark },
+  { href: "/admin/tournaments", key: "tournaments", Mark: BracketMark },
+  { href: "/admin/staff", key: "staff", Mark: StaffMark },
 ] as const;
 
 export default async function ConsoleLayout({
@@ -59,7 +59,7 @@ export default async function ConsoleLayout({
         {/* The control desk's rail, alongside the court. */}
         <aside className="sticky top-0 hidden h-dvh w-[13.5rem] shrink-0 flex-col border-e border-line/20 bg-board md:flex">
           <Link
-            href="/console/calendar"
+            href="/admin/calendar"
             className="flex items-center gap-3 border-b border-line/20 px-4 py-4 text-line"
           >
             <CourtMark size={28} className="text-ball" />
@@ -101,7 +101,7 @@ export default async function ConsoleLayout({
               }}
             />
             <Link
-              href="/console/calendar"
+              href="/admin/calendar"
               locale={locale === "ar" ? "en" : "ar"}
               className="mt-2 block px-1 font-board text-[11px] uppercase tracking-[0.14em] text-amber hover:text-ball"
             >
@@ -111,7 +111,7 @@ export default async function ConsoleLayout({
         </aside>
 
         <div className="flex min-w-0 max-w-full flex-1 flex-col self-stretch">
-          <ConsoleMobileNav
+          <AdminMobileNav
             locale={locale}
             labels={Object.fromEntries(NAV.map((n) => [n.key, t(n.key)]))}
             claims={claims}

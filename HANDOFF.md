@@ -34,11 +34,11 @@ Deploy target Vercel; config is `vercel.ts` (not `vercel.json`).
 
 | | |
 |---|---|
-| `npx vitest run` | **104 passed**, 5 files |
+| `npx vitest run` | **120 passed**, 6 files |
 | `npx tsc --noEmit` | clean |
 | `npm run lint` | clean, zero warnings |
 | `npm run build` | 22 routes, compiles |
-| Routes smoke-tested | all console + play routes, EN and AR, HTTP 200 |
+| Routes smoke-tested | all admin + play routes, EN and AR, HTTP 200 |
 
 ⚠️ **Not yet clicked through by a human.** Every route has been fetched and
 renders, and the domain is heavily unit-tested, but nobody has dragged a
@@ -98,6 +98,31 @@ both surfaces — the console is the same court seen from the control desk.
 ledger world is gone; do not reintroduce paper, ink, serifs, or engraved
 ornament.** `src/ui/Guilloche.tsx` was deleted for this reason.
 
+### 2026-07-28 — accounts, and the console became /admin
+
+**`/console` is now `/admin`.** Every path, `ConsoleMobileNav` → `AdminMobileNav`,
+and the guards with it: `requireConsole`/`allowConsole`/`CONSOLE_ROLES`/
+`view_console` are now `requireAdmin`/`allowAdmin`/`ADMIN_ROLES`/`view_admin`.
+`/:locale/console/:path*` redirects to the new path carrying the deep path, so a
+front-desk tablet on a pinned tab keeps working.
+
+**There are real logins now.** Public sign-up at `/account/sign-up`, sign-in at
+`/account/sign-in`, and an owner-only account creator on `/admin/staff`. Both
+write the same `Claims` cookie the role switcher writes, so the session shape is
+unchanged and the switcher still works for demoing roles.
+
+- **`Account` is a login; `Customer` is a person.** Signing up attaches the
+  login to the existing customer row if that phone number is already known —
+  a regular who has been booked in by the desk for a year and then signs up
+  online is one human, and a second customer row would split their history,
+  credit and no-show count in half.
+- **Accounts are the one thing written to disk**, at `.data/accounts.json`
+  (gitignored). Everything else is regenerated each boot, which is right for
+  synthetic trading and wrong for a login.
+- Passwords are scrypt from `node:crypto`. No dependency was added.
+- `supabase/migrations/0004_accounts.sql` carries the table and
+  `accounts_email_key`, the unique index that `EmailTakenError` mirrors.
+
 ## Architecture — the four rules that matter
 
 **1. Double-booking is prevented by the DATABASE, never by application code.**
@@ -114,6 +139,13 @@ The in-memory driver reproduces that check exactly and throws the **same
 taken" path is written once and is already correct.
 ⚠️ **Never add a pre-flight availability check.** Read-then-write is precisely
 the race the constraint closes.
+
+**1b. Duplicate emails are prevented by the same mechanism.**
+`accounts_email_key` is a unique index on `lower(email)`, and both drivers raise
+**`EmailTakenError`** — the memory driver from its own check, the Supabase driver
+from `23505`. Same shape as `SlotTakenError`, same rule: **never check-then-
+insert.** "Is this email free" followed by "insert" is the same race as "is this
+slot free" followed by "book".
 
 **2. Availability is COMPUTED, never stored.** Opening hours (`availability_templates`)
 + exception rows (`availability_exceptions`) resolved on read. Ramadan hours are
@@ -148,12 +180,16 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
 | [src/lib/money.ts](src/lib/money.ts) | Integer fils + branded `Fils`. **Never inline a currency figure** |
 | [src/lib/time.ts](src/lib/time.ts) | `operatingDayOf` — **the 06:00→02:00 rule lives here and nowhere else** |
 | [src/lib/text.ts](src/lib/text.ts) | `fold()` Arabic-aware search, `normalisePhone()` dedupe key, `withinBound()` null-safe filters |
-| [src/auth/claims.ts](src/auth/claims.ts) | `getClaims()` — **zero I/O**. Becomes local JWT verification, never `getUser()` |
+| [src/auth/claims.ts](src/auth/claims.ts) | `getClaims()` — **zero I/O**. Becomes local JWT verification, never `getUser()`. Owns the `SIGNED_OUT` sentinel |
+| [src/auth/password.ts](src/auth/password.ts) · [src/auth/policy.ts](src/auth/policy.ts) | scrypt hash/verify (`server-only`) and the length rule (importable by client code). Deleted, not ported, when Supabase Auth lands |
+| [src/app/actions/account.ts](src/app/actions/account.ts) | `signUp` / `signIn` / `signOut` / `createStaffAccount`. Sign-up creates the account *before* the customer so a taken email leaves no orphan row |
+| [src/data/memory/accounts.ts](src/data/memory/accounts.ts) | The accounts port. **Reads the file every call** — read the caching gotcha before "optimising" it |
+| [src/data/local/file.ts](src/data/local/file.ts) | Write-then-rename JSON persistence for `.data/`. A truncated file on a killed process reads as a wipe |
 | [src/auth/guard.ts](src/auth/guard.ts) | ONE guard. `require*` throws (for actions); `allow*` returns null (for pages) |
 | [src/ui/board.tsx](src/ui/board.tsx) · [src/ui/court.tsx](src/ui/court.tsx) | The Board's own components: panels, flap rows, digits, court plan, rebound trace. `CourtLines paint` draws itself on scroll |
 | [src/ui/Drawer.tsx](src/ui/Drawer.tsx) | The one mobile drawer, shared by both surfaces. **Portals to `<body>`** — read the `backdrop-filter` gotcha before changing it |
-| [src/app/[locale]/console/calendar/](src/app/[locale]/console/calendar/) | The day book. `EntryLine.tsx` is the command-sentence create flow |
-| [src/app/[locale]/console/finances/](src/app/[locale]/console/finances/) | Cash book, ledgers, rate card and audit behind one nav entry. Its sub-rail only offers what your role can open |
+| [src/app/[locale]/admin/calendar/](src/app/[locale]/admin/calendar/) | The day book. `EntryLine.tsx` is the command-sentence create flow |
+| [src/app/[locale]/admin/finances/](src/app/[locale]/admin/finances/) | Cash book, ledgers, rate card and audit behind one nav entry. Its sub-rail only offers what your role can open |
 | [supabase/migrations/](supabase/migrations/) | Authored, **unapplied**. `0001` core + the constraint, `0002` money/config, `0003` RLS + jobs |
 
 ## Gotchas / hard-won
@@ -171,7 +207,7 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
   to do this; the till now bounds its window at both ends, and
   `0002_money_and_config.sql` has a CHECK.
 - ⚠️ **Page guards must not throw.** A front-desk member of staff opening
-  `/console/reports` is navigating, not erroring. Use `allowManager()` +
+  `/admin/reports` is navigating, not erroring. Use `allowManager()` +
   `<Denied>`, not `requireManager()`. This shipped as a 500 first time round.
 - ⚠️ **PowerShell `Get-Content -Raw` reads as ANSI** and will mojibake every
   Arabic string in the repo. Use `[System.IO.File]::ReadAllText(path, utf8)`.
@@ -185,6 +221,29 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
   Without it a phone user scrolls to court 4 with no idea what time they are
   looking at. Column widths come from `--col-w`/`--gutter-w`, which narrow
   below 640px so two courts plus the hour fit on a 375px screen.
+- ⚠️ **Never cache a file-backed collection in a module closure.** The accounts
+  port did, and Next hands a server action and a page render *different module
+  instances* — so an account created down one path was invisible down the other,
+  and a staff login could be created and then fail to sign in. Same thing across
+  workers or processes in any real deployment. It now reads the file on every
+  call and mutates read-modify-write; a stale snapshot written back would
+  silently delete rows another instance had added. Pinned by two tests in
+  `src/auth/accounts.test.ts`.
+- ⚠️ **`server-only` is Next's, not a package.** It is why `password.ts` cannot
+  be imported by a client component — importing `MIN_PASSWORD_LENGTH` from it
+  pulled scrypt into the browser bundle, which the marker caught. The length
+  rule therefore lives in `src/auth/policy.ts`, which carries no marker: the
+  rule is not a secret, the hashing is. Vitest aliases `server-only` to
+  `src/test/server-only-stub.ts`, because there is no such package to resolve.
+- ⚠️ **Signing out writes a `signed-out` sentinel rather than clearing the
+  cookie.** An absent cookie is what a first-time visitor has, and the prototype
+  deliberately opens as the front desk so `/admin` is reviewable without seeding
+  a login. Clearing the cookie put the user straight back to being staff, which
+  read as sign-out being broken.
+- ⚠️ **`.data/` holds real credentials** for whoever signed up on this machine.
+  It is gitignored. It also means the accounts survive `npm run dev` restarts
+  but **not** a deploy to a read-only or ephemeral filesystem — Vercel's lambdas
+  will lose them. `DATA_DIR` can point elsewhere; Supabase Auth ends this.
 - ⚠️ **`--row-px` is the day book's single source of truth.** Row height, cell
   height and every booking card's `top`/`height` all `calc()` off it. **Never
   reintroduce a JS pixel constant for row height** — the previous `ROW_PX = 30`
@@ -248,7 +307,7 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
    - Take a cash payment, then close the shift with a deliberate AED 35
      shortfall → it refuses to close without an explanation.
    - Switch role to Front desk → Finances shows only the Cash Book, and
-     `/console/finances/ledgers` says "Not your board" rather than 500-ing.
+     `/admin/finances/ledgers` says "Not your board" rather than 500-ing.
      Switch to Owner → all four appear.
    - **Every screen at 375px.** The structural causes of horizontal overflow
      are fixed (see below) but no breakpoint has been eyeballed.
@@ -282,7 +341,9 @@ wave is ~3–12ms. **Full detail and the measured numbers are in
 | Pro shop | Sell to a court tab or standalone, stock decrements | Purchase orders, supplier records, stock-take |
 | Reports | Utilisation by hour and court, revenue by source, no-show rate | Export, date-range picker beyond 7/30, per-agent breakdowns |
 | Notifications | Queued to a log with the real message shape | A worker over the queue once the channel is confirmed |
-| Auth | Signed cookie + role switcher, real server-side capability checks | Supabase Auth; the `Claims` shape is already the target shape |
+| Auth | Real sign-up / sign-in / sign-out over file-backed accounts, scrypt passwords, signed cookie, plus the role switcher for demoing | Supabase Auth owns the credential; `accounts` keeps only `auth_uid` + role. The `Claims` shape is already the target shape |
+| Account self-service | Sign up, sign in, sign out | Password change, password reset, email verification, and a way for a player to edit their own details. **There is no mail channel in this product yet**, so a reset link would be a fiction — an owner sets a staff password and reads it out |
+| Account admin | Owner creates staff/coach logins; the accounts list shows role, last sign-in and disabled state | Disable/enable from the UI (`setAccountActive` exists and is wired to nothing), reassign a role, and unlink an account from its customer |
 
 ## Replacement list — everything synthetic
 
@@ -305,7 +366,7 @@ npx tsc --noEmit
 npm run lint
 ```
 
-Role switching is in the console's left rail (bottom). Owner and Manager see
+Role switching is in the admin left rail (bottom). Owner and Manager see
 the ledgers, staff and audit; Front desk does not.
 
 The Vercel CLI is **not installed** — `npm i -g vercel` before any deploy work.

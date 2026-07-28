@@ -60,7 +60,7 @@ export default function GlobalNotFound() {
               Book a court
             </Link>
             <Link
-              href="/en/console/calendar"
+              href="/en/admin/calendar"
               className="inline-flex min-h-12 items-center border border-line/35 px-6 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
             >
               Day book

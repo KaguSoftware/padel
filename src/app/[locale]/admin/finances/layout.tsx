@@ -40,25 +40,25 @@ export default async function FinancesLayout({
   const managerOnly = `${tc("roles.manager")} · ${tc("roles.owner")}`;
   const items = [
     {
-      href: "/console/finances/till",
+      href: "/admin/finances/till",
       label: t("till"),
       allowed: can(role, "close_till"),
       needs: tc("roles.staff"),
     },
     {
-      href: "/console/finances/ledgers",
+      href: "/admin/finances/ledgers",
       label: t("reports"),
       allowed: can(role, "view_reports"),
       needs: managerOnly,
     },
     {
-      href: "/console/finances/rates",
+      href: "/admin/finances/rates",
       label: t("pricing"),
       allowed: can(role, "edit_pricing"),
       needs: managerOnly,
     },
     {
-      href: "/console/finances/audit",
+      href: "/admin/finances/audit",
       label: t("audit"),
       allowed: can(role, "view_audit"),
       needs: managerOnly,

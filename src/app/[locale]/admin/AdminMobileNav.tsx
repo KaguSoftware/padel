@@ -28,17 +28,17 @@ import { RoleSwitcher } from "./RoleSwitcher";
  * strings, which keeps the translations on the server where they belong.
  */
 const NAV = [
-  { href: "/console/calendar", key: "calendar", Mark: LedgerMark },
-  { href: "/console/customers", key: "customers", Mark: CardMark },
-  { href: "/console/finances", key: "finances", Mark: DrawerMark },
-  { href: "/console/courts", key: "courts", Mark: CourtsMark },
-  { href: "/console/academy", key: "coaching", Mark: RacketMark },
-  { href: "/console/shop", key: "shop", Mark: ShelfMark },
-  { href: "/console/tournaments", key: "tournaments", Mark: BracketMark },
-  { href: "/console/staff", key: "staff", Mark: StaffMark },
+  { href: "/admin/calendar", key: "calendar", Mark: LedgerMark },
+  { href: "/admin/customers", key: "customers", Mark: CardMark },
+  { href: "/admin/finances", key: "finances", Mark: DrawerMark },
+  { href: "/admin/courts", key: "courts", Mark: CourtsMark },
+  { href: "/admin/academy", key: "coaching", Mark: RacketMark },
+  { href: "/admin/shop", key: "shop", Mark: ShelfMark },
+  { href: "/admin/tournaments", key: "tournaments", Mark: BracketMark },
+  { href: "/admin/staff", key: "staff", Mark: StaffMark },
 ] as const;
 
-export function ConsoleMobileNav({
+export function AdminMobileNav({
   locale,
   labels,
   claims,
@@ -67,7 +67,7 @@ export function ConsoleMobileNav({
   return (
     <>
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-line/20 bg-board px-4 py-2.5 md:hidden">
-        <Link href="/console/calendar" className="flex items-center gap-2.5">
+        <Link href="/admin/calendar" className="flex items-center gap-2.5">
           <CourtMark size={24} className="shrink-0 text-ball" />
           <span className="min-w-0">
             <span className="painted block text-[15px] leading-none">
@@ -121,7 +121,7 @@ export function ConsoleMobileNav({
             roleLabels={roleLabels}
           />
           <Link
-            href="/console/calendar"
+            href="/admin/calendar"
             locale={locale === "ar" ? "en" : "ar"}
             onClick={() => setOpen(false)}
             className="mt-4 flex min-h-11 items-center justify-center border border-line/25 font-board text-[11px] uppercase tracking-[0.18em] text-amber active:bg-line/10"

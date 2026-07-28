@@ -17,13 +17,14 @@
     "reports": "Ledgers",
     "staff": "Staff",
     "audit": "Audit",
-    "console": "Console",
+    "admin": "Admin",
     "book": "Book a court",
     "matches": "Open matches",
     "account": "My account",
     "signIn": "Sign in",
     "language": "العربية",
-    "finances": "Finances"
+    "finances": "Finances",
+    "signOut": "Sign out"
   },
   "status": {
     "open": "OPEN",

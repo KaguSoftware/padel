@@ -6,5 +6,5 @@ export default async function ConsoleIndex({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/console/calendar`);
+  redirect(`/${locale}/admin/calendar`);
 }

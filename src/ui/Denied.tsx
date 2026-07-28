@@ -51,7 +51,7 @@ export function Denied({
         </dl>
 
         <Link
-          href="/console/calendar"
+          href="/admin/calendar"
           className="relative mt-7 inline-flex min-h-12 items-center border border-line/35 px-5 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
         >
           Back to the day book

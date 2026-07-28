@@ -1,4 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getClaims } from "@/auth/claims";
+import { can } from "@/auth/guard";
 import { Link } from "@/i18n/routing";
 import { CourtMark } from "@/ui/marks";
 import { TickerProvider } from "@/ui/Ticker";
@@ -22,16 +24,23 @@ export default async function SiteLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, tc] = await Promise.all([
+  const [t, tc, claims] = await Promise.all([
     getTranslations("nav"),
     getTranslations("common"),
+    getClaims(),
   ]);
 
+  // The admin entry is only signage for people who work here. A player who
+  // taps it gets a refusal page, which is a worse answer than not offering it —
+  // and it is not a security boundary either way, since every module checks
+  // server-side (src/auth/guard.ts).
   const links = [
     { href: "/play", label: t("book") },
     { href: "/play/matches", label: t("matches") },
     { href: "/play/account", label: t("account") },
-    { href: "/console/calendar", label: t("console") },
+    ...(claims && can(claims.role, "view_admin")
+      ? [{ href: "/admin/calendar", label: t("admin") }]
+      : []),
   ];
 
   return (
@@ -56,6 +65,12 @@ export default async function SiteLayout({
               locale={locale}
               languageLabel={t("language")}
               menuLabel={tc("menu")}
+              session={
+                claims
+                  ? { name: claims.name, signOutLabel: t("signOut") }
+                  : null
+              }
+              signInLabel={t("signIn")}
             />
           </div>
         </header>

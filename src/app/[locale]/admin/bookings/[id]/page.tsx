@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getClaims } from "@/auth/claims";
-import { can, requireConsole } from "@/auth/guard";
+import { can, requireAdmin } from "@/auth/guard";
 import { loadBookingDetail } from "@/data/loaders";
 import { clock, minutesIntoDay, operatingDayOf } from "@/lib/time";
 import { BookingRecord } from "./BookingRecord";
@@ -15,7 +15,7 @@ export default async function BookingPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [detail, claims, t] = await Promise.all([
     loadBookingDetail(id),

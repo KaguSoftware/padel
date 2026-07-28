@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signOut } from "@/app/actions/account";
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/ui/cn";
 import { Drawer, MenuButton } from "@/ui/Drawer";
@@ -22,11 +23,16 @@ export function SiteNav({
   locale,
   languageLabel,
   menuLabel,
+  session,
+  signInLabel,
 }: {
   links: SiteLink[];
   locale: string;
   languageLabel: string;
   menuLabel: string;
+  /** Null when signed out. */
+  session: { name: string; signOutLabel: string } | null;
+  signInLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -64,6 +70,24 @@ export function SiteNav({
             {l.label}
           </Link>
         ))}
+        {session ? (
+          <form action={signOut} className="ms-1 flex">
+            <button
+              type="submit"
+              className="flex min-h-11 items-center px-3 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim transition-colors hover:text-ball"
+            >
+              {session.signOutLabel}
+            </button>
+          </form>
+        ) : (
+          <Link
+            href="/account/sign-in"
+            className="ms-1 flex min-h-11 items-center px-3 font-stadium text-[11px] uppercase tracking-[0.09em] text-line/75 transition-colors hover:text-ball"
+          >
+            {signInLabel}
+          </Link>
+        )}
+
         <Link
           href="/"
           locale={locale === "ar" ? "en" : "ar"}
@@ -102,11 +126,31 @@ export function SiteNav({
         </nav>
 
         <div className="border-t border-line/20 p-4">
+          {session ? (
+            <form action={signOut} onSubmit={() => setOpen(false)}>
+              <button
+                type="submit"
+                className="flex min-h-12 w-full items-center justify-between gap-3 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim active:text-line"
+              >
+                <span className="truncate text-line">{session.name}</span>
+                <span className="shrink-0">{session.signOutLabel}</span>
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/account/sign-in"
+              onClick={() => setOpen(false)}
+              className="mb-3 flex min-h-12 items-center justify-center border border-line/35 font-stadium text-[12px] uppercase tracking-[0.09em] text-line active:bg-line/10"
+            >
+              {signInLabel}
+            </Link>
+          )}
+
           <Link
             href="/"
             locale={locale === "ar" ? "en" : "ar"}
             onClick={() => setOpen(false)}
-            className="flex min-h-11 items-center justify-center border border-line/25 font-board text-[11px] uppercase tracking-[0.18em] text-amber active:bg-line/10"
+            className="mt-3 flex min-h-11 items-center justify-center border border-line/25 font-board text-[11px] uppercase tracking-[0.18em] text-amber active:bg-line/10"
           >
             {languageLabel}
           </Link>

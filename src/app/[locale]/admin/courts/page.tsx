@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { getDb } from "@/data";
 import { rowsOrThrow } from "@/data/query";
 import { addDaysToLocalDate, todayInDubai } from "@/lib/time";
@@ -24,7 +24,7 @@ export default async function CourtsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const db = getDb();
   const today = todayInDubai();

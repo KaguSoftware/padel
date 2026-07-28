@@ -207,11 +207,11 @@ export function DayBook(props: Props) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <NavLink href={`/console/calendar?d=${prevDay}`} label={strings.previous}>
+            <NavLink href={`/admin/calendar?d=${prevDay}`} label={strings.previous}>
               ‹
             </NavLink>
             <Link
-              href={`/console/calendar?d=${today}`}
+              href={`/admin/calendar?d=${today}`}
               className={cn(
                 "flex min-h-11 items-center px-4 font-stadium text-[11px] uppercase tracking-[0.1em] transition-colors",
                 day === today
@@ -221,7 +221,7 @@ export function DayBook(props: Props) {
             >
               {strings.today}
             </Link>
-            <NavLink href={`/console/calendar?d=${nextDay}`} label={strings.next}>
+            <NavLink href={`/admin/calendar?d=${nextDay}`} label={strings.next}>
               ›
             </NavLink>
           </div>
@@ -566,7 +566,7 @@ function BookingSlip({
       title={`#${slip.serial} · ${slip.customerName}`}
     >
       <Link
-        href={`/console/bookings/${slip.id}`}
+        href={`/admin/bookings/${slip.id}`}
         className="flex h-full flex-col justify-between gap-1"
       >
         <div className="flex items-start justify-between gap-1.5">

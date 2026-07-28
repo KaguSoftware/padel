@@ -46,3 +46,8 @@ supabase/.branches/
 
 # impeccable design-skill scratch (decision-page state)
 .impeccable/
+
+# Local prototype persistence. Accounts created by sign-up live here so they
+# survive a restart; they are real credentials for whoever made them, and they
+# are not the repo's business.
+/.data/

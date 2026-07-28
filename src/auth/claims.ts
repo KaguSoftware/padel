@@ -22,6 +22,18 @@ import type { Role } from "@/data/types";
 
 export const SESSION_COOKIE = "kagu_session";
 
+/**
+ * Signed out, explicitly.
+ *
+ * "No cookie" cannot mean signed out here, because no cookie is also what a
+ * first-time visitor has, and this prototype has to open as the front desk so
+ * the console is reviewable without seeding a login first. So signing out
+ * writes this sentinel instead of clearing the cookie: absent means "has not
+ * chosen yet", this value means "chose to leave". Without the distinction,
+ * Sign out appeared to do nothing.
+ */
+export const SIGNED_OUT = "signed-out";
+
 export interface Claims {
   userId: string;
   role: Role;
@@ -43,6 +55,7 @@ export async function getClaims(): Promise<Claims | null> {
     const jar = await cookies();
     const raw = jar.get(SESSION_COOKIE)?.value;
     if (!raw) return DEFAULT_CLAIMS;
+    if (raw === SIGNED_OUT) return null;
     return decodeClaims(raw);
   } catch {
     return null;

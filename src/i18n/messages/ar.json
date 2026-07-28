@@ -17,13 +17,14 @@
     "reports": "السجلات",
     "staff": "الموظفون",
     "audit": "التدقيق",
-    "console": "لوحة التشغيل",
+    "admin": "لوحة التشغيل",
     "book": "احجز ملعباً",
     "matches": "المباريات المفتوحة",
     "account": "حسابي",
     "signIn": "تسجيل الدخول",
     "language": "English",
-    "finances": "المالية"
+    "finances": "المالية",
+    "signOut": "خروج"
   },
   "status": {
     "open": "متاح",

@@ -29,6 +29,28 @@ export function isSlotTaken(e: unknown): e is SlotTakenError {
   return e instanceof SlotTakenError;
 }
 
+/**
+ * Two people signing up with one email address.
+ *
+ * Same contract as `SlotTakenError`: the memory driver raises it from its own
+ * uniqueness check and the Supabase driver will raise it on Postgres 23505
+ * against `accounts_email_key`. **Never check-then-insert** — "is this email
+ * free" followed by "insert" is the same race as "is this slot free" followed
+ * by "book", and it is closed the same way, by the constraint.
+ */
+export class EmailTakenError extends Error {
+  readonly email: string;
+  constructor(email: string) {
+    super(`An account already exists for ${email}`);
+    this.name = "EmailTakenError";
+    this.email = email;
+  }
+}
+
+export function isEmailTaken(e: unknown): e is EmailTakenError {
+  return e instanceof EmailTakenError;
+}
+
 /** A hold that expired, or was released, before checkout completed. */
 export class HoldExpiredError extends Error {
   readonly bookingId: string;

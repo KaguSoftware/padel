@@ -9,6 +9,7 @@ import { formatPhone } from "@/lib/text";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
 import { Panel } from "@/ui/primitives";
 import { Stamp } from "@/ui/Stamp";
+import { NewAccount } from "./NewAccount";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,7 @@ export const dynamic = "force-dynamic";
  * actually asks. This mirrors CAPABILITIES in src/auth/guard.ts.
  */
 const CAPABILITIES: { key: string; label: string; roles: Role[] }[] = [
-  { key: "view_console", label: "Open the console", roles: ["owner", "manager", "staff", "coach"] },
+  { key: "view_admin", label: "Open the console", roles: ["owner", "manager", "staff", "coach"] },
   { key: "take_payment", label: "Take a payment", roles: ["owner", "manager", "staff"] },
   { key: "cancel_booking", label: "Cancel an entry", roles: ["owner", "manager", "staff"] },
   { key: "close_till", label: "Close the shift", roles: ["owner", "manager", "staff"] },
@@ -60,15 +61,65 @@ export default async function StaffPage({
   }
 
   const db = getDb();
-  const [staff, t] = await Promise.all([
+  // One wave. A count for the shell and a list for the table are two reads of
+  // the same thing, so they go in the same round-trip — see PERFORMANCE.md.
+  const [staff, accounts, t] = await Promise.all([
     rowsOrThrow("staff.list", db.staff.list()),
+    rowsOrThrow("accounts.list", db.accounts.list()),
     getTranslations(),
   ]);
   const ar = locale === "ar";
 
+  const roleLabels: Record<string, string> = {
+    owner: t("common.roles.owner"),
+    manager: t("common.roles.manager"),
+    staff: t("common.roles.staff"),
+    coach: t("common.roles.coach"),
+    player: t("common.roles.player"),
+  };
+
+  // Creating a login is creating a way into the till, so it is the owner's
+  // alone — the same role `manage_staff` names in the capability table below.
+  const isOwner = claims.role === "owner";
+
   return (
     <PageShell title={t("nav.staff")} serial={`${staff.length}`}>
       <div className="space-y-6">
+        <Panel title="Accounts">
+          <LedgerTable heads={["Email", "Role", "Signed in", ""]}>
+            {accounts.map((a) => (
+              <LedgerRow key={a.id}>
+                <Cell className="font-semibold">{a.email}</Cell>
+                <Cell>
+                  <span className="font-board text-[11px] uppercase tracking-[0.1em]">
+                    {roleLabels[a.role] ?? a.role}
+                  </span>
+                </Cell>
+                <Cell className="font-board tabular-nums text-line-dim">
+                  {a.lastSignInAt
+                    ? a.lastSignInAt.toISOString().slice(0, 10)
+                    : "—"}
+                </Cell>
+                <Cell>
+                  {!a.active && <Stamp tone="void">{t("status.blocked")}</Stamp>}
+                </Cell>
+              </LedgerRow>
+            ))}
+          </LedgerTable>
+
+          {accounts.length === 0 && (
+            <p className="px-4 pb-4 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim">
+              No accounts yet — the prototype opens as the front desk without one
+            </p>
+          )}
+
+          <NewAccount
+            roleLabels={roleLabels}
+            disabled={!isOwner}
+            disabledNote="Only an owner can create a login"
+          />
+        </Panel>
+
         <Panel title={t("nav.staff")}>
           <LedgerTable
             heads={[t("customer.name"), t("customer.phone"), "Role", ""]}

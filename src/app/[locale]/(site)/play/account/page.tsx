@@ -23,6 +23,8 @@ export default async function AccountPage({
   const [claims, t] = await Promise.all([getClaims(), getTranslations()]);
   const ar = locale === "ar";
 
+  // No player identity on this session — either signed out, or signed in as
+  // someone who works here. Both want the same thing next: a way in.
   if (!claims?.customerId) {
     return (
       <main className="court-world court-surface min-h-dvh">
@@ -30,17 +32,35 @@ export default async function AccountPage({
           <h1 className="painted text-[32px] leading-none text-line">
             {t("nav.account")}
           </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-line-dim">
+          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-line/80">
             {ar
-              ? "بدّل الدور إلى «لاعب» من لوحة التشغيل لعرض حساب لاعب في هذا النموذج."
-              : "Switch the session role to Player in the console to view a player account in this prototype."}
+              ? "سجّل الدخول لعرض حجوزاتك ومبارياتك ورصيدك."
+              : "Sign in to see your entries, your matches and what you owe."}
           </p>
-          <Link
-            href="/console/calendar"
-            className="mt-6 inline-flex min-h-12 items-center border border-line/35 px-5 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
-          >
-            {t("nav.console")}
-          </Link>
+
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              href="/account/sign-in"
+              className="live-block inline-flex min-h-12 items-center px-6 font-stadium text-[12px] uppercase tracking-[0.09em] transition-[filter] duration-100 hover:brightness-110"
+            >
+              {ar ? "دخول" : "Sign in"}
+            </Link>
+            <Link
+              href="/account/sign-up"
+              className="inline-flex min-h-12 items-center border border-line/35 px-6 font-stadium text-[12px] uppercase tracking-[0.09em] text-line transition-colors hover:border-line hover:bg-line/10"
+            >
+              {ar ? "أنشئ حساباً" : "Create an account"}
+            </Link>
+          </div>
+
+          {claims && (
+            <p className="mt-8 font-board text-[11px] uppercase tracking-[0.14em] text-line-dim">
+              {ar ? "أنت الآن" : "Signed in as"} {claims.name} ·{" "}
+              <Link href="/admin/calendar" className="text-amber hover:underline">
+                {t("nav.admin")}
+              </Link>
+            </p>
+          )}
         </div>
       </main>
     );

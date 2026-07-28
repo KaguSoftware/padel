@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { loadPricingPage } from "@/data/loaders";
 import { formatMoney } from "@/lib/money";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
@@ -23,7 +23,7 @@ export default async function PricingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [data, t] = await Promise.all([loadPricingPage(), getTranslations()]);
   const ar = locale === "ar";

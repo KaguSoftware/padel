@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { loadShopPage } from "@/data/loaders";
 import { clock } from "@/lib/time";
 import { Counter, type ProductRow, type TabOption } from "./Counter";
@@ -13,7 +13,7 @@ export default async function ShopPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [data, t] = await Promise.all([loadShopPage(), getTranslations()]);
   const ar = locale === "ar";

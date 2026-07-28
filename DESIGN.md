@@ -48,7 +48,7 @@ Seed key 5e6b9045, scope direction, mode persuade.
 
 ## One world, two rooms
 
-The console is **not** a separate back-office aesthetic. It is the same
+The admin is **not** a separate back-office aesthetic. It is the same
 floodlit court seen from the control desk: same palette, same faces, same
 components, more density. A club whose staff screen looks nothing like its
 public screen is two products; this is one.
@@ -57,7 +57,8 @@ public screen is two products; this is one.
 |---|---|---|
 | `(site)` landing | Persuade | The board at full scale, live. Show the mechanism, never claim it. |
 | `(site)` play, matches, checkout | Operate | Phone-first. The slot panel is the unit; price is always visible on it. |
-| `(console)` all modules | Operate | Tablet-first, standing user, bright light. Density and state legibility outrank expression. |
+| `(site)` sign up, sign in | Operate | One measured column on court surface, the court plan low behind it. Four fields at most, the refusal beside the form rather than at the top of the page, and it names what to do next — a taken email says "sign in instead". |
+| `admin` all modules | Operate | Tablet-first, standing user, bright light. Density and state legibility outrank expression. |
 | `(site)` policy, help | Read | A single measured column on court surface. |
 
 ---
@@ -132,6 +133,12 @@ RTL is structural, not a stylesheet at the end.
 - **No `left`/`right` in layout code.** `padding-inline`, `inset-inline-start`,
   `border-inline-end`; Tailwind logical utilities (`ps-`, `pe-`, `ms-`, `me-`,
   `start-`, `end-`) only.
+- ⚠️ **The CSS property names are not the utility names.** `inset-inline-start-0`
+  and `inset-inline-0` are not Tailwind v4 utilities and compile to *nothing* —
+  four of them shipped and were silently dead, one of which was why the mobile
+  drawer never pinned to an edge. The utilities are `start-*` / `end-*`,
+  `inset-s-*` / `inset-e-*`, and `inset-x-*`. A class name that reads like the
+  property is the easiest one to get wrong; generate it and check.
 - The board mirrors: court columns run right-to-left in `ar`, the hour margin
   sits on the right. The *identity* does not mirror — the club mark, the court
   plan, and the rebound trace stay as drawn, because they are physical objects.
@@ -178,7 +185,7 @@ RTL is structural, not a stylesheet at the end.
 - **Rebound trace** — drawn ONCE, in the first viewport. It is padel's signature
   and it stops being one if it is repeated.
 - **Buttons** — painted blocks. Primary is solid optic yellow on court-deep;
-  secondary is an outlined line-paint block. ≥48px in the console.
+  secondary is an outlined line-paint block. ≥48px in the admin.
 - **Icons** — authored in the world's grammar: 1.5px hairline strokes, square
   terminals, mitred joins, no filled pictograms. The club mark is a padel court
   in plan with its net and service lines.
@@ -210,7 +217,7 @@ The world's native motion is mechanical, not eased-and-floaty.
   indicator — the slot is physically going away.
 - **Slots light, they do not glow.** 120ms background and 2px lift. No blur, no
   halo, no pulse.
-- **The console never animates navigation.** Staff are mid-task.
+- **The admin never animates navigation.** Staff are mid-task.
 - One 1Hz ticker drives every countdown on the page. Sixty `setInterval`s on a
   front-desk tablet is a jank generator, and the tablet is the whole product.
 - Everything respects `prefers-reduced-motion`: flaps and the trace resolve to

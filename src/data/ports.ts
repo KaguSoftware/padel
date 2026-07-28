@@ -1,6 +1,7 @@
 import type { Fils } from "@/lib/money";
 import type { LocalDate } from "@/lib/time";
 import type {
+  Account,
   AuditEntry,
   AvailabilityException,
   AvailabilityTemplate,
@@ -24,6 +25,8 @@ import type {
   PricingRule,
   Product,
   PromoCode,
+  PublicAccount,
+  Role,
   Sale,
   SaleLine,
   SeriesException,
@@ -223,6 +226,38 @@ export interface StaffPort {
   save(u: StaffUser): Promise<StaffUser>;
 }
 
+export interface CreateAccountInput {
+  email: string;
+  passwordHash: string;
+  passwordSalt: string;
+  name: string;
+  role: Role;
+  customerId: Id | null;
+  staffId: Id | null;
+}
+
+/**
+ * Logins.
+ *
+ * `findForSignIn` is the ONE method that returns the stored hash, and it is
+ * named so that a call site holding a secret is visible in a grep. Everything
+ * else returns `PublicAccount`, so a password hash cannot reach a page by
+ * accident — the usual way hashes end up in an RSC payload is a port that
+ * returns the whole row and a component that spreads it.
+ */
+export interface AccountsPort {
+  list(): Promise<PublicAccount[]>;
+  get(id: Id): Promise<PublicAccount | null>;
+  /** Returns the credential. Only the sign-in path may call this. */
+  findForSignIn(email: string): Promise<Account | null>;
+  /** Throws EmailTakenError on a duplicate. Never check-then-insert. */
+  create(input: CreateAccountInput): Promise<PublicAccount>;
+  setActive(id: Id, active: boolean, actorId: Id): Promise<PublicAccount>;
+  recordSignIn(id: Id, at: Date): Promise<PublicAccount>;
+  /** Attaches a player login to the customer row it acts as. */
+  setCustomer(id: Id, customerId: Id): Promise<PublicAccount>;
+}
+
 export interface AuditPort {
   /** Newest first. */
   recent(limit: number): Promise<AuditEntry[]>;
@@ -242,6 +277,7 @@ export interface NotificationsPort {
 }
 
 export interface Db {
+  accounts: AccountsPort;
   courts: CourtsPort;
   availability: AvailabilityPort;
   bookings: BookingsPort;

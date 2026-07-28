@@ -431,6 +431,43 @@ export interface StaffUser {
   active: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Accounts — a login, as distinct from the person it belongs to
+// ---------------------------------------------------------------------------
+
+/**
+ * An account is a way IN. It is deliberately not the same row as the person.
+ *
+ * A `Customer` exists for everyone the club has ever taken a booking for,
+ * including the walk-in who gave a phone number at the desk and will never log
+ * in. A `StaffUser` exists for everyone on the rota. An `Account` exists only
+ * for those who sign in, and points at whichever of those two it acts as.
+ *
+ * Folding the login into `Customer` would mean either a nullable password on
+ * every walk-in row, or refusing to record a customer until they chose a
+ * password — and staff take bookings over the phone.
+ */
+export interface Account {
+  id: Id;
+  /** Lowercased and trimmed. THE login key, and unique. */
+  email: string;
+  /** scrypt. The plaintext is never stored, logged, or returned. */
+  passwordHash: string;
+  passwordSalt: string;
+  name: string;
+  role: Role;
+  /** Set for `player` accounts — the customer row this login acts as. */
+  customerId: Id | null;
+  /** Set for accounts belonging to someone on the rota. */
+  staffId: Id | null;
+  active: boolean;
+  createdAt: Date;
+  lastSignInAt: Date | null;
+}
+
+/** An account with its secret stripped — the only shape that leaves the port. */
+export type PublicAccount = Omit<Account, "passwordHash" | "passwordSalt">;
+
 /** Append-only. Every money-touching mutation writes one. */
 export interface AuditEntry {
   id: Id;

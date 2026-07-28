@@ -50,7 +50,7 @@ export async function createCustomer(
     notes: "",
   });
 
-  revalidatePath("/[locale]/console/customers", "page");
+  revalidatePath("/[locale]/admin/customers", "page");
   return { ok: true, data: { id: created.id, existing: false } };
 }
 
@@ -73,7 +73,7 @@ export async function setCustomerBlocked(
 
   const db = getDb();
   await db.customers.setBlocked(id, blocked, reason, claims.userId);
-  revalidatePath("/[locale]/console/customers", "page");
+  revalidatePath("/[locale]/admin/customers", "page");
   return { ok: true, data: { id } };
 }
 
@@ -96,7 +96,7 @@ export async function adjustCredit(
 
   const db = getDb();
   await db.customers.adjustCredit(id, fils(Math.round(deltaFils)), reason, claims.userId);
-  revalidatePath("/[locale]/console/customers", "page");
+  revalidatePath("/[locale]/admin/customers", "page");
   return { ok: true, data: { id } };
 }
 

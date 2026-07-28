@@ -27,7 +27,21 @@ import { instantAt, localDate, operatingDayOf } from "@/lib/time";
 
 export type ActionResult<T = void> =
   | { ok: true; data: T }
-  | { ok: false; code: "taken" | "expired" | "rule" | "denied"; message: string };
+  | {
+      ok: false;
+      code:
+        | "taken"
+        | "expired"
+        | "rule"
+        | "denied"
+        // Accounts. `bad_credentials` deliberately does not distinguish an
+        // unknown email from a wrong password — telling them apart turns the
+        // sign-in form into a way to enumerate who has an account here.
+        | "email_taken"
+        | "bad_credentials"
+        | "invalid";
+      message: string;
+    };
 
 function fail(e: unknown): ActionResult<never> {
   if (isSlotTaken(e)) {
@@ -134,7 +148,7 @@ export async function createBooking(
       });
     });
 
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { id: booking.id, serial: booking.serial } };
   } catch (e) {
     return fail(e);
@@ -167,7 +181,7 @@ export async function moveBooking(
       instantAt(localDate(parsed.day), parsed.startMinute),
       claims.userId,
     );
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { id: b.id } };
   } catch (e) {
     return fail(e);
@@ -179,7 +193,7 @@ export async function confirmHold(id: string): Promise<ActionResult<{ id: string
   const db = getDb();
   try {
     const b = await db.bookings.confirmHold(id, claims.userId);
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { id: b.id } };
   } catch (e) {
     return fail(e);
@@ -222,7 +236,7 @@ export async function cancelBooking(
       });
     });
 
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return {
       ok: true,
       data: { refund: outcome.refundAmount, kind: outcome.refundKind },
@@ -237,7 +251,7 @@ export async function markNoShow(id: string): Promise<ActionResult<{ id: string 
   const db = getDb();
   try {
     const b = await db.bookings.markNoShow(id, claims.userId);
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { id: b.id } };
   } catch (e) {
     return fail(e);
@@ -292,7 +306,7 @@ export async function applyDiscount(
 
   try {
     const updated = await db.bookings.setPriceLines(parsed.id, q.lines, claims.userId);
-    revalidatePath("/[locale]/console/calendar", "page");
+    revalidatePath("/[locale]/admin/calendar", "page");
     return { ok: true, data: { total: updated.total } };
   } catch (e) {
     return fail(e);
@@ -316,7 +330,7 @@ export async function cancelSeriesInstances(
   // One call for N rows. Looping a single-row mutation here was measured at
   // 6598ms for 20 rows on a sibling project; batched, 332ms.
   const res = await db.bookings.cancelMany(ids, claims.userId, reason);
-  revalidatePath("/[locale]/console/calendar", "page");
+  revalidatePath("/[locale]/admin/calendar", "page");
   return {
     ok: true,
     data: { cancelled: res.cancelled.length, conflicted: res.conflicted.length },

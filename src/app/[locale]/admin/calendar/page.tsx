@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { loadConsoleDay } from "@/data/loaders";
-import { NotAuthorised, requireConsole } from "@/auth/guard";
+import { NotAuthorised, requireAdmin } from "@/auth/guard";
 import { SLOT_STEP_MINUTES } from "@/domain/slots";
 import { splitBooking } from "@/domain/split";
 import {
@@ -25,7 +25,7 @@ export default async function CalendarPage({
   setRequestLocale(locale);
 
   try {
-    await requireConsole();
+    await requireAdmin();
   } catch (e) {
     if (e instanceof NotAuthorised) redirect(`/${locale}/play`);
     throw e;

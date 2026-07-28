@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getClaims } from "@/auth/claims";
-import { can, requireConsole } from "@/auth/guard";
+import { can, requireAdmin } from "@/auth/guard";
 import { loadTillPage } from "@/data/loaders";
 import { todayInDubai } from "@/lib/time";
 import { CashBook } from "./CashBook";
@@ -14,7 +14,7 @@ export default async function TillPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [data, claims, t] = await Promise.all([
     loadTillPage(todayInDubai()),

@@ -42,12 +42,12 @@ export async function requireRole(...roles: Role[]): Promise<Claims> {
 }
 
 /** Anyone who works here. */
-export const CONSOLE_ROLES: Role[] = ["owner", "manager", "staff"];
+export const ADMIN_ROLES: Role[] = ["owner", "manager", "staff"];
 /** Money and configuration. */
 export const MANAGER_ROLES: Role[] = ["owner", "manager"];
 
-export async function requireConsole(): Promise<Claims> {
-  return requireRole(...CONSOLE_ROLES, "coach");
+export async function requireAdmin(): Promise<Claims> {
+  return requireRole(...ADMIN_ROLES, "coach");
 }
 
 export async function requireManager(): Promise<Claims> {
@@ -75,8 +75,8 @@ export async function allowManager(): Promise<Claims | null> {
   return allowRole(...MANAGER_ROLES);
 }
 
-export async function allowConsole(): Promise<Claims | null> {
-  return allowRole(...CONSOLE_ROLES, "coach");
+export async function allowAdmin(): Promise<Claims | null> {
+  return allowRole(...ADMIN_ROLES, "coach");
 }
 
 export function can(role: Role, capability: Capability): boolean {
@@ -84,7 +84,7 @@ export function can(role: Role, capability: Capability): boolean {
 }
 
 export type Capability =
-  | "view_console"
+  | "view_admin"
   | "take_payment"
   | "apply_discount"
   | "cancel_booking"
@@ -100,7 +100,7 @@ export type Capability =
  * discount" is answerable by reading one object.
  */
 const CAPABILITIES: Record<Capability, Role[]> = {
-  view_console: ["owner", "manager", "staff", "coach"],
+  view_admin: ["owner", "manager", "staff", "coach"],
   take_payment: ["owner", "manager", "staff"],
   apply_discount: ["owner", "manager"],
   cancel_booking: ["owner", "manager", "staff"],

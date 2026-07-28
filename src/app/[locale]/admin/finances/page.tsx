@@ -17,7 +17,7 @@ export default async function FinancesIndex({
   const claims = await getClaims();
   const role = claims?.role ?? "player";
 
-  if (can(role, "close_till")) redirect(`/${locale}/console/finances/till`);
-  if (can(role, "view_reports")) redirect(`/${locale}/console/finances/ledgers`);
-  redirect(`/${locale}/console/calendar`);
+  if (can(role, "close_till")) redirect(`/${locale}/admin/finances/till`);
+  if (can(role, "view_reports")) redirect(`/${locale}/admin/finances/ledgers`);
+  redirect(`/${locale}/admin/calendar`);
 }

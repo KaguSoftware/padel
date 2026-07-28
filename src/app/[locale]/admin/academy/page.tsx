@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { loadAcademyPage } from "@/data/loaders";
 import { addFils, formatMoney, mulFils, type Fils, ZERO } from "@/lib/money";
 import { clock } from "@/lib/time";
@@ -16,7 +16,7 @@ export default async function AcademyPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [data, t] = await Promise.all([loadAcademyPage(), getTranslations()]);
   const ar = locale === "ar";

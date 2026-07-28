@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { loadCustomersPage } from "@/data/loaders";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { normalisePhone } from "@/lib/text";
 import { CustomerLedger, type CustomerRow } from "./CustomerLedger";
 
@@ -13,7 +13,7 @@ export default async function CustomersPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [{ customers, bookings, participants }, t] = await Promise.all([
     loadCustomersPage(),

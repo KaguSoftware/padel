@@ -1,5 +1,5 @@
 ﻿import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requireConsole } from "@/auth/guard";
+import { requireAdmin } from "@/auth/guard";
 import { loadTournamentsPage } from "@/data/loaders";
 import { addFils, formatMoney, ZERO } from "@/lib/money";
 import { Cell, LedgerRow, LedgerTable, PageShell } from "@/ui/PageShell";
@@ -21,7 +21,7 @@ export default async function TournamentsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireConsole();
+  await requireAdmin();
 
   const [data, t] = await Promise.all([loadTournamentsPage(), getTranslations()]);
   const ar = locale === "ar";
